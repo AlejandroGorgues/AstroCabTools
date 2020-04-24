@@ -39,22 +39,22 @@ Old:
 New:
 
 + fit_line features:
- + [ ] Make gauss fitting model based on five points from an spectrum
- + [ ] Allow to make more than one gauss fitting model
- + [ ] Represent all gauss models
+  + [ ] Make gauss fitting model based on five points from an spectrum
+  + [ ] Allow to make more than one gauss fitting model
+  + [ ] Represent all gauss models
 
 
 
 Done:
 
 + [x] Finish developing basic functionalities of mrs_chan.py
- + [x] Specific wavelength location inside mrsSpec channels
+  + [x] Specific wavelength location inside mrsSpec channels
 + [x] Finish developing basic functionalities mrs_spec_chan.py
- + [x] Representation and management of spectra on a range of wavelength values
- + [x] Representation of specific observed wavelengths selected on the plot
- + [x] Representation of specific lines of interest from a list on the plot
- + [x] Management of different specification ranges where each plot is going to appear
+  + [x] Representation and management of spectra on a range of wavelength values
+  + [x] Representation of specific observed wavelengths selected on the plot
+  + [x] Representation of specific lines of interest from a list on the plot
+  + [x] Management of different specification ranges where each plot is going to appear
 + [x] Finish developing basic functionalities mrs_det_plot.py
- + [x] Visualization of multiple .fits images
- + [x] Management of the scale, stretch and colour of all the images
- + [x] Visualization of values selected on an specified image along each axis
+  + [x] Visualization of multiple .fits images
+  + [x] Management of the scale, stretch and colour of all the images
+  + [x] Visualization of values selected on an specified image along each axis

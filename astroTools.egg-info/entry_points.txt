@@ -1,6 +1,0 @@
-[gui_scripts]
-bandChan = mrs_chan.src.mrs_chan:main
-detPlot = mrs_det_plot.src.mrs_det_plot:main
-fitLine = fit_line.src.fit_line:main
-specChan = mrs_spec_chan.src.mrs_spec_chan:main
-

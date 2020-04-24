@@ -1,0 +1,39 @@
+Copyright (c) 2020 Astrobiology Center (CSIC-INTA)
+All rights reserved.
+
+The visualization, analysis and integration of processing tools contained within this software repository has been developed by the INTA Research and Development Group as part of the JWST/MIRI consortium.
+The main contributors to this software are:
+
+Alejandro Gorgues Valenciano.
+Centro de Astrobiología (CSIC-INTA), Madrid, Spain
+
+---------------------------------------------------------------------------
+
+Terms and Conditions of use:
+
+This software may be used and copied free of charge only for non-commercial
+research purposes. All copies of this software must contain this copyright
+statement and disclaimer. The Astrobiology Center must be acknowledged in any
+publications arising from use of this software. If you make modifications to
+this software, you must clearly mark the software as having been changed and
+you must also retain this copyright and disclaimer.
+
+Where this software uses facilities developed by other members of the MIRI
+consortium (e.g. its use of JWST, astropy or numpy utilities) it is also
+bound by the licences issued with those facilities.
+
+---------------------------------------------------------------------------
+
+Disclaimer:
+
+This software is available "as is", without warranty of any kind, either 
+expressed or implied, including the implied warranties of 
+merchantability and fitness for a specific purpose. By using this software
+you are assuming all risks and costs. In no event is the Astrobilogy Center or 
+the MIRI consortium liable for any damages or losses that might
+result from the use of this software.
+
+Any files distributed with this software or downloaded by this
+software are for visualization and analysis purposes. Please consult 
+the Astrobiology Center to obtain the most up
+to date files and version of this software.

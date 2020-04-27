@@ -7,8 +7,6 @@ def transform_spectrum(data, z):
     :param str z: redshift value
     :return : data transformed and limited
     """
-    waveLengthL = []
-    fluxL = []
 
     z = float(z)
 
@@ -16,14 +14,16 @@ def transform_spectrum(data, z):
         raise Exception('Redshift value {} must not be negative'.format(z))
 
     #Obtain the values of the emmited wavelength that are between 4.87 and 28.82
-    wavelength = (data.iloc[:, 0]*(1.+z)).to_numpy()
-    flux = (data.iloc[:, 1]*(1.+z)).to_numpy()
-    flux = normalize_spectrum(waveLengthL, flux)
+
+
+    wavelength = np.array(data.iloc[:, 0]*(1.+z))
+    flux = np.array(data.iloc[:, 1]*(1.+z))
+    flux = normalize_spectrum(wavelength, flux)
 
     wavelenghtValues,flux = zip(*sorted(zip(wavelength, flux)))
 
-    wavelength = np.asarray(wavelength)
-    flux = np.asarray(flux)
+    wavelength = np.array(wavelength)
+    flux = np.array(flux)
 
     wavelenghtValues = wavelength[(wavelength >= 0.) & (wavelength <= 30.)]
 

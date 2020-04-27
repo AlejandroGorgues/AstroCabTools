@@ -9,66 +9,35 @@ import os
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, pyqtSlot,QIdentityProxyModel
+from PyQt5 import uic
 
 
 import mrs_spec_chan.src.spectrumSelectionListWidget as pltw
 import mrs_spec_chan.src.fileDialogProxyModel as proxyModel
+import mrs_spec_chan.src.ui_template_selection
 
 
-class MrsTmpltList(QDialog):
+class MrsTmpltList(QDialog, mrs_spec_chan.src.ui_template_selection.Ui_MrsTmpltList):
 
     def __init__(self, parent=None ):
         super(MrsTmpltList, self).__init__(parent)
+        self.setupUi(self)
 
         self.setMinimumSize(500,500)
         self.tmpltDictSelected = {}
 
         self.setModal(False)
-        self.create_tmplt_list()
+        self.load_directory()
         self.create_bottom_options()
 
-        mainLayout = QGridLayout()
-
-        mainLayout.addWidget(self.tmpltList,  0, 0)
-        mainLayout.addWidget(self.buttomOpt, 1,0)
-        mainLayout.setRowStretch(1, 0)
-        mainLayout.setColumnStretch(0, 0)
-
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle("mrs_spec_chan_plt")
-
-    def create_tmplt_list(self):
-        self.tmpltList = QGroupBox("Spectra")
-
-        plt_vbox = QVBoxLayout()
-
-        self.templateListWidget = QListWidget()
-        self.load_directory()
-
-        plt_vbox.addWidget(self.templateListWidget)
-
-        self.tmpltList.setLayout(plt_vbox)
-
     def create_bottom_options(self):
-        self.buttomOpt = QGroupBox("Options")
-
-        options_hbox = QHBoxLayout()
-        self.acceptButton = QPushButton("Accept")
-        self.cancelButton = QPushButton("Cancel")
 
         self.acceptButton.clicked.connect(self.accept_plt)
         self.cancelButton.clicked.connect(self.cancel_plt)
 
-        options_hbox.addWidget(self.acceptButton)
-        options_hbox.addWidget(self.cancelButton)
-
-        self.buttomOpt.setLayout(options_hbox)
-
     def add_tmplt(self, key):
 
         it = QListWidgetItem()
-
         self.templateListWidget.addItem(it)
         widget = pltw.spectrumListWidget(title = key)
         widget.checked.connect(self.check_plt)
@@ -90,9 +59,9 @@ class MrsTmpltList(QDialog):
     def check_plt(self):
         widget = self.sender()
 
-        if widget.checkbox_state:
+        if widget.checkbox_state():
 
-            self.tmpltDictSelected[widget.path_text] = widget.redshift_value
+            self.tmpltDictSelected[widget.path_text()] = widget.redshift_value()
 
         else:
 
@@ -102,14 +71,14 @@ class MrsTmpltList(QDialog):
     def modified_line_edit(self):
         widget = self.sender()
 
-        if widget.checkbox_state == True and widget.redshift_value != '':
-            self.tmpltDictSelected[widget.path_text] = widget.redshift_value
+        if widget.checkbox_state() == True and widget.redshift_value() != '':
+            self.tmpltDictSelected[widget.path_text()] = widget.redshift_value()
 
-        if widget.redshift_value == '':
+        if widget.redshift_value() == '':
 
             widget.set_checkbox_state(False)
             widget.set_checkbox_checked(False)
-            key = self.tmpltDictSelected.pop(widget.path_text, None)
+            key = self.tmpltDictSelected.pop(widget.path_text(), None)
             del key
         else:
             widget.set_checkbox_state(True)
@@ -126,8 +95,8 @@ class MrsTmpltList(QDialog):
         for i in range(self.templateListWidget.count()):
             item = self.templateListWidget.item(i)
             itemWidget = self.templateListWidget.itemWidget(item)
-            if itemWidget.path_text in self.tmpltDictSelected.keys():
-                itemWidget.set_redshift_value(self.tmpltDictSelected[itemWidget.path_text])
+            if itemWidget.path_text() in self.tmpltDictSelected.keys():
+                itemWidget.set_redshift_value(self.tmpltDictSelected[itemWidget.path_text()])
                 itemWidget.set_checkbox_checked(True)
 
     def get_data(self):

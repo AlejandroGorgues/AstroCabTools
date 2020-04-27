@@ -138,9 +138,12 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         """
         try:
 
+            self.fitting_lines.clear()
+            self.markerElementsList.clear()
             self.wavelength, self.flux, z = tTrans.apply_redshift_to_txt(path, z)
-            #Print the plot
 
+
+            #Print the plot
             self.draw_plot(z, path)
             self.set_interface_state(True)
 
@@ -354,6 +357,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
                 self.ax1.lines.remove(line)
                 self.fitting_lines.remove(line)
                 del line
+
 
         for i in range(len(self.markerElementsList)):
             marker = next((marker for marker in self.ax1.collections), None)

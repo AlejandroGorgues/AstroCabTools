@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, pyqtSlot, QPoint, QEvent
 from PyQt5.QtGui import QPalette
 from PyQt5 import QtGui
+from PyQt5 import uic
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -27,14 +28,16 @@ import mrs_spec_chan.src.plotSelection as pltS
 import mrs_spec_chan.src.templateSelection as tmpltS
 import mrs_spec_chan.src.constants as const
 import mrs_spec_chan.src.operations as oprt
+import mrs_spec_chan.src.ui_mrs_spec_chan
 
-class MrsSpecChanell(QDialog):
+class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecChan):
 
     def __init__(self, parent=None):
         """Initializer
         :param Class parent: The parent that inherits the interface.
         """
         super(MrsSpecChanell, self).__init__(parent)
+        self.setupUi(self)
 
         self.microIcon = u"\u03BC"
         self.lambdaIcon = u"\u03BB"
@@ -56,113 +59,31 @@ class MrsSpecChanell(QDialog):
         self.loiSelection = loiS.MrsLoiList()
         self.plotSelection = pltS.MrsPltList()
         self.templateSelection = tmpltS.MrsTmpltList()
-        self.create_middle_spectrum_data()
 
         #Create the canvas to load the plot
         self.create_middle_plot()
 
         self.create_bottom_chan_data()
-
-        topLayout = QFormLayout()
-        topFile= QHBoxLayout()
-        topOpWave = QGridLayout()
-        buttonLayout = QHBoxLayout()
-
         #Create lambda widgets
         self.lambdaLabel = QLabel('λemit(μm):',alignment=Qt.AlignCenter)
-        self.lambdaLabel.setFixedWidth(80)
-        self.lambdaLabel.setEnabled(False)
 
-        self.lambdaEdit = QLineEdit('')
-        self.lambdaEdit.setFixedWidth(100)
-        self.lambdaEdit.setEnabled(False)
-
-
-        #Create Z widgets
-        self.zLabel = QLabel('z:',alignment=Qt.AlignCenter)
-        self.zLabel.setFixedWidth(20)
-        self.zLabel.setEnabled(False)
-
-        self.zEdit = QLineEdit('')
-        self.zEdit.setFixedWidth(100)
         self.zEdit.setValidator(QtGui.QDoubleValidator())
-        self.zEdit.setEnabled(False)
 
-        #Create file dialog widgets
-        self.loadPlt = QPushButton("Load spectra")
-        self.loadLoi = QPushButton("Load loi")
-        self.loadTemplate = QPushButton("Load template")
-        self.saveButton = QPushButton("Save as png")
-        self.load_op_wavelengthButton = QPushButton("Load optional wavelength values")
+        self.loadSpectra.clicked.connect(self.get_plot)
 
-        self.loadPlt.clicked.connect(self.get_plot)
-
-        self.load_op_wavelengthButton.clicked.connect(
+        self.loadOpWavelengthButton.clicked.connect(
             lambda: self.load_op_wavelength(self.lambdaEdit.text(),self.zEdit.text()))
-        self.load_op_wavelengthButton.setFixedWidth(220)
-        self.load_op_wavelengthButton.setEnabled(False)
 
         self.loadLoi.clicked.connect(self.get_loi)
-        self.loadLoi.setEnabled(False)
 
         self.loadTemplate.clicked.connect(self.get_templates)
 
         self.saveButton.clicked.connect(self.save_plot_image)
-        self.saveButton.setEnabled(False)
-
-        self.clearButton = QPushButton("Clear all")
-        self.clearButton.setFixedWidth(100)
 
         self.clearButton.clicked.connect(self.clear_all)
-        self.clearButton.setEnabled(False)
-
-        topOpWave.addWidget(self.lambdaLabel,0,0)
-        topOpWave.addWidget(self.lambdaEdit,0,1)
-        topOpWave.addWidget(self.zLabel,0,2)
-        topOpWave.addWidget(self.zEdit,0,3)
-        topOpWave.addWidget(self.load_op_wavelengthButton,0,4)
-
-        topFile.addWidget(self.loadPlt)
-        topFile.addWidget(self.loadLoi)
-        topFile.addWidget(self.loadTemplate)
-        topFile.addWidget(self.saveButton)
-
-        topLayout.addRow(topOpWave)
-        topLayout.addRow(topFile)
-
-        buttonLayout.addWidget(self.clearButton)
-        buttonLayout.setAlignment(Qt.AlignCenter)
-
-        mainLayout = QGridLayout()
-
-        mainLayout.addLayout(topLayout, 0, 0, 1, 0)
-        mainLayout.addWidget(self.spectrumData, 1, 0)
-        mainLayout.addWidget(self.middlePlot, 2, 0)
-        mainLayout.addWidget(self.bottomChanData, 3, 0)
-        mainLayout.addLayout(buttonLayout,4,0,1,0)
-
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle("mrs_spec_chan")
-
-    def create_middle_spectrum_data(self):
-
-        self.spectrumData= QGroupBox("Data")
-
-        dataLayout = QHBoxLayout()
-
-        self.spectrumlistWidget = QListWidget()
-
-        dataLayout.addWidget(self.spectrumlistWidget)
-
-        self.spectrumData.setLayout(dataLayout)
-
-        self.spectrumData.setEnabled(False)
 
     def create_middle_plot(self):
         """ Create the canvas to draw the plot"""
-
-        self.middlePlot = QGroupBox("")
 
         self.figure, self.figure.canvas = pz.figure_pz()
 
@@ -180,25 +101,10 @@ class MrsSpecChanell(QDialog):
         self.draw_plot_area()
 
     def create_bottom_chan_data(self):
-        self.bottomChanData= QGroupBox("Areas")
 
-        chanLayout = QHBoxLayout()
-
-        self.mrsChan_checkbox = QCheckBox("MRS")
-        self.nirsChan_checkbox = QCheckBox("NIRSpec")
-        self.gap_checkbox = QCheckBox("NIRSpec Gap")
-
-        self.mrsChan_checkbox.toggled.connect(self.show_MRS_chan)
-        self.nirsChan_checkbox.toggled.connect(self.show_NIRS_chan)
-        self.gap_checkbox.toggled.connect(self.show_Gap)
-
-        chanLayout.addWidget(self.mrsChan_checkbox)
-        chanLayout.addWidget(self.nirsChan_checkbox)
-        chanLayout.addWidget(self.gap_checkbox)
-
-        self.bottomChanData.setLayout(chanLayout)
-
-        self.bottomChanData.setEnabled(False)
+        self.mrsCheckbox.toggled.connect(self.show_MRS_chan)
+        self.nirSpecCheckbox.toggled.connect(self.show_NIRS_chan)
+        self.nirSpecGapCheckbox.toggled.connect(self.show_Gap)
 
     def print_MRS_Chan(self):
         """ Draw on the plot the  MRS channels"""
@@ -385,7 +291,7 @@ class MrsSpecChanell(QDialog):
 
                 self.draw_plot(wavelengthValues, fluxValues , z, path)
 
-            if self.spectrumlistWidget.count() > 0 :
+            if self.spectraListWidget.count() > 0 :
                 self.set_interface_state(True)
 
         except Exception as e:
@@ -410,11 +316,11 @@ class MrsSpecChanell(QDialog):
         :param string filename: path of the file
         """
         it = QListWidgetItem()
-        self.spectrumlistWidget.addItem(it)
+        self.spectraListWidget.addItem(it)
         widget = slw.listWidget(title = filename, redshift = z)
         widget.clicked.connect(self.remove_plt)
         widget.checked.connect(self.check_plt)
-        self.spectrumlistWidget.setItemWidget(it, widget)
+        self.spectraListWidget.setItemWidget(it, widget)
         it.setSizeHint(widget.sizeHint())
 
     def set_interface_state(self, state):
@@ -422,16 +328,16 @@ class MrsSpecChanell(QDialog):
         :param bool state: state that is going to be applied
         """
         self.saveButton.setEnabled(state)
-        self.load_op_wavelengthButton.setEnabled(state)
+        self.loadOpWavelengthButton.setEnabled(state)
         self.lambdaEdit.setEnabled(state)
         self.zEdit.setEnabled(state)
         self.lambdaLabel.setEnabled(state)
         self.zLabel.setEnabled(state)
-        self.spectrumData.setEnabled(state)
+        self.spectraData.setEnabled(state)
 
-        self.mrsChan_checkbox.setChecked(state)
-        self.nirsChan_checkbox.setChecked(state)
-        self.gap_checkbox.setChecked(state)
+        self.mrsCheckbox.setChecked(state)
+        self.nirSpecCheckbox.setChecked(state)
+        self.nirSpecGapCheckbox.setChecked(state)
         self.bottomChanData.setEnabled(state)
         self.clearButton.setEnabled(state)
         self.loadLoi.setEnabled(state)
@@ -581,6 +487,8 @@ class MrsSpecChanell(QDialog):
 
     @pyqtSlot()
     def get_templates(self):
+        self.templateSelection.uncheck_list()
+        self.templateSelection.clear_list()
         self.templateSelection.show()
         self.templateSelection.open()
         if self.templateSelection.exec_() == QDialog.Accepted:
@@ -629,7 +537,7 @@ class MrsSpecChanell(QDialog):
 
     @pyqtSlot()
     def show_MRS_chan(self):
-        if self.mrsChan_checkbox.isChecked():
+        if self.mrsCheckbox.isChecked():
             [e.set_visible(True) for e in self.mrsChan]
         else:
             [e.set_visible(False) for e in self.mrsChan]
@@ -639,7 +547,7 @@ class MrsSpecChanell(QDialog):
     @pyqtSlot()
     def show_NIRS_chan(self):
 
-        if self.nirsChan_checkbox.isChecked():
+        if self.nirSpecCheckbox.isChecked():
             [e.set_visible(True) for e in self.nirsChan]
         else:
             [e.set_visible(False) for e in self.nirsChan]
@@ -649,7 +557,7 @@ class MrsSpecChanell(QDialog):
 
     @pyqtSlot()
     def show_Gap(self):
-        if self.gap_checkbox.isChecked():
+        if self.nirSpecGapCheckbox.isChecked():
             [e.set_visible(True) for e in self.gap]
         else:
             [e.set_visible(False) for e in self.gap]
@@ -663,19 +571,19 @@ class MrsSpecChanell(QDialog):
 
         widget = self.sender()
 
-        line = next((key for key, value in self.pltLines.items() if key.get_gid() == re.sub('Path: ','',widget.path_text) and \
-            value == float(re.sub('Z: ','',widget.redshift_text))), None)
+        line = next((key for key, value in self.pltLines.items() if key.get_gid() == re.sub('Path: ','',widget.path_text()) and \
+            value == float(re.sub('z: ','',widget.redshift_text()))), None)
 
         self.ax1.lines.remove(line)
         gp = widget.mapToGlobal(QPoint())
-        lp = self.spectrumlistWidget.viewport().mapFromGlobal(gp)
-        row = self.spectrumlistWidget.row(self.spectrumlistWidget.itemAt(lp))
-        t_it = self.spectrumlistWidget.takeItem(row)
+        lp = self.spectraListWidget.viewport().mapFromGlobal(gp)
+        row = self.spectraListWidget.row(self.spectraListWidget.itemAt(lp))
+        t_it = self.spectraListWidget.takeItem(row)
         del self.pltLines[line]
         del line
         del t_it
 
-        if self.spectrumlistWidget.count() == 0:
+        if self.spectraListWidget.count() == 0:
             self.set_interface_state(False)
             self.remove_not_loi_ticks()
             self.delete_line_by_gid("vline")
@@ -693,10 +601,10 @@ class MrsSpecChanell(QDialog):
     def check_plt(self):
 
         widget = self.sender()
-        line = next((key for key, value in self.pltLines.items() if key.get_gid() == re.sub('Path: ','',widget.path_text) and \
-            value == float(re.sub('Z: ','',widget.redshift_text))), None)
+        line = next((key for key, value in self.pltLines.items() if key.get_gid() == re.sub('Path: ','',widget.path_text()) and \
+            value == float(re.sub('z: ','',widget.redshift_text()))), None)
 
-        if widget.checkbox_state:
+        if widget.checkbox_state():
             line.set_visible(True)
 
         else:
@@ -711,7 +619,7 @@ class MrsSpecChanell(QDialog):
             del line
 
         self.pltLines.clear()
-        self.spectrumlistWidget.clear()
+        self.spectraListWidget.clear()
         self.set_interface_state(False)
         self.remove_not_loi_ticks()
         self.delete_line_by_gid("vline")

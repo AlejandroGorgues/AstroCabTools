@@ -17,7 +17,7 @@ def gauss_fitting_function(x, h, meanG, sigma):
     return h * math.e ** ((x-meanG)**2/(-2*sigma**2))
 
 def line_fitting_function(x, a, b, meanL):
-    return a + b * (x-meanL)
+    return a + b * (x)
 
 def gauss_curve_fitting_function(x, a, b, h, c, sigma):
 

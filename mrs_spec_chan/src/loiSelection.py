@@ -5,62 +5,30 @@ import sys
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5 import uic
 
 
 import mrs_spec_chan.src.lineOfInterestSelectionListWidget as loiw
 import mrs_spec_chan.src.constants as const
+import mrs_spec_chan.src.ui_loi_selection
 
 
-class MrsLoiList(QDialog):
+class MrsLoiList(QDialog, mrs_spec_chan.src.ui_loi_selection.Ui_MrsLoiList):
 
     def __init__(self, parent=None ):
         super(MrsLoiList, self).__init__(parent)
+        self.setupUi(self)
 
         self.loiListSelected = []
 
         self.setModal(False)
-        self.create_loi_list()
+        self.load_data()
         self.create_bottom_options()
 
-        mainLayout = QGridLayout()
-
-        mainLayout.addWidget(self.loiList,  0, 0)
-        mainLayout.addWidget(self.buttomOpt, 1,0)
-        mainLayout.setRowStretch(1, 0)
-        mainLayout.setColumnStretch(0, 0)
-
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle("mrs_spec_chan_loi")
-
-
-    def create_loi_list(self):
-        self.loiList = QGroupBox("Lines of interest")
-
-        list_vbox = QVBoxLayout()
-        self.loiLW = QListWidget()
-
-        list_vbox.addWidget(self.loiLW)
-
-        self.load_data()
-
-        self.loiList.setLayout(list_vbox)
-
     def create_bottom_options(self):
-        self.buttomOpt = QGroupBox("Options")
-
-        options_hbox = QHBoxLayout()
-        self.acceptButton = QPushButton("Accept")
-        self.cancelButton = QPushButton("Cancel")
 
         self.acceptButton.clicked.connect(self.accept_loi)
         self.cancelButton.clicked.connect(self.cancel_loi)
-
-        options_hbox.addWidget(self.acceptButton)
-        options_hbox.addWidget(self.cancelButton)
-
-
-        self.buttomOpt.setLayout(options_hbox)
 
     def load_data(self):
         for key in const.LOID.keys():
@@ -69,10 +37,10 @@ class MrsLoiList(QDialog):
     def add_loi(self, key):
 
         it = QListWidgetItem()
-        self.loiLW.addItem(it)
+        self.loiW.addItem(it)
         widget = loiw.loiListwidget(title = key)
         widget.checked.connect(self.check_loi)
-        self.loiLW.setItemWidget(it, widget)
+        self.loiW.setItemWidget(it, widget)
         it.setSizeHint(widget.sizeHint())
 
     @pyqtSlot()
@@ -80,10 +48,10 @@ class MrsLoiList(QDialog):
         widget = self.sender()
 
         if widget.checkbox_state:
-            self.loiListSelected.append(widget.loi_text)
+            self.loiListSelected.append(widget.loi_text())
 
         else:
-            self.loiListSelected.remove(widget.loi_text)
+            self.loiListSelected.remove(widget.loi_text())
 
 
     @pyqtSlot()
@@ -104,8 +72,8 @@ class MrsLoiList(QDialog):
         self.loiListSelected.clear()
 
     def uncheck_list(self, i):
-        for itemIndex in range(self.loiLW.count()):
-            item = self.loiLW.item(itemIndex)
-            itemWidget = self.loiLW.itemWidget(item)
-            if  itemWidget.loi_text == i:
+        for itemIndex in range(self.loiW.count()):
+            item = self.loiW.item(itemIndex)
+            itemWidget = self.loiW.itemWidget(item)
+            if  itemWidget.loi_text() == i:
                 itemWidget.set_checkbox_state(False)

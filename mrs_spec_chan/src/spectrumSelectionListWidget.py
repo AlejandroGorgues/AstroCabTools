@@ -34,9 +34,8 @@ class spectrumListWidget(QtWidgets.QWidget):
         self.checkbox_button.clicked.connect(self.checked)
         self.line_edit.textChanged.connect(self.changed)
 
-
         self.checkbox_button.setEnabled(False)
-
+    
     def path_text(self):
         return self.label.text()
 
@@ -48,7 +47,6 @@ class spectrumListWidget(QtWidgets.QWidget):
 
     def set_redshift_value(self, text):
         self.line_edit.setText(text)
-
 
     def set_checkbox_state(self, state):
         self.checkbox_button.setEnabled(state)

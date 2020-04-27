@@ -27,6 +27,7 @@ class listWidget(QtWidgets.QWidget):
         self.checkbox_button.setChecked(True)
         self.checkbox_button.clicked.connect(self.checked)
 
+
     def path_text(self):
         return self.labelPath.text()
 

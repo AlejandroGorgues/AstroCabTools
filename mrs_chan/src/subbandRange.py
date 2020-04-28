@@ -1,6 +1,6 @@
 
 
-def obtain_sub_band(self, value, channelL):
+def obtain_sub_band(value, channell):
       """ Return subband from same channel, min and max range values of each subband
       :param int value: lambda transformed value
       :param string channelL: channel where the value is located
@@ -9,7 +9,7 @@ def obtain_sub_band(self, value, channelL):
       #If channel is between a range of value, it is assigned
 
       #If channel is 1, check subband
-      if channelL == '1':
+      if channell == '1':
           if 4.87 <= value <= 5.82:
               if value < 5.62:
                   return ['1A'],[4.87], [5.82]
@@ -24,7 +24,7 @@ def obtain_sub_band(self, value, channelL):
               return ['1C'], [6.49],[7.76]
 
       #If channel is 2, check subband
-      elif channelL == '2':
+      elif channell == '2':
           if 7.45 <= value <= 8.90:
               if value < 8.61:
                   return ['2A'], [7.45], [8.90]
@@ -39,7 +39,7 @@ def obtain_sub_band(self, value, channelL):
               return ['2C'], [9.91], [11.87]
 
       #If channel is 2, check subband
-      elif channelL == '3':
+      elif channell == '3':
           if 11.47 <=  value <= 13.67:
               if value < 13.25:
                   return ['3A'], [11.47], [13.67]

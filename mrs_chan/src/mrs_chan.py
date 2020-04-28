@@ -14,105 +14,38 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 import mrs_chan.src.subbandRange as sR
+import mrs_chan.src.ui_mrs_chan
 
 
-class MrsChanell(QDialog):
+class MrsChanell(QMainWindow, mrs_chan.src.ui_mrs_chan.Ui_MrsChanell):
 
     def __init__(self, parent = None):
         """Initializer
         :param Class parent: The parent that inherits the interface.
         """
         super(MrsChanell, self).__init__(parent)
+        self.setupUi(self)
 
         self.lambdaIcon = u"\u03BC"
         self.microIcon = u"\u03BB"
 
         #Create the widgets to save and plot the results
-        self.create_mid_groupbox()
         self.create_bottom_plot()
 
-        #Add the widgets that allow to insert values
-        topLayout = QHBoxLayout()
 
+        self.lambdaLabel.setText("λemit:")
+        self.lambdaUnitLabel.setText("μm")
+        self.lambdaEdit.setValidator(QtGui.QDoubleValidator())
 
+        self.zEdit.setValidator(QtGui.QDoubleValidator())
 
-        lambdaLabel = QLabel("λemit:")
-        lambdaUnitLabel = QLabel("μm")
-        lambdaEdit = QLineEdit('')
-        lambdaEdit.setValidator(QtGui.QDoubleValidator())
+        self.channellButton.clicked.connect(lambda: self.print_Results(self.lambdaEdit.text(), self.zEdit.text()))
 
-        zLabel = QLabel("z:")
-        zEdit = QLineEdit('')
-        zEdit.setValidator(QtGui.QDoubleValidator())
-
-        #Left, top, right, bottom
-        lambdaUnitLabel.setContentsMargins(0,0,40,0)
-
-        chanellButton = QPushButton("Calculate")
-        chanellButton.setDefault(True)
-        chanellButton.clicked.connect(lambda: self.print_Results(lambdaEdit.text(), zEdit.text()))
-
-        topLayout.addStretch(1)
-        topLayout.addWidget(lambdaLabel)
-        topLayout.addWidget(lambdaEdit)
-        topLayout.addWidget(lambdaUnitLabel)
-
-        topLayout.addWidget(zLabel)
-        topLayout.addWidget(zEdit)
-
-        topLayout.addWidget(chanellButton)
-        topLayout.addStretch(1)
-
-        mainLayout = QGridLayout()
-
-        #Add 3 rows and 1 column
-        #Expand 2 rows and 1 column
-        mainLayout.addLayout(topLayout,0,0,1,0)
-        mainLayout.addWidget(self.midGroupBox, 1, 0)
-        mainLayout.addWidget(self.bottomPlot, 2, 0)
-
-        #Add space between boxes on rows and columns
-        mainLayout.setRowStretch(1,0)
-        mainLayout.setRowStretch(1,0)
-        mainLayout.setColumnStretch(0,0)
-        mainLayout.setColumnStretch(1,0)
-
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle("mrs_chan.py")
-
-
-    def create_mid_groupbox(self):
-        """ Create the line edit widgets """
-        self.midGroupBox = QGroupBox("Results")
-
-        channellLabel = QLabel("Channel:")
-        self.channelEdit = QLineEdit()
-
-        lambdaObsLabel = QLabel("λobs:")
-        lambdaObsUnitLabel = QLabel("μm")
-        self.lambdaObsEdit = QLineEdit()
-
-        self.channelEdit.setReadOnly(True)
-        self.lambdaObsEdit.setReadOnly(True)
-
-        self.channelEdit.setContentsMargins(0, 0, 40, 0)
-
-        layout = QHBoxLayout()
-        layout.addStretch(1)
-        layout.addWidget(channellLabel)
-        layout.addWidget(self.channelEdit)
-
-        layout.addWidget(lambdaObsLabel)
-        layout.addWidget(self.lambdaObsEdit)
-        layout.addWidget(lambdaObsUnitLabel)
-
-        layout.addStretch(1)
-        self.midGroupBox.setLayout(layout)
+        self.lambdaObsLabel.setText("λobs:")
+        self.lambdaObsUnitLabel.setText("μm")
 
     def create_bottom_plot(self):
         """ Create the canvas where the plot will be drawn """
-        self.bottomPlot = QGroupBox("Plot")
 
         self.figure = Figure()
 
@@ -152,6 +85,9 @@ class MrsChanell(QDialog):
                     self.ax1.set_visible(True)
                     self.ax2.set_visible(True)
 
+                self.ax1.grid()
+                self.ax2.grid()
+
                 #Axis 1
                 self.ax1.set_title(chan[0])
                 self.ax1.set_xlabel("Wavelength range("+self.lambdaIcon+"m)")
@@ -180,6 +116,8 @@ class MrsChanell(QDialog):
 
             elif len(chan) == 1:
 
+                self.ax1.grid()
+                self.ax2.grid()
                 # Create axis 1 and hide axis 2
 
                 #Check visibility
@@ -205,7 +143,7 @@ class MrsChanell(QDialog):
                 self.ax2.set_visible(False)
 
 
-            self.figure.tight_layout(pad=1)
+            self.figure.tight_layout()
 
             self.canvas.draw()
         except:
@@ -260,9 +198,9 @@ class MrsChanell(QDialog):
                 channel = "Out of range values"
 
             if channel.isdigit():
-                self.channelEdit.setText(','.join(chan))
+                self.channellEdit.setText(','.join(chan))
             else:
-                self.channelEdit.setText(channel)
+                self.channellEdit.setText(channel)
             self.lambdaObsEdit.setText(str(obs))
 
             self.draw_plot(np.array(minL),  np.array(maxL), np.array(chan), obs)

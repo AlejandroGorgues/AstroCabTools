@@ -45,7 +45,7 @@ def divide_op_wavelength(opWave, z):
     """
     emWaveL = [float(e) for e in opWave.split(',')] if len(opWave) > 0 else []
 
-    opWaveL = [self.transform_wavelength(emWaveL[n], z) for n in range(len(emWaveL))]
+    opWaveL = [transform_wavelength(emWaveL[n], z) for n in range(len(emWaveL))]
     return opWaveL
 
 def normalize_spectrum(waveL, fluxL):
@@ -59,3 +59,11 @@ def normalize_spectrum(waveL, fluxL):
     smallDiffIndex = absDistArr.argmin()
 
     return fluxL/fluxL[smallDiffIndex]
+
+def transform_wavelength(wavelength, z):
+    """ Transform emitted wavelength into observed wavelength
+    :param float wavelength: emitted wavelength
+    :param float z: redshift
+    :return: float observed wavelength
+    """
+    return round(wavelength * (1. + z),2)

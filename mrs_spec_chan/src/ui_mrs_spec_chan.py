@@ -2,20 +2,23 @@
 
 # Form implementation generated from reading ui file 'mrs_spec_chan.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_MrsSpecChan(object):
     def setupUi(self, MrsSpecChan):
         MrsSpecChan.setObjectName("MrsSpecChan")
-        MrsSpecChan.resize(1099, 916)
+        MrsSpecChan.resize(825, 839)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(MrsSpecChan.sizePolicy().hasHeightForWidth())
+        MrsSpecChan.setSizePolicy(sizePolicy)
         self.centralwidget = QtWidgets.QWidget(MrsSpecChan)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
@@ -108,7 +111,7 @@ class Ui_MrsSpecChan(object):
         self.horizontalLayout_7.addLayout(self.horizontalLayout)
         self.gridLayout.addWidget(self.groupBox_4, 0, 0, 1, 1)
         self.groupBox_5 = QtWidgets.QGroupBox(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
@@ -146,12 +149,13 @@ class Ui_MrsSpecChan(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.middlePlot.sizePolicy().hasHeightForWidth())
         self.middlePlot.setSizePolicy(sizePolicy)
+        self.middlePlot.setMaximumSize(QtCore.QSize(16777215, 500))
         self.middlePlot.setTitle("")
         self.middlePlot.setObjectName("middlePlot")
         self.gridLayout.addWidget(self.middlePlot, 3, 0, 1, 1)
         self.spectraData = QtWidgets.QGroupBox(self.centralwidget)
         self.spectraData.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.spectraData.sizePolicy().hasHeightForWidth())
@@ -162,11 +166,12 @@ class Ui_MrsSpecChan(object):
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.spectraListWidget = QtWidgets.QListWidget(self.spectraData)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.spectraListWidget.sizePolicy().hasHeightForWidth())
         self.spectraListWidget.setSizePolicy(sizePolicy)
+        self.spectraListWidget.setMaximumSize(QtCore.QSize(16777215, 100))
         self.spectraListWidget.setObjectName("spectraListWidget")
         self.horizontalLayout_5.addWidget(self.spectraListWidget)
         self.horizontalLayout_6.addLayout(self.horizontalLayout_5)
@@ -202,3 +207,4 @@ class Ui_MrsSpecChan(object):
         self.saveButton.setText(_translate("MrsSpecChan", "Save as png"))
         self.spectraData.setTitle(_translate("MrsSpecChan", "Data"))
         self.clearButton.setText(_translate("MrsSpecChan", "Clear all"))
+

@@ -65,7 +65,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
 
         self.create_bottom_chan_data()
         #Create lambda widgets
-        self.lambdaLabel = QLabel('λemit(μm):',alignment=Qt.AlignCenter)
+        self.lambdaLabel.setText('λemit(μm):')
 
         self.zEdit.setValidator(QtGui.QDoubleValidator())
 
@@ -81,6 +81,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.saveButton.clicked.connect(self.save_plot_image)
 
         self.clearButton.clicked.connect(self.clear_all)
+
 
     def create_middle_plot(self):
         """ Create the canvas to draw the plot"""
@@ -365,14 +366,6 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
             if line.get_gid() == gid:
                 self.ax1.lines.remove(line)
                 del line
-
-    def transform_wavelength(self, wavelength, z):
-        """ Transform emitted wavelength into observed wavelength
-        :param float wavelength: emitted wavelength
-        :param float z: redshift
-        :return: float observed wavelength
-        """
-        return round(wavelength * (1. + z),2)
 
     def add_ticks(self,list, loiValues):
         """ Add new ticks to the top x axis where the

@@ -1,5 +1,5 @@
 """
-Object that show data related to each fitting 
+Object that show data related to each fitting
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -58,6 +58,14 @@ class MrsFitLineData(QDialog, fit_line.src.ui_gaussSelection.Ui_gaussSelection):
         self.gaussListWidget.setItemWidget(it, widget)
 
         self.gaussDataCreated.append("----------------------------------------------------")
+
+    def delete_gauss_data(self):
+        for i in range(9):
+            item = self.gaussListWidget.takeItem(self.gaussListWidget.count()-1)
+            del item
+
+    def delete_all(self):
+        self.gaussListWidget.clear()
 
     @pyqtSlot()
     def save_data(self):

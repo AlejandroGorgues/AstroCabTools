@@ -26,7 +26,6 @@ import matplotlib.font_manager as font_manager
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-import mrs_det_plot.src.customTabs as ctb
 import mrs_det_plot.src.panZoom as pz
 import mrs_det_plot.src.axisPlots as ap
 import mrs_det_plot.src.pointPlot as pp

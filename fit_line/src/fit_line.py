@@ -68,6 +68,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.showPointsButton.clicked.connect(self.show_gauss_fit_data)
 
         self.clearButton.clicked.connect(self.clear_all)
+        self.clearLastButton.clicked.connect(self.clear_last_fitting_model)
         self.clearFittingButton.clicked.connect(self.clear_fitting_models)
 
     def create_middle_plot(self):
@@ -301,7 +302,8 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
             cf.gauss_curve_fitting_function(x, intercept, slope, height, mean, sigma)"""
         """self.ax1.plot(wavelengthValues, cf.line_fitting_function(wavelengthValues, intercept, slope, mean) +
          cf.gauss_fitting_function(wavelengthValues, height, mean, sigma), 'y--')"""
-        self.ax1.plot(wavelengthValues, result.init_fit, 'y--')
+        #self.ax1.plot(wavelengthValues, result.init_fit, 'y--')
+        self.fitting_lines.append(self.ax1.plot(wavelengthValues, result.init_fit, 'y--')[0])
         self.fitting_lines.append(self.ax1.plot(wavelengthValues, result.best_fit, 'r-')[0])
         comps = result.eval_components()
         self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--')[0])
@@ -316,8 +318,8 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.showPointsButton.setEnabled(state)
         self.saveButton.setEnabled(state)
         self.clearButton.setEnabled(state)
+        self.clearLastButton.setEnabled(state)
         self.clearFittingButton.setEnabled(state)
-
 
 
     def resize_event(self, event):
@@ -351,6 +353,24 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.figure.canvas.draw()
 
     @pyqtSlot()
+    def clear_last_fitting_model(self):
+
+        for i in range(4):
+            line = self.fitting_lines[-1]
+            self.ax1.lines.remove(line)
+            self.fitting_lines.remove(line)
+            del line
+
+        for i in range(5):
+            marker = self.markerElementsList[-1]
+            self.ax1.collections.remove(marker)
+            self.markerElementsList.pop()
+            del marker
+        self.figure.canvas.draw()
+        self.gaussSelection.delete_gauss_data()
+
+
+    @pyqtSlot()
     def clear_fitting_models(self):
         """ Delete only the models and markers from the canvas"""
         for i in range(len(self.fitting_lines)):
@@ -367,6 +387,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
             self.markerElementsList.pop()
             del marker
         self.figure.canvas.draw()
+        self.gaussSelection.delete_all()
 
     @pyqtSlot()
     def clear_all(self):
@@ -376,6 +397,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.counterState = False
         self.ax1.set_visible(False)
         self.figure.canvas.draw()
+        self.gaussSelection.delete_all()
 
     def closeEvent(self, event):
         self.gaussSelection.close()

@@ -1,3 +1,6 @@
+"""
+Object that represent the values of Y axis along X axis and vice versa
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 

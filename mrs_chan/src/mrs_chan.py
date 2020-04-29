@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-
+"""
+Main file that create the object to draw the interface for
+the mrs_chan tool
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns

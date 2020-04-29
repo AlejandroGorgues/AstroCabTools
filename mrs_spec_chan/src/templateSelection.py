@@ -1,3 +1,6 @@
+"""
+Object that contains the defult spectrum files that are avaliable to select
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -28,19 +31,13 @@ class MrsTmpltList(QDialog, mrs_spec_chan.src.ui_template_selection.Ui_MrsTmpltL
 
         self.setModal(False)
         self.load_directory()
-        self.create_bottom_options()
-
-    def create_bottom_options(self):
-
-        self.acceptButton.clicked.connect(self.accept_plt)
-        self.cancelButton.clicked.connect(self.cancel_plt)
 
     def add_tmplt(self, key):
 
         it = QListWidgetItem()
         self.templateListWidget.addItem(it)
         widget = pltw.spectrumListWidget(title = key)
-        widget.checked.connect(self.check_plt)
+        widget.checked.connect(self.check_spectrum)
         widget.changed.connect(self.modified_line_edit)
 
         self.templateListWidget.setItemWidget(it, widget)
@@ -56,7 +53,7 @@ class MrsTmpltList(QDialog, mrs_spec_chan.src.ui_template_selection.Ui_MrsTmpltL
         self.check_state_spec()
 
     @pyqtSlot()
-    def check_plt(self):
+    def check_spectrum(self):
         widget = self.sender()
 
         if widget.checkbox_state():
@@ -82,14 +79,6 @@ class MrsTmpltList(QDialog, mrs_spec_chan.src.ui_template_selection.Ui_MrsTmpltL
             del key
         else:
             widget.set_checkbox_state(True)
-
-    @pyqtSlot()
-    def accept_plt(self):
-        self.accept()
-
-    @pyqtSlot()
-    def cancel_plt(self):
-        self.reject()
 
     def check_state_spec(self):
         for i in range(self.templateListWidget.count()):

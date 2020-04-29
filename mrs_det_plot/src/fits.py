@@ -1,3 +1,6 @@
+"""
+Class that containts data related to the fits image
+"""
 class fits:
 
     def __init__(self, currFrame, currIntegration, maxFrame, maxIntegration, shiftedXValue,shiftedYValue,

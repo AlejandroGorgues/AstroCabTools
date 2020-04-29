@@ -1,3 +1,6 @@
+"""
+Class that contains coordinates for each model
+"""
 class pointsData:
 
     def __init__(self, leftX, rightX, topX, sigma1X, sigma2X, leftY, rightY, topY, sigma1Y,sigma2Y):

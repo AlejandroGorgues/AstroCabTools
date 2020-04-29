@@ -1,3 +1,6 @@
+"""
+Class that contains data only to the image, not to the fits file
+"""
 class imgPlot:
 
     def __init__(self, xValues, yValues, zValues, maxFValue, minFValue):

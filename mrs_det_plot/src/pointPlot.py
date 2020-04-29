@@ -1,3 +1,6 @@
+"""
+Object that represent a pixel along time
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 

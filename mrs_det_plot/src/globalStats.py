@@ -1,3 +1,6 @@
+"""
+Class that containt global parameters related to all the images
+"""
 class globalStats:
 
     def __init__(self, scale, stretch, color):

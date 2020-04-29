@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+Main clas that generate the interface of the mrs_det_chan tool
+"""
 import math
 import numpy as np
 import matplotlib.pyplot as plt

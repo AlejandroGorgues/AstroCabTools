@@ -1,3 +1,6 @@
+"""
+Create the Widget structure for the item in the line of interest list widget
+"""
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal

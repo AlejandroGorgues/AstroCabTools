@@ -1,5 +1,7 @@
 #-*- coding: utf-8 -*-
-
+"""
+Method that applied redshift to flux and wavelength
+"""
 import pandas as pd
 import numpy as np
 

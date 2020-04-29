@@ -1,3 +1,6 @@
+"""
+Create the Widget structure for the item in the spectrum selection list widget
+"""
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, Qt
@@ -35,7 +38,7 @@ class spectrumListWidget(QtWidgets.QWidget):
         self.line_edit.textChanged.connect(self.changed)
 
         self.checkbox_button.setEnabled(False)
-    
+
     def path_text(self):
         return self.label.text()
 

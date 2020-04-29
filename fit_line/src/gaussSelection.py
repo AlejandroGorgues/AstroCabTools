@@ -1,3 +1,6 @@
+"""
+Object that show data related to each fitting 
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -28,6 +31,10 @@ class MrsFitLineData(QDialog, fit_line.src.ui_gaussSelection.Ui_gaussSelection):
         self.saveButton.clicked.connect(self.save_data)
 
     def add_gauss_data(self, data):
+        """
+        Add model data to the list widget
+        :param str data: data obtained from the model
+        """
         if self.gaussListWidget.count() > 0:
             self.saveButton.setEnabled(True)
 

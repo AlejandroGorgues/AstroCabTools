@@ -1,4 +1,6 @@
-
+"""
+Method that calculate the subband channels that a value is in
+"""
 
 def obtain_sub_band(value, channell):
       """ Return subband from same channel, min and max range values of each subband

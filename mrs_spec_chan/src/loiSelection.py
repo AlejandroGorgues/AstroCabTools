@@ -1,3 +1,7 @@
+"""
+Object that contain each line of interest widget from the list widget and it's corresponding
+methods
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -23,12 +27,6 @@ class MrsLoiList(QDialog, mrs_spec_chan.src.ui_loi_selection.Ui_MrsLoiList):
 
         self.setModal(False)
         self.load_data()
-        self.create_bottom_options()
-
-    def create_bottom_options(self):
-
-        self.acceptButton.clicked.connect(self.accept_loi)
-        self.cancelButton.clicked.connect(self.cancel_loi)
 
     def load_data(self):
         for key in const.LOID.keys():
@@ -45,6 +43,7 @@ class MrsLoiList(QDialog, mrs_spec_chan.src.ui_loi_selection.Ui_MrsLoiList):
 
     @pyqtSlot()
     def check_loi(self):
+        """Append or remove data base on checkbox state"""
         widget = self.sender()
 
         if widget.checkbox_state:
@@ -52,15 +51,6 @@ class MrsLoiList(QDialog, mrs_spec_chan.src.ui_loi_selection.Ui_MrsLoiList):
 
         else:
             self.loiListSelected.remove(widget.loi_text())
-
-
-    @pyqtSlot()
-    def accept_loi(self):
-        self.accept()
-
-    @pyqtSlot()
-    def cancel_loi(self):
-        self.reject()
 
     def get_list(self):
 

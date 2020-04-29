@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+Main clas that generate the interface of the mrs_sec_chan tool
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -24,7 +26,7 @@ from matplotlib.figure import Figure
 import mrs_spec_chan.src.panZoom as pz
 import mrs_spec_chan.src.spectrumManageListWidget as slw
 import mrs_spec_chan.src.loiSelection as loiS
-import mrs_spec_chan.src.plotSelection as pltS
+import mrs_spec_chan.src.spectrumSelection as pltS
 import mrs_spec_chan.src.templateSelection as tmpltS
 import mrs_spec_chan.src.constants as const
 import mrs_spec_chan.src.operations as oprt
@@ -51,25 +53,25 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.loiLines = []
 
         self.specISelected = []
-        self.pltLines = {}
+        self.spectrumLines = {}
 
         self.maxFlux = 0
         self.minFlux = 0
 
         self.loiSelection = loiS.MrsLoiList()
-        self.plotSelection = pltS.MrsPltList()
+        self.spectrumSelection = pltS.MrsSpctrmList()
         self.templateSelection = tmpltS.MrsTmpltList()
 
-        #Create the canvas to load the plot
-        self.create_middle_plot()
-
+        self.create_top_widgets()
+        self.create_middle_spectrum()
         self.create_bottom_chan_data()
-        #Create lambda widgets
+
+    def create_top_widgets(self):
         self.lambdaLabel.setText('λemit(μm):')
 
         self.zEdit.setValidator(QtGui.QDoubleValidator())
 
-        self.loadSpectra.clicked.connect(self.get_plot)
+        self.loadSpectra.clicked.connect(self.get_spectrum)
 
         self.loadOpWavelengthButton.clicked.connect(
             lambda: self.load_op_wavelength(self.lambdaEdit.text(),self.zEdit.text()))
@@ -82,8 +84,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
 
         self.clearButton.clicked.connect(self.clear_all)
 
-
-    def create_middle_plot(self):
+    def create_middle_spectrum(self):
         """ Create the canvas to draw the plot"""
 
         self.figure, self.figure.canvas = pz.figure_pz()
@@ -99,7 +100,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.ax1.set_visible(False)
 
         self.middlePlot.setLayout(layout)
-        self.draw_plot_area()
+        self.draw_spectrum_area()
 
     def create_bottom_chan_data(self):
 
@@ -186,7 +187,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
             self.gap.append(self.ax1.axvline(x=float(gapValues[i,0]), color = gapColors[i], linestyle = "dashdot"))
             self.gap.append(self.ax1.axvline(x=float(gapValues[i,1]), color = gapColors[i], linestyle = "dashdot"))
 
-    def draw_plot_area(self):
+    def draw_spectrum_area(self):
         """Create the axes"""
         # discards the old graph
 
@@ -223,7 +224,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.ax1.set_visible(True)
 
         line = self.ax1.plot(waveL, fluxL,gid=filename)
-        self.pltLines[line[0]] = redshift
+        self.spectrumLines[line[0]] = redshift
         self.delete_rect()
 
         self.figure.tight_layout(pad = 2)
@@ -253,7 +254,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
 
     def set_max_min_flux(self):
         """Get max and min flux vales"""
-        line_ydata = [line.get_ydata() for line in self.pltLines.keys()]
+        line_ydata = [line.get_ydata() for line in self.spectrumLines.keys()]
         for line in line_ydata:
 
             if min(line) < self.minFlux:
@@ -281,7 +282,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
             wavelengthValues, fluxValues, z = oprt.transform_spectrum(data, z)
             #Print the plot
             #line = next((x for x in self.ax1.lines if x.get_gid() == path), None)
-            line = next((key for key, value in self.pltLines.items() if key.get_gid() == path and value == z), None)
+            line = next((key for key, value in self.spectrumLines.items() if key.get_gid() == path and value == z), None)
 
             if line != None:
 
@@ -319,8 +320,8 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         it = QListWidgetItem()
         self.spectraListWidget.addItem(it)
         widget = slw.listWidget(title = filename, redshift = z)
-        widget.clicked.connect(self.remove_plt)
-        widget.checked.connect(self.check_plt)
+        widget.clicked.connect(self.remove_spectrum)
+        widget.checked.connect(self.check_spectrum)
         self.spectraListWidget.setItemWidget(it, widget)
         it.setSizeHint(widget.sizeHint())
 
@@ -360,7 +361,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.add_ticks(opWaveLName, opWaveL)
 
     def delete_line_by_gid(self, gid):
-        #Delete only the previous axvline, not the plot line
+        """Delete only the previous axvline, not the plot line"""
         for x in reversed(range(len(self.ax1.lines))):
             line = self.ax1.lines[x]
             if line.get_gid() == gid:
@@ -381,7 +382,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         # Build dictionary of ticks
         Dticks=dict(zip(labels,locs))
 
-        # Add/Replace new ticks
+        # Add new ticks
         for i in range(len(list)):
             Dticks[list[i]]=loiValues[i]
 
@@ -403,6 +404,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         # Build dictionary of ticks
         Dticks=dict(zip(labels,locs))
 
+        #Delete all ticks not loid
         for i in Dticks.copy():
             if i not in const.LOID:
                 Dticks.pop(i)
@@ -480,6 +482,8 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
 
     @pyqtSlot()
     def get_templates(self):
+        """Clear selection and list made previously to allow to select the same
+        template with different redshift"""
         self.templateSelection.uncheck_list()
         self.templateSelection.clear_list()
         self.templateSelection.show()
@@ -495,15 +499,17 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.figure.canvas.draw()
 
     @pyqtSlot()
-    def get_plot(self):
-        self.plotSelection.uncheck_list()
-        self.plotSelection.clear_list()
-        self.plotSelection.show()
-        self.plotSelection.open()
-        self.plotSelection.reload_directory()
-        if self.plotSelection.exec_() == QDialog.Accepted:
+    def get_spectrum(self):
+        """Clear selection and list made previously to allow to select the same
+        spectrum with different redshift"""
+        self.spectrumSelection.uncheck_list()
+        self.spectrumSelection.clear_list()
+        self.spectrumSelection.show()
+        self.spectrumSelection.open()
+        self.spectrumSelection.reload_directory()
+        if self.spectrumSelection.exec_() == QDialog.Accepted:
 
-            self.specISelected = self.plotSelection.get_data()
+            self.specISelected = self.spectrumSelection.get_data()
 
             for key, values in self.specISelected.items():
 
@@ -517,7 +523,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.loiSelection.open()
 
         if self.loiSelection.exec_() == QDialog.Accepted:
-
+            #Delete previous loi ticks to show only the new ones
             self.remove_loi_ticks()
             self.remove_loi_lines()
             self.loiISelected = self.loiSelection.get_list()
@@ -558,13 +564,14 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.figure.canvas.draw()
 
     @pyqtSlot()
-    def remove_plt(self):
+    def remove_spectrum(self):
+        """Delete the spectrum selected, if it's the last one, delete all"""
         self.maxFlux = 0
         self.minFlux = 0
 
         widget = self.sender()
 
-        line = next((key for key, value in self.pltLines.items() if key.get_gid() == re.sub('Path: ','',widget.path_text()) and \
+        line = next((key for key, value in self.spectrumLines.items() if key.get_gid() == re.sub('Path: ','',widget.path_text()) and \
             value == float(re.sub('z: ','',widget.redshift_text()))), None)
 
         self.ax1.lines.remove(line)
@@ -572,7 +579,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         lp = self.spectraListWidget.viewport().mapFromGlobal(gp)
         row = self.spectraListWidget.row(self.spectraListWidget.itemAt(lp))
         t_it = self.spectraListWidget.takeItem(row)
-        del self.pltLines[line]
+        del self.spectrumLines[line]
         del line
         del t_it
 
@@ -591,10 +598,10 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         self.figure.canvas.draw()
 
     @pyqtSlot()
-    def check_plt(self):
-
+    def check_spectrum(self):
+        """Set current enable state of the line to be visible or not"""
         widget = self.sender()
-        line = next((key for key, value in self.pltLines.items() if key.get_gid() == re.sub('Path: ','',widget.path_text()) and \
+        line = next((key for key, value in self.spectrumLines.items() if key.get_gid() == re.sub('Path: ','',widget.path_text()) and \
             value == float(re.sub('z: ','',widget.redshift_text()))), None)
 
         if widget.checkbox_state():
@@ -607,11 +614,11 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
     @pyqtSlot()
     def clear_all(self):
 
-        for line, value in self.pltLines.items():
+        for line, value in self.spectrumLines.items():
             self.ax1.lines.remove(line)
             del line
 
-        self.pltLines.clear()
+        self.spectrumLines.clear()
         self.spectraListWidget.clear()
         self.set_interface_state(False)
         self.remove_not_loi_ticks()

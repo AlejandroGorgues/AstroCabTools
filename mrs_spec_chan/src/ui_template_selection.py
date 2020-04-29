@@ -56,6 +56,8 @@ class Ui_MrsTmpltList(object):
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
 
         self.retranslateUi(MrsTmpltList)
+        self.acceptButton.clicked.connect(MrsTmpltList.accept)
+        self.cancelButton.clicked.connect(MrsTmpltList.reject)
         QtCore.QMetaObject.connectSlotsByName(MrsTmpltList)
 
     def retranslateUi(self, MrsTmpltList):

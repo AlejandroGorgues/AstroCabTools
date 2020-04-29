@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+Main clas that generate the interface of the fit_line tool
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -24,7 +26,7 @@ from matplotlib.figure import Figure
 import fit_line.src.panZoom as pz
 import fit_line.src.spectrumSelection as stmS
 import fit_line.src.txt_transform as tTrans
-import fit_line.src.create_figures as cf
+import fit_line.src.fitting_model_creation as cf
 import fit_line.src.pointsData as pdata
 import fit_line.src.gaussSelection as gaussS
 import fit_line.src.ui_fit_line

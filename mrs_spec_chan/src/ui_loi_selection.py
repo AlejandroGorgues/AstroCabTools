@@ -56,6 +56,8 @@ class Ui_MrsLoiList(object):
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
 
         self.retranslateUi(MrsLoiList)
+        self.acceptButton.clicked.connect(MrsLoiList.accept)
+        self.cancelButton.clicked.connect(MrsLoiList.reject)
         QtCore.QMetaObject.connectSlotsByName(MrsLoiList)
 
     def retranslateUi(self, MrsLoiList):

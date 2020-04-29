@@ -1,3 +1,7 @@
+"""
+Lines of interest constant dictionary from different elements
+"""
+
 LOID = {
 "[Mg II] 0.2799" : 0.2799,
 "[Ne V] 0.3426" : 0.3426,

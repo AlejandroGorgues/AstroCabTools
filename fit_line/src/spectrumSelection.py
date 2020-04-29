@@ -1,3 +1,7 @@
+"""
+Object that allow to select the spectrum to be loaded
+and the redshift to be applied
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -41,7 +45,7 @@ class MrsPltList(QDialog, fit_line.src.ui_spectrumSelection.Ui_spectrumSelection
 
     @pyqtSlot()
     def update_redshift(self):
-
+        """Modified redshift value wen line edit update"""
         if self.redshiftLineEdit.text() != '':
 
             self.redshift=float(self.redshiftLineEdit.text())

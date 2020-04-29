@@ -1,3 +1,7 @@
+"""
+Set of operations that mrs_spec_chan tool use on wavelength and flux
+"""
+
 import numpy as np
 import pandas as pd
 

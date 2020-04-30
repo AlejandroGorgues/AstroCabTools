@@ -34,7 +34,7 @@ For each tool, this repo uses a number of libraries and packages on python:
 + lmfit 1.0.0 or newer
 
 ## How to install and execute
-1. Download the project as a zip and uncompressed it or clone it.
+1. Download the project as a zip and unzip it or clone it.
 2. Open the terminal and move to the project directory.
 3. Write `python setup.py install` on the terminal.
 4. Once all the libraries had been updated and the package installed, to execute each program, the next commands need to be written on the terminal:

@@ -25,11 +25,27 @@ For each tool, this repo uses a number of libraries and packages on python:
 + [Seaborn](https://seaborn.pydata.org/) - Statistical data visualization
 + [Lmfit](https://lmfit.github.io//lmfit-py/) - Non-Linear Least-Squares Minimization and Curve-Fitting for Python
 
+### Requirements
++ Python 3.8.0 or newer
++ Matplotlib 3.1.2 or newer
++ Numpy 1.81.1 or newer
++ PyQt5 5.14.0 or newer
++ Seaborn 0.9.0 or newer
++ lmfit 1.0.0 or newer
+
+## How to install and execute
+1. Download the project as a zip and uncompressed it or clone it.
+2. Open the terminal and move to the project directory.
+3. Write `python setup.py install` on the terminal.
+4. Once all the libraries had been updated and the package installed, to execute each program, the next commands need to be written on the terminal:
+  1. `bandChan` to execute mrs_chan.
+  2. `specChan` to execute mrs_spec_chan.
+  3. `detPlot` to execute mrs_det_plot.
+  4. `fitLine` to execute fit_line.
+
 ### Development
 
-This repository will continue to grow with new tools based on the future needs.
-
-### Todos
+### To dos
 
 Old:
 

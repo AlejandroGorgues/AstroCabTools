@@ -286,10 +286,9 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         guesses.add(name='sigma', value = sigma)
         #Obtain the model
         result = cf.curve_fitting(wavelengthValues, fluxValues, guesses)
-
         #Update table of results parameters
-        self.gaussSelection.add_gauss_data("Gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h'].value), str(result.params['meanG'].value), str(result.params['sigma'].value)))
-        self.gaussSelection.add_gauss_data("Line model: {} + {} * (x-{})".format(str(result.params['a'].value), str(result.params['b'].value), str(result.params['meanL'].value)))
+        self.gaussSelection.add_gauss_data("Gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h'].value), str(result.params['mean'].value), str(result.params['sigma'].value)))
+        self.gaussSelection.add_gauss_data("Line model: {} + {} * x".format(str(result.params['a'].value), str(result.params['b'].value)))
         gaussFitResultList = [key + " = " + str(result.params[key].value) + " +/- " + str(result.params[key].stderr) for key in result.params]
 
         for resultParams in gaussFitResultList:

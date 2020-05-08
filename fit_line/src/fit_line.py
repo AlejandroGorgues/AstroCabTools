@@ -49,6 +49,8 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.gaussFitResultList = []
         self.markerElementsList = []
         self.fitting_lines = []
+        self.currLabels = []
+        self.initialLimits = {}
         self.counterState = False
 
         self.spectrumSelection = stmS.MrsPltList()
@@ -70,6 +72,10 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.clearButton.clicked.connect(self.clear_all)
         self.clearLastButton.clicked.connect(self.clear_last_fitting_model)
         self.clearFittingButton.clicked.connect(self.clear_fitting_models)
+        self.zoomButton.clicked.connect(self.activate_zoom)
+        self.zoomFitButton.clicked.connect(self.zoom_fit)
+        self.panButton.clicked.connect(self.activate_pan)
+        self.clickNormalButton.clicked.connect(self.activate_click)
 
     def create_middle_plot(self):
         """ Create the canvas to draw the plot"""
@@ -90,8 +96,9 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.middlePlot.setLayout(layout)
         self.draw_plot_area()
 
+
     def show_gauss_selection(self):
-        """SHow the gauss list dialog"""
+        """Show the gauss list dialog"""
         self.gaussSelection.show()
         self.gaussSelection.open()
 
@@ -128,10 +135,14 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
             self.ax1.collections.pop(i)
             marker.remove()
 
-        self.spectrum = self.ax1.plot(self.wavelength, self.flux, c='#4c72b0')
+        self.spectrum = self.ax1.plot(self.wavelength, self.flux, c='#4c72b0',label='Spectrum')
+        self.initialLimits["xlim"] = self.ax1.get_xlim()
+        self.initialLimits["ylim"] = self.ax1.get_ylim()
 
-        self.figure.tight_layout(pad = 2)
+        self.update_legend()
 
+        self.figure.tight_layout()
+        self.create_rectangle(self.ax1)
         self.figure.canvas.draw()
 
     def load_file(self, path, z):
@@ -161,6 +172,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.generationPointsButton.setText("Cancel the action")
 
         if self.counterState:
+            #Delete previous markers if the user pressed to start to select new points again
             for i in range(self.counter -1):
 
                 marker = next((marker for marker in self.ax1.collections if marker is self.markerElementsList[len(self.markerElementsList)-1]), None)
@@ -256,6 +268,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
     def draw_figures(self):
         self.draw_gauss_curve_fit()
 
+
     def draw_gauss_curve_fit(self):
         """ Generate the gauss model, draw the model results based on x value range
         and update the table that shows the results parameters"""
@@ -269,21 +282,13 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         #Obtain the flux values between the indexes obtained previously
         fluxValues = self.flux[index1[0][0]:(index2[0][0]+1)]
 
-        #Calculate initial guesses based on previous points selected
-        slope = cf.calculate_slope(self.gaussFitPoints.leftX, self.gaussFitPoints.leftY,self.gaussFitPoints.rightX,self.gaussFitPoints.rightY)
-        intercept = cf.calculate_intercept(slope, self.gaussFitPoints.leftX, self.gaussFitPoints.leftY)
-
-        sigma = abs(self.gaussFitPoints.sigma2X-self.gaussFitPoints.sigma1X)/2.355
-        #mean = self.gaussFitPoints.topX
-        mean = np.mean(wavelengthValues)
-        height = self.gaussFitPoints.topY - (self.gaussFitPoints.leftY + self.gaussFitPoints.rightY)/2.
-
         guesses = Parameters()
-        guesses.add(name='a', value = intercept)
-        guesses.add(name='b', value = slope)
-        guesses.add(name='h', value = height)
-        guesses.add(name='c', value = mean)
-        guesses.add(name='sigma', value = sigma)
+        guesses.add(name='a', value = cf.calculate_intercept(slope, self.gaussFitPoints.leftX, self.gaussFitPoints.leftY))
+        guesses.add(name='b', value = cf.calculate_slope(self.gaussFitPoints.leftX,
+            self.gaussFitPoints.leftY,self.gaussFitPoints.rightX,self.gaussFitPoints.rightY))
+        guesses.add(name='h', value = self.gaussFitPoints.topY - (self.gaussFitPoints.leftY + self.gaussFitPoints.rightY)/2.)
+        guesses.add(name='c', value = np.mean(wavelengthValues))
+        guesses.add(name='sigma', value = abs(self.gaussFitPoints.sigma2X-self.gaussFitPoints.sigma1X)/2.355)
         #Obtain the model
         result = cf.curve_fitting(wavelengthValues, fluxValues, guesses)
         #Update table of results parameters
@@ -296,18 +301,26 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
 
         self.gaussSelection.add_delimiter_line()
 
-        #Draw the components
-        """for x in wavelengthValues:
-            cf.gauss_curve_fitting_function(x, intercept, slope, height, mean, sigma)"""
-        """self.ax1.plot(wavelengthValues, cf.line_fitting_function(wavelengthValues, intercept, slope, mean) +
-         cf.gauss_fitting_function(wavelengthValues, height, mean, sigma), 'y--')"""
-        #self.ax1.plot(wavelengthValues, result.init_fit, 'y--')
-        self.fitting_lines.append(self.ax1.plot(wavelengthValues, result.init_fit, 'y--')[0])
-        self.fitting_lines.append(self.ax1.plot(wavelengthValues, result.best_fit, 'r-')[0])
+        self.fitting_lines.append(self.ax1.plot(wavelengthValues, result.init_fit, 'y--',label='Initial fit')[0])
+        self.fitting_lines.append(self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0])
         comps = result.eval_components()
-        self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--')[0])
-        self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--')[0])
+        self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--',label='Gauss fitting function')[0])
+        self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Line fitting function')[0])
 
+        self.check_repeat_fitting_model_labels()
+
+    def check_repeat_fitting_model_labels(self):
+        """
+        Check if specified labels have been used befor to not duplicate the legend box
+        """
+        setList = set(['Initial fit', 'Best fit', 'Gauss fitting function', 'Line fitting function'])
+        setCurr = set(self.currLabels)
+        if len(setList.intersection(setCurr))  == 0:
+            self.currLabels.append('Initial fit')
+            self.currLabels.append('Best fit')
+            self.currLabels.append('Gauss fitting function')
+            self.currLabels.append('Line fitting function')
+            self.update_legend()
 
     def set_interface_state(self, state):
         """ Disable or enable the different widgets of the interface
@@ -319,11 +332,10 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.clearButton.setEnabled(state)
         self.clearLastButton.setEnabled(state)
         self.clearFittingButton.setEnabled(state)
-
-
-    def resize_event(self, event):
-        QWidget.resize_event(self, event)
-        self.figure.tight_layout(pad=2)
+        self.zoomButton.setEnabled(state)
+        self.zoomFitButton.setEnabled(state)
+        self.panButton.setEnabled(state)
+        self.clickNormalButton.setEnabled(state)
 
     @pyqtSlot()
     def save_plot_image(self):
@@ -365,6 +377,8 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
             self.ax1.collections.remove(marker)
             self.markerElementsList.pop()
             del marker
+        if len(self.fitting_lines) == 0:
+            self.update_legend()
         self.figure.canvas.draw()
         self.gaussSelection.delete_gauss_data()
 
@@ -385,8 +399,10 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
             self.ax1.collections.remove(marker)
             self.markerElementsList.pop()
             del marker
+        self.update_legend()
         self.figure.canvas.draw()
         self.gaussSelection.delete_all()
+
 
     @pyqtSlot()
     def clear_all(self):
@@ -398,9 +414,40 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.figure.canvas.draw()
         self.gaussSelection.delete_all()
 
+    @pyqtSlot()
+    def activate_click(self):
+        self.figure.pan_zoom.disconnect_pan()
+        self.figure.pan_zoom.disconnect_zoom()
+
+    @pyqtSlot()
+    def activate_zoom(self):
+
+        self.figure.pan_zoom.disconnect_pan()
+        self.figure.pan_zoom.connect_zoom()
+
+    @pyqtSlot()
+    def activate_pan(self):
+        self.figure.pan_zoom.disconnect_zoom()
+        self.figure.pan_zoom.connect_pan()
+
+    @pyqtSlot()
+    def zoom_fit(self):
+        """Zoom to fit the original spectrum size """
+        self.ax1.set_xlim(self.initialLimits["xlim"])
+        self.ax1.set_ylim(self.initialLimits["ylim"])
+        self.figure.canvas.draw()
+
+
     def closeEvent(self, event):
         self.gaussSelection.close()
         self.spectrumSelection.close()
+
+    def create_rectangle(self,ax):
+        self.figure.pan_zoom.create_rectangle_ax(ax)
+
+    def update_legend(self):
+        h, labels = self.ax1.get_legend_handles_labels()
+        self.ax1.legend(labels=labels, loc="upper right", frameon=True, framealpha = 1, facecolor = 'white')
 
     def show_alert(self):
 

@@ -29,43 +29,68 @@ import matplotlib.pyplot as _plt
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
 from matplotlib.widgets import RectangleSelector
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from pubsub import pub
+import fit_line.src.command_pattern as command_pattern
 
 
 class MplInteraction(object):
 
+
     def __init__(self, figure):
         """Initializer
         :param Figure figure: The matplotlib figure to attach the behavior to.
-        :param Canvas FigureCanvas: The matplotlib PyQT canvas to allow focus after declaration
         """
         self._fig_ref = weakref.ref(figure)
         self.canvas = FigureCanvas(figure)
         self._cids_zoom = []
         self._cids_pan = []
-        self._rectangles = []
         self._cids_callback_zoom = {}
         self._cids_callback_pan = {}
         self._callback_rectangle = None
+        self._rectangle_selector = None
+        self._xLimits = None
+        self._yLimits = None
+
+        #Create invokers
+        self._invokerZoom = command_pattern.UndoHistoryZoomInvoker(figure.canvas)
+        self._invokerPan = command_pattern.UndoHistoryPanInvoker(figure.canvas)
+
 
     def create_rectangle_ax(self, ax):
         rectprops = dict(facecolor = None, edgecolor = 'black', alpha = 1,
          fill=False, linewidth = 1, linestyle = '--')
-        self._rectangles.append(RectangleSelector(ax, self._callback_rectangle,
+        self._rectangle_selector = RectangleSelector(ax, self._callback_rectangle,
                                            drawtype='box', useblit=True,
                                            rectprops = rectprops,
                                            button=[1, 3],  # don't use middle button
                                            minspanx=5, minspany=5,
                                            spancoords='pixels',
-                                           interactive=False))
+                                           interactive=False)
+
+        self._rectangle_selector.set_visible(False)
+
+    def set_axes_limits(self, xLimits, yLimits):
+        """
+        Get initial limits to allow to adjust the last zoom command to be
+        the inital limits
+        """
+        self._xLimits = xLimits
+        self._yLimits = yLimits
 
     def __del__(self):
         self.disconnect()
 
     def _add_rectangle_callback(self, callback):
+        """
+        Beacuse the callback method can only be created when the
+        Zoom event is created and the axe can only be know after the creation of it,
+        this method allow to assign the callback before
+        the creation of the rectangle selector object
+        """
         self._callback_rectangle = callback
 
     def _add_connection_zoom(self, event_name, callback):
-        """Called to add a connection to an event of the figure
+        """Called to add a connection of type zoom to an event of the figure
         :param str event_name: The matplotlib event name to connect to.
         :param callback: The callback to register to this event.
         """
@@ -73,8 +98,9 @@ class MplInteraction(object):
         #cid = self.canvas.mpl_connect(event_name, callback)
         #self._cids_zoom.append(cid)
         self._cids_callback_zoom[event_name] = callback
+
     def _add_connection_pan(self, event_name, callback):
-        """Called to add a connection to an event of the figure
+        """Called to add a connection of type pan to an event of the figure
         :param str event_name: The matplotlib event name to connect to.
         :param callback: The callback to register to this event.
         """
@@ -83,17 +109,22 @@ class MplInteraction(object):
         self._cids_callback_pan[event_name] = callback
 
     def disconnect_zoom(self):
+        """
+        Disconnect all zoom events and disable the rectangle selector
+        """
         if self._fig_ref is not None:
             figure = self._fig_ref()
             if figure is not None:
                 for cid in self._cids_zoom:
                     figure.canvas.mpl_disconnect(cid)
-                for rectangle in self._rectangles:
-                    rectangle.set_active(False)
+                self.disable_rectangle()
 
         self._cids_zoom.clear()
 
     def disconnect_pan(self):
+        """
+        Disconnect all pan events
+        """
         if self._fig_ref is not None:
             figure = self._fig_ref()
             if figure is not None:
@@ -101,14 +132,28 @@ class MplInteraction(object):
                     figure.canvas.mpl_disconnect(cid)
         self._cids_pan.clear()
 
+    def disable_rectangle(self):
+        self._rectangle_selector.set_visible(False)
+        self._rectangle_selector.set_active(False)
+
+    def enable_rectangle(self):
+        self._rectangle_selector.set_visible(True)
+        self._rectangle_selector.set_active(True)
+
     def connect_zoom(self):
+        """
+        Assign all callback zoom events to the mpl
+        """
         for event_name, callback in self._cids_callback_zoom.items():
             cid = self.canvas.mpl_connect(event_name, callback)
             self._cids_zoom.append(cid)
-        for rectangle in self._rectangles:
-            rectangle.set_active(True)
+
+        self.enable_rectangle()
 
     def connect_pan(self):
+        """
+        Assign all callback pan events to the mpl
+        """
         for event_name, callback in self._cids_callback_pan.items():
             cid = self.canvas.mpl_connect(event_name, callback)
             self._cids_pan.append(cid)
@@ -130,20 +175,26 @@ class MplInteraction(object):
         None if not connected."""
         return self._fig_ref() if self._fig_ref is not None else None
 
-    def _axes_to_update(self, event):
-        """Returns two sets of Axes to update according to event.
-        :param MouseEvent event: Matplotlib event to consider
-        :return: Axes for which to update xlimits and ylimits
-        :rtype: 2-tuple of set (xaxes, yaxes)
+
+    def undoLastAction(self):
         """
-        x_axes, y_axes = set(), set()
+        First, it undo the last action made by the zoom event
+        Second, because the command list contains each command, the first one
+        is related to adjust the zoom, which ocurred before, so the command list
+        execute twice the same event, and because of that, the undo button need to
+        be disabled and the command list clear
+        """
+        self._invokerZoom.undo()
+        if self._invokerZoom.command_list_length() == 1:
+            self._invokerZoom.clear_command_list()
+            pub.sendMessage('setStateUndo', state = False)
 
-        for ax in self.figure.axes:
-            if ax.contains(event)[0] and ax.get_label() != "cbar":
-                x_axes.add(ax)
-                y_axes.add(ax)
 
-        return x_axes, y_axes
+    def clear_commands(self):
+        """
+        Delete all commands
+        """
+        self._invokerZoom.clear_command_list()
 
     def _draw(self):
         """Conveninent method to redraw the figure"""
@@ -160,6 +211,7 @@ class ZoomWithMouse(MplInteraction):
         """
         super(ZoomWithMouse, self).__init__(figure)
         self._add_connection_zoom('button_release_event', self._rectangle_release)
+        self._add_connection_zoom('button_press_event', self._check_click_event)
         #Because the rectangle selector can only be created when an axe is created, it passes
         #the callback function that is gonna be added to the rectangle selector properties
         self._add_rectangle_callback(self._line_select_callback)
@@ -171,69 +223,39 @@ class ZoomWithMouse(MplInteraction):
         self._end_y = -1
 
 
+
+    def _check_click_event(self, event):
+        """
+        Disable rectangle interaction if event is double click to prevent
+        pyqt5 alert, activate with double click, to interfere with the rectangle selector
+        """
+        if event.dblclick:
+            self.disable_rectangle()
+        else:
+            self.enable_rectangle()
+
     def _rectangle_release(self, event):
         """
         Apply the zoom base on initial and final values of the rectangle selector
         """
 
-        #Set threshold to limit zoom in for 5 units
-        if (abs(self._end_x - self._initial_x) < 5 or abs(self._end_y - self._initial_y) < 5) and self._pressed_button == 1:
+        #Set threshold to limit zoom in for 2 units
+        if (abs(self._end_x - self._initial_x) < 2 or abs(self._end_y - self._initial_y) < 2) and self._pressed_button == 1:
             self._pressed_button = None
             return
 
-        #check if there are twin axes
-        x_axes, y_axes = self._axes_to_update(event)
+        #Because the last zoom command do not adjust the limits to the original
+        #An adjust zoom command need to be created before the first one
+        if self._invokerZoom.command_list_length() == 0:
+            pub.sendMessage('setStateUndo', state = True)
+            #Create the command, and execute it
+            zoomFitCommand = command_pattern.ZoomFitCommand(self.figure, self._xLimits, self._yLimits)
+            self._invokerZoom.command(zoomFitCommand)
+        #Create the command, and execute it
+        zoomCommand = command_pattern.ZoomCommand(self._pressed_button, self._initial_x, self._initial_y, self._end_x, self._end_y, event, self.figure)
+        self._invokerZoom.command(zoomCommand)
 
-        if self._pressed_button == 1:  # Zoom in
-
-            for ax in x_axes:
-                xmin0, xmax0 = ax.get_xbound()
-                xmin, xmax = np.clip(sorted([self._initial_x, self._end_x]), xmin0, xmax0)
-                ax.set_xbound(xmin, xmax)
-
-            for ax in y_axes:
-                ymin0, ymax0 = ax.get_ybound()
-                ymin, ymax = np.clip(sorted([self._initial_y, self._end_y]), ymin0, ymax0)
-                ax.set_ybound(ymin, ymax)
-
-        elif self._pressed_button == 3: #Zoom out
-
-            #For each axes, get the bounds, create an np array between selected values
-            #and the bound values. Get the transformation function and apply it to
-            #each of the values between the limits and the selected one. Get the
-            #factor that need to be applied to the values and apply it
-            for ax in x_axes:
-                xmin0, xmax0 = ax.get_xbound()
-                xmin, xmax = np.clip(sorted([self._initial_x, self._end_x]), xmin0, xmax0)
-                x_trf = ax.get_xaxis().get_transform()
-                sxmin0, sxmax0, sxmin, sxmax = x_trf.transform(
-                    [xmin0, xmax0, xmin, xmax])  # To screen space.
-                factor = (sxmax0 - sxmin0) / (sxmax - sxmin)  # Unzoom factor.
-                # Move original bounds away by
-                # (factor) x (distance between unzoom box and axes bbox).
-                sxmin1 = sxmin0 - factor * (sxmin - sxmin0)
-                sxmax1 = sxmax0 + factor * (sxmax0 - sxmax)
-                # And back to data space.
-                new_xbound = x_trf.inverted().transform([sxmin1, sxmax1])
-                ax.set_xbound(new_xbound)
-
-                #repeat for y axes
-            for ax in y_axes:
-                ymin0, ymax0 = ax.get_ybound()
-                ymin, ymax = np.clip(sorted([self._initial_y, self._end_y]), ymin0, ymax0)
-
-                y_trf = ax.get_yaxis().get_transform()
-                symin0, symax0, symin, symax = y_trf.transform(
-                    [ymin0, ymax0, ymin, ymax])
-                factor = (symax0 - symin0) / (symax - symin)
-                symin1 = symin0 - factor * (symin - symin0)
-                symax1 = symax0 + factor * (symax0 - symax)
-                new_ybound = y_trf.inverted().transform([symin1, symax1])
-                ax.set_ybound(new_ybound)
-
-        self._draw()
         self._pressed_button = None
-
 
     def _line_select_callback(self, eclick, erelease):
         """
@@ -243,8 +265,6 @@ class ZoomWithMouse(MplInteraction):
         self._end_x, self._end_y  = erelease.xdata, erelease.ydata
 
         self._pressed_button = eclick.button
-
-
 
 class PanAndZoom(ZoomWithMouse):
     """Class providing pan & zoom interaction to a matplotlib Figure.
@@ -265,60 +285,9 @@ class PanAndZoom(ZoomWithMouse):
         self._axes = None  # To store x and y axes concerned by interaction
         self._event = None  # To store reference event during interaction
 
-    def _pan_update_limits(self, ax, axis_id, event, last_event):
-        """Compute limits with applied pan."""
-        if axis_id == 0:
-            lim = ax.get_xlim()
-        else:
-            lim = ax.get_ylim()
-
-        #TransData make it possible to transform data values to display values (display of the screen)
-        #Inverted allows to transform from a data point to the data point based on the display inverted
-
-        #Because this is possible, we can make for every pad made, transform every value of the image to
-        #the ones that will fit on the screen based on the initial (x,y) and the final(x,y)
-        #the initial x,y correspond to the button_press_event values, and the final correspond to the button_release_event
-        #For each time the motion_notify_event ocurrs, the previous values will be saved and update the image
-        pixel_to_data = ax.transData.inverted()
-        data = pixel_to_data.transform_point((event.x, event.y))
-        last_data = pixel_to_data.transform_point((last_event.x, last_event.y))
-
-        #Otbtain the delta and apply it to update the limits of the figure into the plot
-        delta = data[axis_id] - last_data[axis_id]
-        new_lim = lim[0] - delta, lim[1] - delta
-        return new_lim
-
-    def _pan(self, event):
-        """Execute function based on the name of it"""
-        if event.name == 'button_press_event':  # begin pan
-
-            self._event = event
-
-        elif event.name == 'button_release_event':  # end pan
-            self._event = None
-
-        elif event.name == 'motion_notify_event':  # pan
-            if self._event is None:
-                return
-
-            if event.x != self._event.x:
-                for ax in self._axes[0]:
-                    xlim = self._pan_update_limits(ax, 0, event, self._event)
-                    ax.set_xlim(xlim)
-
-            if event.y != self._event.y:
-                for ax in self._axes[1]:
-                    ylim = self._pan_update_limits(ax, 1, event, self._event)
-                    ax.set_ylim(ylim)
-
-            if event.x != self._event.x or event.y != self._event.y:
-                self._draw()
-
-            self._event = event
-
     def _on_mouse_press(self, event):
         """Set axes values based on point selected"""
-        if self._pressed_button is not None:
+        if self._pressed_button is not None or event.dblclick:
             return  # Discard event if a button is already pressed
 
         x_axes = set()
@@ -331,16 +300,22 @@ class PanAndZoom(ZoomWithMouse):
                 self._axes = x_axes, y_axes
                 self._pressed_button = event.button
                 if self._pressed_button == 1:  # pan
-                    self._pan(event)
+                    self._event = event
 
     def _on_mouse_release(self, event):
-        if self._pressed_button == 1:  # pan
-            self._pan(event)
+        if self._pressed_button == 1 and not event.dblclick:  # pan
+            self._event = None
         self._pressed_button = None
 
     def _on_mouse_motion(self, event):
         if self._pressed_button == 1:  # pan
-            self._pan(event)
+            if self._event is None:
+                return
+            if event.x != self._event.x or event.y != self._event.y:
+                #Create the command, and execute it
+                panCommand = command_pattern.PanCommand(event, self._event, self._axes)
+                self._invokerPan.command(panCommand)
+                self._event = event
 
 def figure_pz(*args, **kwargs):
     """matplotlib.pyplot.figure with pan and zoom interaction"""

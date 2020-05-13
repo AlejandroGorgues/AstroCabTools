@@ -23,6 +23,8 @@ from PyQt5 import uic
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+from pubsub import pub
+
 import fit_line.src.panZoom as pz
 import fit_line.src.spectrumSelection as stmS
 import fit_line.src.txt_transform as tTrans
@@ -72,15 +74,21 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.clearButton.clicked.connect(self.clear_all)
         self.clearLastButton.clicked.connect(self.clear_last_fitting_model)
         self.clearFittingButton.clicked.connect(self.clear_fitting_models)
-        self.zoomButton.clicked.connect(self.activate_zoom)
         self.zoomFitButton.clicked.connect(self.zoom_fit)
-        self.panButton.clicked.connect(self.activate_pan)
-        self.clickNormalButton.clicked.connect(self.activate_click)
+
+        self.zoomButton.toggled.connect(self.activate_zoom)
+        self.panButton.toggled.connect(self.activate_pan)
+        self.clickNormalButton.toggled.connect(self.activate_click)
+
+        self.undoButton.clicked.connect(self.undoAction)
+
 
     def create_middle_plot(self):
         """ Create the canvas to draw the plot"""
 
         self.figure, self.figure.canvas = pz.figure_pz()
+        #Subscribe method to setStateUndo event
+        pub.subscribe(self.changeStateUndoButton,'setStateUndo')
 
         #To allow the user to move through the plot, it need to be focused (in this case when the user click on image)
         self.figure.canvas.setFocusPolicy(Qt.ClickFocus)
@@ -91,11 +99,13 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.ax1 = self.figure.add_subplot(111)
         self.click_factory()
 
+        #Create rectangle selector
+        self.create_rectangle(self.ax1)
+
         self.ax1.set_visible(False)
 
         self.middlePlot.setLayout(layout)
         self.draw_plot_area()
-
 
     def show_gauss_selection(self):
         """Show the gauss list dialog"""
@@ -105,7 +115,6 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
     def draw_plot_area(self):
         """Create the axes"""
         # discards the old graph
-
         self.ax1.clear()
 
         #Set text and range of the axes
@@ -127,6 +136,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.ax1.cla()
         self.ax1.set_visible(True)
 
+        #Clear all previous lines and markers that do not belong to the spectrum
         for i, line in enumerate(self.ax1.lines):
             self.ax1.lines.pop(i)
             line.remove()
@@ -135,14 +145,19 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
             self.ax1.collections.pop(i)
             marker.remove()
 
+        #Clear legend list
+        self.currLabels.clear()
+
         self.spectrum = self.ax1.plot(self.wavelength, self.flux, c='#4c72b0',label='Spectrum')
         self.initialLimits["xlim"] = self.ax1.get_xlim()
         self.initialLimits["ylim"] = self.ax1.get_ylim()
 
         self.update_legend()
+        self.update_buttons()
+        self.update_pan_zoom_data()
 
         self.figure.tight_layout()
-        self.create_rectangle(self.ax1)
+
         self.figure.canvas.draw()
 
     def load_file(self, path, z):
@@ -179,6 +194,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
                 self.ax1.collections.remove(marker)
                 self.markerElementsList.pop()
                 del marker
+
             self.indicationLabel.setText("")
             self.generationPointsButton.setText("Mark points")
             self.counterState = False
@@ -202,6 +218,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         def click_fun(event):
             if event.inaxes == self.ax1 and event.dblclick:
 
+
                 if self.counterState == True:
                     xdata = event.xdata
                     ydata = event.ydata
@@ -212,6 +229,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
 
                 else:
                     self.draw_points_alert()
+                    self.figure.pan_zoom.enable_rectangle()
 
             self.figure.canvas.draw()
 
@@ -283,7 +301,8 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         fluxValues = self.flux[index1[0][0]:(index2[0][0]+1)]
 
         guesses = Parameters()
-        guesses.add(name='a', value = cf.calculate_intercept(slope, self.gaussFitPoints.leftX, self.gaussFitPoints.leftY))
+        guesses.add(name='a', value = cf.calculate_intercept(cf.calculate_slope(self.gaussFitPoints.leftX,
+            self.gaussFitPoints.leftY,self.gaussFitPoints.rightX,self.gaussFitPoints.rightY), self.gaussFitPoints.leftX, self.gaussFitPoints.leftY))
         guesses.add(name='b', value = cf.calculate_slope(self.gaussFitPoints.leftX,
             self.gaussFitPoints.leftY,self.gaussFitPoints.rightX,self.gaussFitPoints.rightY))
         guesses.add(name='h', value = self.gaussFitPoints.topY - (self.gaussFitPoints.leftY + self.gaussFitPoints.rightY)/2.)
@@ -296,16 +315,18 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.gaussSelection.add_gauss_data("Line model: {} + {} * x".format(str(result.params['a'].value), str(result.params['b'].value)))
         gaussFitResultList = [key + " = " + str(result.params[key].value) + " +/- " + str(result.params[key].stderr) for key in result.params]
 
+        #Add item to the gaussSelection list
         for resultParams in gaussFitResultList:
             self.gaussSelection.add_gauss_data("".join(resultParams))
 
         self.gaussSelection.add_delimiter_line()
 
+        #Draw the plots
         self.fitting_lines.append(self.ax1.plot(wavelengthValues, result.init_fit, 'y--',label='Initial fit')[0])
         self.fitting_lines.append(self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0])
         comps = result.eval_components()
-        self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--',label='Gauss fitting function')[0])
-        self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Line fitting function')[0])
+        self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--',label='Fitted gaussian')[0])
+        self.fitting_lines.append(self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0])
 
         self.check_repeat_fitting_model_labels()
 
@@ -313,13 +334,13 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         """
         Check if specified labels have been used befor to not duplicate the legend box
         """
-        setList = set(['Initial fit', 'Best fit', 'Gauss fitting function', 'Line fitting function'])
+        setList = set(['Initial fit', 'Best fit', 'Fitted gaussian', 'Fitted line'])
         setCurr = set(self.currLabels)
         if len(setList.intersection(setCurr))  == 0:
             self.currLabels.append('Initial fit')
             self.currLabels.append('Best fit')
-            self.currLabels.append('Gauss fitting function')
-            self.currLabels.append('Line fitting function')
+            self.currLabels.append('Fitted gaussian')
+            self.currLabels.append('Fitted line')
             self.update_legend()
 
     def set_interface_state(self, state):
@@ -336,6 +357,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.zoomFitButton.setEnabled(state)
         self.panButton.setEnabled(state)
         self.clickNormalButton.setEnabled(state)
+        #self.undoButton.setEnabled(state)
 
     @pyqtSlot()
     def save_plot_image(self):
@@ -355,6 +377,9 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
 
     @pyqtSlot()
     def get_plot(self):
+        """
+        Load dialog that allow to select the spectrum to be loaded
+        """
         self.spectrumSelection.show()
         self.spectrumSelection.open()
         if self.spectrumSelection.exec_() == QDialog.Accepted:
@@ -365,7 +390,10 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
 
     @pyqtSlot()
     def clear_last_fitting_model(self):
-
+    """
+    Becuase for each model, 4 lines, 5 markers and 4 legends labels are created,
+    deleting the last of them requires to delete the ones that has been created with it also
+    """
         for i in range(4):
             line = self.fitting_lines[-1]
             self.ax1.lines.remove(line)
@@ -379,6 +407,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
             del marker
         if len(self.fitting_lines) == 0:
             self.update_legend()
+            self.currLabels.clear()
         self.figure.canvas.draw()
         self.gaussSelection.delete_gauss_data()
 
@@ -401,7 +430,9 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
             del marker
         self.update_legend()
         self.figure.canvas.draw()
+        #Delete all list items in the gaussSelection Dialog
         self.gaussSelection.delete_all()
+        self.currLabels.clear()
 
 
     @pyqtSlot()
@@ -413,20 +444,29 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.ax1.set_visible(False)
         self.figure.canvas.draw()
         self.gaussSelection.delete_all()
+        self.currLabels.clear()
 
     @pyqtSlot()
     def activate_click(self):
+        """
+        Allow only to click on the canvas
+        """
         self.figure.pan_zoom.disconnect_pan()
         self.figure.pan_zoom.disconnect_zoom()
 
     @pyqtSlot()
     def activate_zoom(self):
-
+        """
+        Allow only to zoom on the canvas
+        """
         self.figure.pan_zoom.disconnect_pan()
         self.figure.pan_zoom.connect_zoom()
 
     @pyqtSlot()
     def activate_pan(self):
+        """
+        Allow only to pan on the canvas
+        """
         self.figure.pan_zoom.disconnect_zoom()
         self.figure.pan_zoom.connect_pan()
 
@@ -437,17 +477,43 @@ class MrsFitLine(QMainWindow, fit_line.src.ui_fit_line.Ui_FitLine):
         self.ax1.set_ylim(self.initialLimits["ylim"])
         self.figure.canvas.draw()
 
+    @pyqtSlot()
+    def undoAction(self):
+        self.figure.pan_zoom.undoLastAction()
 
     def closeEvent(self, event):
+        """
+        Close other windows when main window is closed
+        """
         self.gaussSelection.close()
         self.spectrumSelection.close()
 
     def create_rectangle(self,ax):
         self.figure.pan_zoom.create_rectangle_ax(ax)
 
+    def changeStateUndoButton(self, state):
+        """
+        Set state of the undo based on the command list size
+        """
+        self.undoButton.setEnabled(state)
+
+    def update_buttons(self):
+        """
+        Once the specturm is loaded, set click button by default
+        """
+        self.clickNormalButton.setChecked(True)
+
     def update_legend(self):
         h, labels = self.ax1.get_legend_handles_labels()
         self.ax1.legend(labels=labels, loc="upper right", frameon=True, framealpha = 1, facecolor = 'white')
+
+    def update_pan_zoom_data(self):
+        """
+        When a new spectrum has been loaded, the limits need to be updated,
+        and the zoom commands list cleared
+        """
+        self.figure.pan_zoom.set_axes_limits(self.initialLimits["xlim"], self.initialLimits["ylim"])
+        self.figure.pan_zoom.clear_commands()
 
     def show_alert(self):
 

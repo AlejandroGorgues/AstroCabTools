@@ -13,10 +13,6 @@ setup(
 	author_email='email',
 	url='url',
 	description='description',
-	#package_dir={'src':'mrs_chan',
-	#	'src':'mrs_spec_chan',
-	#	'src':'mrs_det_plot',
-	#	'src':'fit_line'},
 	packages=['mrs_chan/src',
 		'mrs_spec_chan/src',
 		'mrs_det_plot/src',
@@ -33,7 +29,7 @@ setup(
 		'numpy>=1.18.1',
 		'seaborn>=0.9.0',
 		'lmfit>=1.0.0',
-		'pubsub>=0.1.2'
+		'PyPubSub>=4.0.3'
 	],
 	entry_points={
 		'gui_scripts':[

@@ -16,12 +16,13 @@ from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 
 import mrs_det_plot.src.panZoom as pz
-import mrs_det_plot.src.imgPlot as ip
-import mrs_det_plot.src.globalStats as gS
-import mrs_det_plot.src.ui_images_fits
+import mrs_det_plot.src.ui.ui_images_fits
+
+from .utils.imgPlot import imgPlot
+from .utils.globalStats import globalStats
 
 
-class MrsImagesFits(QDialog, mrs_det_plot.src.ui_images_fits.Ui_MrsImagesFits):
+class MrsImagesFits(QDialog, mrs_det_plot.src.ui.ui_images_fits.Ui_MrsImagesFits):
     crossed = pyqtSignal(float, float, int, name='makeCross')
     changeBar = pyqtSignal()
 
@@ -36,7 +37,7 @@ class MrsImagesFits(QDialog, mrs_det_plot.src.ui_images_fits.Ui_MrsImagesFits):
         self.imageAxes = {}
         self.images = {}
         self.imgObjList = {}
-        self.globalStats = gS.globalStats('minmax', 'Linear', 'gray')
+        self.globalStats = globalStats('minmax', 'Linear', 'gray')
         self.fitsObjList = {}
 
         self.pixelLines = {}
@@ -61,7 +62,7 @@ class MrsImagesFits(QDialog, mrs_det_plot.src.ui_images_fits.Ui_MrsImagesFits):
             for j in range(2):
                 midAx = self.imagesFigure.add_subplot(spec[i, j])
                 midAx.set_visible(False)
-                self.imgObjList[k] =  ip.imgPlot([], [], [],0, 0)
+                self.imgObjList[k] =  imgPlot([], [], [],0, 0)
                 self.imageAxes[k] = midAx
                 self.click_factory(midAx, k)
                 k += 1

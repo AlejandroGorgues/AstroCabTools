@@ -28,11 +28,13 @@ import mrs_spec_chan.src.spectrumManageListWidget as slw
 import mrs_spec_chan.src.loiSelection as loiS
 import mrs_spec_chan.src.spectrumSelection as pltS
 import mrs_spec_chan.src.templateSelection as tmpltS
-import mrs_spec_chan.src.constants as const
-import mrs_spec_chan.src.operations as oprt
-import mrs_spec_chan.src.ui_mrs_spec_chan
 
-class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecChan):
+import mrs_spec_chan.src.ui.ui_mrs_spec_chan
+
+from .utils.operations import transform_spectrum, divide_op_wavelength
+from .utils.constants import LOID
+
+class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSpecChan):
 
     def __init__(self, parent=None):
         """Initializer
@@ -279,7 +281,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         try:
             data = pd.read_csv(path, sep=' ', comment = '#', header=None)
 
-            wavelengthValues, fluxValues, z = oprt.transform_spectrum(data, z)
+            wavelengthValues, fluxValues, z = transform_spectrum(data, z)
             #Print the plot
             #line = next((x for x in self.ax1.lines if x.get_gid() == path), None)
             line = next((key for key, value in self.spectrumLines.items() if key.get_gid() == path and value == z), None)
@@ -305,7 +307,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
         """
         loiValues = []
         for i in list:
-            loiValue = const.LOID[i]
+            loiValue = LOID[i]
             loiValues.append(loiValue)
             loiLine = self.ax1.axvline(x=loiValue,  color="#8442f5")
             loiLine.set_gid(i)
@@ -406,7 +408,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
 
         #Delete all ticks not loid
         for i in Dticks.copy():
-            if i not in const.LOID:
+            if i not in LOID:
                 Dticks.pop(i)
 
         # Get back tick lists
@@ -428,7 +430,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
 
         for i in Dticks.copy():
 
-            if i in const.LOID:
+            if i in LOID:
                 Dticks.pop(i)
 
         # Get back tick lists
@@ -470,7 +472,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui_mrs_spec_chan.Ui_MrsSpecC
             if emWaveL != '' and z != '':
                 z = float(z)
 
-                opWaveL = oprt.divide_op_wavelength(emWaveL, z)
+                opWaveL = divide_op_wavelength(emWaveL, z)
                 self.print_op_wavelength(opWaveL)
                 self.figure.canvas.draw()
             else:

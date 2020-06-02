@@ -160,7 +160,6 @@ class ZoomFitCommand(Command):
             ax.set_ylim(self._yLimits)
         canvas.draw()
 
-
 """
 Invoker class that contains all actions related to zoom commands
 """

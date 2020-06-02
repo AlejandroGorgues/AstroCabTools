@@ -181,7 +181,7 @@ class Ui_FitLine(object):
         FitLine.setWindowTitle(_translate("FitLine", "FitLine"))
         self.clearButton.setText(_translate("FitLine", "Clear all"))
         self.clearLastButton.setText(_translate("FitLine", "Clear last fitted model"))
-        self.clearFittingButton.setText(_translate("FitLine", "Clear fitting models"))
+        self.clearFittingButton.setText(_translate("FitLine", "Clear fitted models"))
         self.generationPointsButton.setText(_translate("FitLine", "Mark points"))
         self.showPointsButton.setText(_translate("FitLine", "Show fitting data parameters"))
         self.loadPltButton.setText(_translate("FitLine", "Load spectrum"))
@@ -190,5 +190,5 @@ class Ui_FitLine(object):
         self.zoomButton.setText(_translate("FitLine", "Zoom"))
         self.panButton.setText(_translate("FitLine", "Pan"))
         self.zoomFitButton.setText(_translate("FitLine", "Zoom fit"))
-        self.undoButton.setText(_translate("FitLine", "Undo last action"))
+        self.undoButton.setText(_translate("FitLine", "Undo last zoom"))
 

@@ -117,7 +117,7 @@ class MplInteraction(object):
             if figure is not None:
                 for cid in self._cids_zoom:
                     figure.canvas.mpl_disconnect(cid)
-                self.disable_rectangle()
+                self._disable_rectangle()
 
         self._cids_zoom.clear()
 
@@ -132,11 +132,11 @@ class MplInteraction(object):
                     figure.canvas.mpl_disconnect(cid)
         self._cids_pan.clear()
 
-    def disable_rectangle(self):
+    def _disable_rectangle(self):
         self._rectangle_selector.set_visible(False)
         self._rectangle_selector.set_active(False)
 
-    def enable_rectangle(self):
+    def _enable_rectangle(self):
         self._rectangle_selector.set_visible(True)
         self._rectangle_selector.set_active(True)
 
@@ -148,7 +148,7 @@ class MplInteraction(object):
             cid = self.canvas.mpl_connect(event_name, callback)
             self._cids_zoom.append(cid)
 
-        self.enable_rectangle()
+        self._enable_rectangle()
 
     def connect_pan(self):
         """
@@ -176,7 +176,7 @@ class MplInteraction(object):
         return self._fig_ref() if self._fig_ref is not None else None
 
 
-    def undoLastAction(self):
+    def undo_last_action(self):
         """
         First, it undo the last action made by the zoom event
         Second, because the command list contains each command, the first one
@@ -185,9 +185,27 @@ class MplInteraction(object):
         be disabled and the command list clear
         """
         self._invokerZoom.undo()
-        if self._invokerZoom.command_list_length() == 1:
+        if self._invokerZoom.command_list_length() <= 1:
             self._invokerZoom.clear_command_list()
             pub.sendMessage('setStateUndo', state = False)
+
+    def add_zoom_fit(self):
+        if self._invokerZoom.command_list_length() == 0:
+            #Send the signal to change undo button state
+            pub.sendMessage('setStateUndo', state = True)
+
+        zoomFitCommand = command_pattern.ZoomFitCommand(self.figure, self._xLimits, self._yLimits)
+        self._invokerZoom.command(zoomFitCommand)
+        self._draw()
+
+    def _add_initial_zoom_fit(self):
+        if self._invokerZoom.command_list_length() == 0:
+            #Send the signal to change undo button state
+            pub.sendMessage('setStateUndo', state = True)
+
+            zoomFitCommand = command_pattern.ZoomFitCommand(self.figure, self._xLimits, self._yLimits)
+            self._invokerZoom.command(zoomFitCommand)
+            self._draw()
 
 
     def clear_commands(self):
@@ -211,51 +229,39 @@ class ZoomWithMouse(MplInteraction):
         """
         super(ZoomWithMouse, self).__init__(figure)
         self._add_connection_zoom('button_release_event', self._rectangle_release)
-        self._add_connection_zoom('button_press_event', self._check_click_event)
         #Because the rectangle selector can only be created when an axe is created, it passes
         #the callback function that is gonna be added to the rectangle selector properties
         self._add_rectangle_callback(self._line_select_callback)
 
         self._pressed_button = None  # To store active button
+        #Set initial values to the rectangle coordinates
         self._initial_x = -1
         self._initial_y = -1
         self._end_x = -1
         self._end_y = -1
 
-
-
-    def _check_click_event(self, event):
-        """
-        Disable rectangle interaction if event is double click to prevent
-        pyqt5 alert, activate with double click, to interfere with the rectangle selector
-        """
-        if event.dblclick:
-            self.disable_rectangle()
-        else:
-            self.enable_rectangle()
-
     def _rectangle_release(self, event):
         """
         Apply the zoom base on initial and final values of the rectangle selector
         """
-
-        #Set threshold to limit zoom in for 2 units
-        if (abs(self._end_x - self._initial_x) < 2 or abs(self._end_y - self._initial_y) < 2) and self._pressed_button == 1:
-            self._pressed_button = None
+        #Because _line_select_callback is not called when user push and release on the same pixel,
+        #the coordinates values change to -1 and this conditional checkif if that it's the value instead
+        #of the ones from _line_select_callback
+        if self._initial_x == -1 and self._initial_y == -1 and self._end_x == -1 and self._end_y == -1:
+            pressed_button= None
             return
 
-        #Because the last zoom command do not adjust the limits to the original
-        #An adjust zoom command need to be created before the first one
-        if self._invokerZoom.command_list_length() == 0:
-            pub.sendMessage('setStateUndo', state = True)
-            #Create the command, and execute it
-            zoomFitCommand = command_pattern.ZoomFitCommand(self.figure, self._xLimits, self._yLimits)
-            self._invokerZoom.command(zoomFitCommand)
+        self._add_initial_zoom_fit()
         #Create the command, and execute it
         zoomCommand = command_pattern.ZoomCommand(self._pressed_button, self._initial_x, self._initial_y, self._end_x, self._end_y, event, self.figure)
         self._invokerZoom.command(zoomCommand)
 
         self._pressed_button = None
+
+        self._initial_x = -1
+        self._initial_y = -1
+        self._end_x = -1
+        self._end_y = -1
 
     def _line_select_callback(self, eclick, erelease):
         """
@@ -263,7 +269,6 @@ class ZoomWithMouse(MplInteraction):
         """
         self._initial_x, self._initial_y = eclick.xdata, eclick.ydata
         self._end_x, self._end_y  = erelease.xdata, erelease.ydata
-
         self._pressed_button = eclick.button
 
 class PanAndZoom(ZoomWithMouse):

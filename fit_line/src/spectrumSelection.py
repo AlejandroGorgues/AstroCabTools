@@ -14,26 +14,33 @@ from PyQt5.QtCore import Qt, pyqtSlot,QIdentityProxyModel
 from PyQt5 import QtGui
 from PyQt5 import uic
 
-import fit_line.src.ui_spectrumSelection
+import fit_line.src.ui.ui_spectrumSelection
 
-class MrsPltList(QDialog, fit_line.src.ui_spectrumSelection.Ui_spectrumSelection):
+class MrsPltList(QDialog, fit_line.src.ui.ui_spectrumSelection.Ui_spectrumSelection):
 
     def __init__(self, parent=None ):
         super(MrsPltList, self).__init__(parent)
         self.setupUi(self)
+        self.extension = "*.txt"
+        self.wUnits = "um"
+        self.fUnits = "erg/s/cm2/micron"
 
-        self.setModal(False)
 
         self.fileButton.clicked.connect(self.load_directory)
 
         self.redshiftLineEdit.setValidator(QtGui.QDoubleValidator())
         self.redshiftLineEdit.textChanged.connect(self.update_redshift)
 
+        self.extensionSelectCombobox.currentIndexChanged.connect(self.set_extension)
+
+        self.wUnitsCombobox.currentIndexChanged.connect(self.set_left_units)
+        self.fUnitsCombobox.currentIndexChanged.connect(self.set_right_units)
+
     @pyqtSlot()
     def load_directory(self):
         fileSearch = QFileDialog()
         fileSearch.setFileMode(QFileDialog.AnyFile)
-        fileSearch.setNameFilter("txt files (*.txt)")
+        fileSearch.setNameFilter("files ({})".format(self.extension))
 
         if fileSearch.exec_():
             self.spectrumPath = fileSearch.selectedFiles()[0]
@@ -55,5 +62,24 @@ class MrsPltList(QDialog, fit_line.src.ui_spectrumSelection.Ui_spectrumSelection
             self.redshift= 0.0
             self.redshiftLineEdit.setPlaceholderText('0.0')
 
+    def set_extension(self, index):
+        if index == 0:
+            self.extension = "*.txt"
+        else:
+            self.extension = "*.fits"
+
+    def set_left_units(self, index):
+        self.wUnits = self.wUnitsCombobox.itemText(index)
+
+    def set_right_units(self, index):
+        self.fUnits =self.fUnitsCombobox.itemText(index)
+
+
     def get_data(self):
-        return self.spectrumPath, self.redshift
+        wColumn = self.waveColumnLineEdit.text()
+        fColumn = self.fluxColumnLineEdit.text()
+        if wColumn == '':
+            wColumn = self.waveColumnLineEdit.placeholderText()
+        if fColumn == '':
+            fColumn = self.fluxColumnLineEdit.placeholderText()
+        return self.spectrumPath, self.redshift, int(wColumn), int(fColumn), self.wUnits, self.fUnits, self.extension

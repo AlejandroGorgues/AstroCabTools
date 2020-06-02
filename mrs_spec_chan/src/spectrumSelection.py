@@ -15,11 +15,13 @@ from PyQt5 import uic
 
 
 import mrs_spec_chan.src.spectrumSelectionListWidget as pltw
-import mrs_spec_chan.src.fileDialogProxyModel as proxyModel
-import mrs_spec_chan.src.ui_spectrum_selection
+
+import mrs_spec_chan.src.ui.ui_spectrum_selection
+
+from .utils.fileDialogProxyModel import ProxyModel
 
 
-class MrsSpctrmList(QDialog, mrs_spec_chan.src.ui_spectrum_selection.Ui_MrsSpctrmList):
+class MrsSpctrmList(QDialog, mrs_spec_chan.src.ui.ui_spectrum_selection.Ui_MrsSpctrmList):
 
     def __init__(self, parent=None ):
         super(MrsSpctrmList, self).__init__(parent)
@@ -51,7 +53,7 @@ class MrsSpctrmList(QDialog, mrs_spec_chan.src.ui_spectrum_selection.Ui_MrsSpctr
         directorySearch = QFileDialog()
         directorySearch.setFileMode(QFileDialog.Directory)
         directorySearch.setOption(QFileDialog.DontUseNativeDialog, True)
-        proxy = proxyModel.ProxyModel(directorySearch)
+        proxy = ProxyModel(directorySearch)
         directorySearch.setProxyModel(proxy)
 
         if directorySearch.exec_():

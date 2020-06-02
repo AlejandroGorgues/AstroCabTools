@@ -11,16 +11,15 @@ from os.path import expanduser
 import os
 
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, pyqtSlot,QIdentityProxyModel
+from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5 import uic
 
 
 import mrs_spec_chan.src.spectrumSelectionListWidget as pltw
-import mrs_spec_chan.src.fileDialogProxyModel as proxyModel
-import mrs_spec_chan.src.ui_template_selection
+import mrs_spec_chan.src.ui.ui_template_selection
 
 
-class MrsTmpltList(QDialog, mrs_spec_chan.src.ui_template_selection.Ui_MrsTmpltList):
+class MrsTmpltList(QDialog, mrs_spec_chan.src.ui.ui_template_selection.Ui_MrsTmpltList):
 
     def __init__(self, parent=None ):
         super(MrsTmpltList, self).__init__(parent)

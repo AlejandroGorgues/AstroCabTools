@@ -29,13 +29,14 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import mrs_det_plot.src.panZoom as pz
 import mrs_det_plot.src.axisPlots as ap
 import mrs_det_plot.src.pointPlot as pp
-import mrs_det_plot.src.fits as ft
-import mrs_det_plot.src.imgPlot as ip
-import mrs_det_plot.src.globalStats as gS
 import mrs_det_plot.src.imagesFits as isfs
-import mrs_det_plot.src.ui_mrs_det_plot
+import mrs_det_plot.src.ui.ui_mrs_det_plot
 
-class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui_mrs_det_plot.Ui_MrsDetPlot):
+from .utils.imgPlot import imgPlot
+from .utils.globalStats import globalStats
+from .utils.fits import fits
+
+class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot):
 
     def __init__(self, parent=None):
         """Initializer
@@ -249,7 +250,7 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui_mrs_det_plot.Ui_MrsDetPlot):
         self.midFigure, self.midFigure.canvas = pz.figure_pz()
 
         #Create grid plots with gridspec
-        #To change size of subplots to be able to make bigger the imgshow than the colorbar
+        #To change size of subplots to be able to make bigger the imow than the colorbar
         spec = gridspec.GridSpec(
             ncols=1, nrows=1, figure=self.midFigure)
 
@@ -350,7 +351,7 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui_mrs_det_plot.Ui_MrsDetPlot):
         self.frameMaximunWidgets[index].setText(str(self.fitsObjList[index].maxFrame))
         self.frameMinimunWidgets[index].setText("1")
 
-        #Because Slider and edittext cause to redraw initially the middle_plot11 multiple times
+        #Because Slider and edittext cause to redraw initially the middle_plot11 multe times
         #The signals that enable to redraw it are blocked
         self.frameSliderWidgets[index].blockSignals(True)
         self.integrationSliderWidgets[index].blockSignals(True)
@@ -387,7 +388,7 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui_mrs_det_plot.Ui_MrsDetPlot):
         """ Initialize fits object based on fits value from the file selected
         :param int index: current axis selected
         """
-        fitsObj = ft.fits(0, 0, -1, -1, 0, 0, 0, 0, '', 0, 0, '')
+        fitsObj = fits(0, 0, -1, -1, 0, 0, 0, 0, '', 0, 0, '')
 
 
         #Frames and integration could change positions, because of that
@@ -407,8 +408,8 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui_mrs_det_plot.Ui_MrsDetPlot):
         #Because the value of the x and y axis could not be 1,
         #Which would correspond with the values from the image axis,
         #The values are obtained to use it
-        fitsObj.shiftedXValue = float(hdul[1].header["CDELT1"])
-        fitsObj.shiftedYValue = float(hdul[1].header["CDELT2"])
+        fitsObj.shidXValue = float(hdul[1].header["CDELT1"])
+        fitsObj.shidYValue = float(hdul[1].header["CDELT2"])
 
         #The value of the center could also not be the same, so it's also obtained
         fitsObj.fitsXCenter = int(hdul[1].header["CRVAL1"])
@@ -552,7 +553,7 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui_mrs_det_plot.Ui_MrsDetPlot):
             :param int i: current axis selected
         """
         imgObj = self.imagesFits.get_image_obj_selected(index)
-        #Because the shift of the values corresponds to 1.0 each one
+        #Because the shiof the values corresponds to 1.0 each one
         #And the center of the image is 0 on x,y,z, the values on pixels are the same
         #However, as it's decided by the Fits file header, the y axis comes first instead of the x
         #Instead of beeing a coord (x,y) it's (y,x)
@@ -560,8 +561,8 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui_mrs_det_plot.Ui_MrsDetPlot):
         xdataRound = self.set_round_value(xdata)
         ydataRound = self.set_round_value(ydata)
 
-        xValueTransformed = int(xdataRound-self.fitsObjList[index].fitsXCenter*self.fitsObjList[index].shiftedXValue)
-        yValueTransformed = int(ydataRound-self.fitsObjList[index].fitsYCenter*self.fitsObjList[index].shiftedYValue)
+        xValueTransformed = int(xdataRound-self.fitsObjList[index].fitsXCenter*self.fitsObjList[index].shidXValue)
+        yValueTransformed = int(ydataRound-self.fitsObjList[index].fitsYCenter*self.fitsObjList[index].shidYValue)
 
         imgObj.xValues = self.hduls[index][1].data[self.fitsObjList[index].currIntegration,
                                                 self.fitsObjList[index].currFrame,
@@ -621,7 +622,7 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui_mrs_det_plot.Ui_MrsDetPlot):
             stretch = LinearStretch()
 
         elif globalStats.stretch == "Log":
-            stretch = LogStretch()
+            stretch = Loretch()
 
         else:
             stretch = SqrtStretch()

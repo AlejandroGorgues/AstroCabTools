@@ -13,11 +13,13 @@ from PyQt5 import uic
 
 
 import mrs_spec_chan.src.lineOfInterestSelectionListWidget as loiw
-import mrs_spec_chan.src.constants as const
-import mrs_spec_chan.src.ui_loi_selection
+
+from .utils.constants import LOID
+
+import mrs_spec_chan.src.ui.ui_loi_selection
 
 
-class MrsLoiList(QDialog, mrs_spec_chan.src.ui_loi_selection.Ui_MrsLoiList):
+class MrsLoiList(QDialog, mrs_spec_chan.src.ui.ui_loi_selection.Ui_MrsLoiList):
 
     def __init__(self, parent=None ):
         super(MrsLoiList, self).__init__(parent)
@@ -29,7 +31,7 @@ class MrsLoiList(QDialog, mrs_spec_chan.src.ui_loi_selection.Ui_MrsLoiList):
         self.load_data()
 
     def load_data(self):
-        for key in const.LOID.keys():
+        for key in LOID.keys():
             self.add_loi(key)
 
     def add_loi(self, key):

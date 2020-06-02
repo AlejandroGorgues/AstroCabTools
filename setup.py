@@ -10,17 +10,17 @@ setup(
 	name='astroTools',
 	version='1.0.0',
 	author='Alejandro',
-	author_email='correo',
-	url='sdfsd',
+	author_email='email',
+	url='url',
 	description='description',
-	package_dir={'src':'mrs_chan',
-		'src':'mrs_spec_chan',
-		'src':'mrs_det_plot',
-		'src':'fit_line'},
+	#package_dir={'src':'mrs_chan',
+	#	'src':'mrs_spec_chan',
+	#	'src':'mrs_det_plot',
+	#	'src':'fit_line'},
 	packages=['mrs_chan/src',
 		'mrs_spec_chan/src',
 		'mrs_det_plot/src',
-		'fit_line/src'],
+		'fit_line'],
 	include_package_data=True,
 	classifiers=[
 		'Programming Language :: Python :: 3.7',
@@ -32,7 +32,8 @@ setup(
 		'PyQt5>=5.14',
 		'numpy>=1.18.1',
 		'seaborn>=0.9.0',
-		'lmfit>=1.0.0'
+		'lmfit>=1.0.0',
+		'pubsub>=0.1.2'
 	],
 	entry_points={
 		'gui_scripts':[

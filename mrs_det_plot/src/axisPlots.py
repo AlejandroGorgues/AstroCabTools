@@ -16,10 +16,10 @@ from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 
 import mrs_det_plot.src.panZoom as pz
-import mrs_det_plot.src.ui_axis_plot
+import mrs_det_plot.src.ui.ui_axis_plot
 
 
-class MrsAxisPlot(QDialog, mrs_det_plot.src.ui_axis_plot.Ui_MrsAxisPlot):
+class MrsAxisPlot(QDialog, mrs_det_plot.src.ui.ui_axis_plot.Ui_MrsAxisPlot):
 
     def __init__(self, parent=None ):
         super(MrsAxisPlot, self).__init__(parent)

@@ -2,7 +2,6 @@
 """
 Method that applied redshift to flux and wavelength
 """
-import pandas as pd
 import numpy as np
 
 import sys
@@ -27,11 +26,12 @@ def apply_redshift_to_txt(path, z, wColumn, fColumn, wUnits, fUnits):
 
 	if z < 0:
 		raise Exception('Redshift value {} must not be negative'.format(z))
-	data = pd.read_csv(path, sep=' ', comment='#', header=None, usecols = [wColumn, fColumn])
+
+	data2 = np.loadtxt(path, delimiter=' ', comments='#', usecols=(wColumn, fColumn))
 	#Obtain the values of the emmited wavelength
 
-	wavelength= (data.iloc[:, 0]*(1.+z)).to_numpy()
-	flux = (data.iloc[:, 1]*(1.+z)).to_numpy()
+	wavelength= data2[0:data2.size,0]
+	flux = data2[0:data2.size,1]
 
 	wavelengthTuple, fluxTuple = zip(*sorted(zip(wavelength, flux)))
 
@@ -43,4 +43,7 @@ def apply_redshift_to_txt(path, z, wColumn, fColumn, wUnits, fUnits):
 	wavelength = sc.transform_wUnits(wavelength, wUnits)
 	flux = sc.transform_fUnits(flux, fUnits, wavelength)
 
-	return wavelength.value, flux.value, z
+	wavelenthNorm =wavelength.value*(1.+z)
+	fluxNorm = flux.value/(1.+z)
+
+	return wavelenthNorm, fluxNorm, z

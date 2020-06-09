@@ -71,7 +71,7 @@ class doubleGaussModel:
             self.__secondGaussFitPoints.leftX = xdata
             self.__secondGaussFitPoints.leftY = ydata
             self.__counter+= 1
-            return "Mark second continium coordinates"
+            return "Mark second continium"
 
         elif self.__counter==2:
 
@@ -81,40 +81,40 @@ class doubleGaussModel:
             self.__secondGaussFitPoints.rightX = xdata
             self.__secondGaussFitPoints.rightY = ydata
             self.__counter+= 1
-            return "Mark first sigma coordinates from first gaussian"
+            return "Mark first sigma from first gaussian"
 
         elif self.__counter==3:
             self.__firsGaussFitPoints.sigma1X = xdata
             self.__firsGaussFitPoints.sigma1Y = ydata
             self.__counter+= 1
-            return "Mark second sigma coordinates from first gaussian"
+            return "Mark second sigma from first gaussian"
 
         elif self.__counter==4:
             self.__firsGaussFitPoints.sigma2X = xdata
             self.__firsGaussFitPoints.sigma2Y = ydata
             self.__counter+= 1
-            return "Mark top (center and height) coordinates from first gaussian"
+            return "Mark top (center and height) from first gaussian"
 
         elif self.__counter==5:
 
             self.__firsGaussFitPoints.topX = xdata
             self.__firsGaussFitPoints.topY = ydata
             self.__counter+= 1
-            return "Mark first sigma coordinates from second gaussian"
+            return "Mark first sigma from second gaussian"
 
         elif self.__counter==6:
 
             self.__secondGaussFitPoints.sigma1X = xdata
             self.__secondGaussFitPoints.sigma1Y = ydata
             self.__counter+= 1
-            return "Mark second sigma coordinates from second gaussian"
+            return "Mark second sigma from second gaussian"
 
         elif self.__counter==7:
 
             self.__secondGaussFitPoints.sigma2X = xdata
             self.__secondGaussFitPoints.sigma2Y = ydata
             self.__counter+= 1
-            return "Mark top (center and height) coordinates from second gaussian"
+            return "Mark top (center and height) from second gaussian"
 
         else:
 
@@ -142,9 +142,9 @@ class doubleGaussModel:
         guesses.add(name='b', value = calculate_slope(self.__firsGaussFitPoints.leftX,
             self.__firsGaussFitPoints.leftY,self.__firsGaussFitPoints.rightX,self.__firsGaussFitPoints.rightY))
 
-        guesses.add(name='h', value = self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.)
-        guesses.add(name='c', value = np.mean(wavelengthValues))
-        guesses.add(name='sigma', value = abs(self.__firsGaussFitPoints.sigma2X-self.__firsGaussFitPoints.sigma1X)/2.355)
+        guesses.add(name='h1', value = self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.)
+        guesses.add(name='c1', value = np.mean(wavelengthValues))
+        guesses.add(name='sigma1', value = abs(self.__firsGaussFitPoints.sigma2X-self.__firsGaussFitPoints.sigma1X)/2.355)
 
         guesses.add(name='h2', value = self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.)
         guesses.add(name='c2', value = np.mean(wavelengthValues))
@@ -153,16 +153,18 @@ class doubleGaussModel:
         result = double_curve_fitting(wavelengthValues, fluxValues, guesses)
         #Update table of results parameters
         resultText = ""
-        resultText = "First gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h'].value), str(result.params['c'].value), str(result.params['sigma'].value))
+        resultText = "First gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h1'].value), str(result.params['c1'].value), str(result.params['sigma1'].value))
         resultText = resultText + "\n" + \
             "Second gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h2'].value), str(result.params['c2'].value), str(result.params['sigma2'].value))
-        resultText = resultText + "\n" + "First guassian integrated flux : "+ " = " + str(integrated_flux(result.params['h'].value, result.params['sigma'].value))
-        resultText = resultText + "\n" + "Second guassian integrated flux : "+ " = " + str(integrated_flux(result.params['h2'].value, result.params['sigma2'].value))
         resultText = resultText + "\n" + "Line model: {} + {} * x".format(str(result.params['a'].value), str(result.params['b'].value))
-        resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
+        resultText = resultText + "\n" + "First guassian integrated flux : "+ " = " + str(integrated_flux(result.params['h1'].value, result.params['sigma1'].value))
+
+
         gaussFitResultList = [key + " = " + str(result.params[key].value) for key in result.params]
 
         for resultParams in gaussFitResultList:
+            if resultParams.startswith('h2'):
+                resultText = resultText + "\n" + "Second guassian integrated flux : "+ " = " + str(integrated_flux(result.params['h2'].value, result.params['sigma2'].value))
             resultText = resultText + "\n" + resultParams
-
+        resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
         return result, resultText, wavelengthValues, fluxValues

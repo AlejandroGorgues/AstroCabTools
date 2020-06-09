@@ -108,7 +108,6 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         self.ax1.set_visible(False)
 
         self.middlePlot.setLayout(layout)
-        self.draw_plot_area()
 
     def show_gauss_selection(self):
         """Show the gauss list dialog"""
@@ -123,9 +122,9 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         #Set text and range of the axes
         self.ax1.set_xlabel(r'$\mu m$')
 
-        self.ax1.set_ylabel(r'$f_\lambda$')
+        self.ax1.set_ylabel(r'$f_\lambda ( \frac{erg}{s cm^2 \mu m} )$')
 
-        self.ax1.grid()
+        self.ax1.grid(True)
 
     def draw_plot(self, redshift, filename):
         """ Draw the plot
@@ -175,6 +174,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
 
 
             #Print the plot
+            self.draw_plot_area()
             self.draw_plot(z, path)
             self.set_interface_state(True)
 
@@ -209,25 +209,21 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         self.pointsGenerationButton.setText("Cancel the action")
 
         if self.counterState:
-            #Delete previous markers if the user pressed to start to select new points again
-            for i in range(self.model.counter -1):
 
-                marker = next((marker for marker in self.ax1.collections if marker is self.model.markers[len(self.model.markers)-1]), None)
-                self.ax1.collections.remove(marker)
-                self.model.del_marker(marker)
-                del marker
-
+            self.delete_previous_markers()
             self.indicationLabel.setText("")
             self.pointsGenerationButton.setText("Mark points")
+            self.modelSelectionComboBox.setEnabled(True)
             self.counterState = False
             self.figure.canvas.draw()
         else:
+            self.modelSelectionComboBox.setEnabled(False)
             if self.typeModel == "singleGauss":
                 self.model = gaussModel()
             else:
                 self.model = doubleGaussModel()
 
-            self.indicationLabel.setText("Mark first continium coordinates")
+            self.indicationLabel.setText("Mark first continium")
             self.counterState = True
 
     def show_gauss_fit_data(self):
@@ -242,45 +238,55 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         #Return click funct to axis
         def click_fun(event):
 
-            if event.inaxes == self.ax1 and event.dblclick:
+            try:
+                if event.inaxes == self.ax1 and event.dblclick:
 
 
-                if self.counterState == True:
-                    xdata = event.xdata
-                    ydata = event.ydata
+                    if self.counterState == True:
+                        xdata = event.xdata
+                        ydata = event.ydata
 
-                    self.indicationLabel.setText(self.model.add_data_points(xdata, ydata))
-                    self.add_crosshair(xdata, ydata)
+                        self.indicationLabel.setText(self.model.add_data_points(xdata, ydata))
+                        self.add_crosshair(xdata, ydata)
 
-                    if self.model.counter == self.model.max_counter:
+                        if self.model.counter == self.model.max_counter:
 
-                        self.counterState=False
-                        self.pointsGenerationButton.setText("Mark points")
-                        result, resultText, wavelengthValues, fluxValues = self.model.draw_gauss_curve_fit(self.wavelength, self.flux)
-                        self.gaussDataV.add_spectrum_values(result, wavelengthValues, fluxValues)
-                        self.gaussDataV.add_gauss_data(resultText)
-                        self.gaussDataV.add_delimiter_line()
-                        if isinstance(self.model, fit_line.src.models.gaussModelCreation.gaussModel):
-                            #Draw the plots
-                            self.model.lines = self.ax1.plot(wavelengthValues, result.init_fit, 'y--',label='Initial fit')[0]
-                            self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
-                            comps = result.eval_components()
-                            self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--',label='Fitted gaussian')[0]
-                            self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
+                            self.counterState=False
+                            self.pointsGenerationButton.setText("Mark points")
+                            result, resultText, wavelengthValues, fluxValues = self.model.draw_gauss_curve_fit(self.wavelength, self.flux)
+                            self.gaussDataV.add_spectrum_values(result, wavelengthValues, fluxValues)
+                            self.gaussDataV.add_gauss_data(resultText)
+                            self.gaussDataV.add_delimiter_line()
+                            if isinstance(self.model, fit_line.src.models.gaussModelCreation.gaussModel):
+                                #Draw the plots
+                                self.model.lines = self.ax1.plot(wavelengthValues, result.init_fit, 'y--',label='Initial fit')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
+                                comps = result.eval_components()
 
-                        else:
-                            #Draw the plots
-                            self.model.lines = self.ax1.plot(wavelengthValues, result.init_fit, 'y--',label='Initial fit')[0]
-                            self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
-                            comps = result.eval_components()
-                            self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--',label='First fitted gaussian')[0]
-                            self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function2'], 'k--',label='Second fitted gaussian')[0]
-                            self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--',label='Fitted gaussian')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'] + comps['line_fitting_function'], 'k:')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
 
-                        self.models.append(self.model)
-                        self.check_repeat_model_labels()
+                            else:
+                                #Draw the plots
+                                self.model.lines = self.ax1.plot(wavelengthValues, result.init_fit, 'y--',label='Initial fit')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
+                                comps = result.eval_components()
 
-            self.figure.canvas.draw()
+                                self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function1'], 'k--',label='Fitted gaussian')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function2'], 'k--')[0]
+                                self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function1'] + comps['line_fitting_function'], 'k:')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function2'] + comps['line_fitting_function'], 'k:')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
+
+                            self.modelSelectionComboBox.setEnabled(True)
+                            self.models.append(self.model)
+                            self.check_repeat_model_labels()
+
+                self.figure.canvas.draw()
+            except ValueError:
+                self.error_reduction_alert()
+                self.delete_previous_markers()
 
         #Obtain data on click event
         self.figure.canvas.mpl_connect('button_press_event', lambda event: click_fun(
@@ -300,13 +306,13 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         """
         Check if specified labels have been used befor to not duplicate the legend box
         """
-        setList = set(['Initial fit', 'Best fit', 'Fitted gaussian', 'Fitted line'])
+        setList = set(['Initial fit', 'Best fit', 'Fitted gaussian', 'Fitted continium'])
         setCurr = set(self.currLabels)
         if len(setList.intersection(setCurr))  == 0:
             self.currLabels.append('Initial fit')
             self.currLabels.append('Best fit')
             self.currLabels.append('Fitted gaussian')
-            self.currLabels.append('Fitted line')
+            self.currLabels.append('Fitted continium')
             self.update_legend()
 
     def set_interface_state(self, state):
@@ -340,6 +346,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
 
     @pyqtSlot(str)
     def save_plot_on_path(self, path):
+        path = path + "_ajuste"
         plt.savefig(path, dpi = 600, bbox_inches='tight')
 
     @pyqtSlot()
@@ -396,13 +403,12 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
                     model.del_line(line)
                     del line
 
-
             for i in range(len(model.markers)):
                 marker = next((marker for marker in self.ax1.collections), None)
                 self.ax1.collections.remove(marker)
                 model.del_marker(marker)
                 del marker
-            models.remove(model)
+            self.models.remove(model)
             del model
 
         self.update_legend()
@@ -428,8 +434,6 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
             self.typeModel = "singleGauss"
         else:
             self.typeModel = "doubleGauss"
-
-
 
     @pyqtSlot()
     def activate_click(self):
@@ -463,6 +467,14 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
     @pyqtSlot()
     def undo_action(self):
         self.figure.pan_zoom.undo_last_action()
+
+    def delete_previous_markers(self):
+        for i in range(self.model.counter -1):
+
+            marker = next((marker for marker in self.ax1.collections if marker is self.model.markers[len(self.model.markers)-1]), None)
+            self.ax1.collections.remove(marker)
+            self.model.del_marker(marker)
+            del marker
 
     def close_event(self, event):
         """
@@ -513,6 +525,12 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         alert = QMessageBox()
         alert.setText("Error: Filename name or extension not correct, \n in case \
         of being the error in the extension, it must be blank or .txt ")
+        alert.exec_()
+
+    def error_reduction_alert(self):
+
+        alert = QMessageBox()
+        alert.setText("Error: Zero-size array to reduction operation minimum which has no identity ")
         alert.exec_()
 
 

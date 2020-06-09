@@ -55,11 +55,11 @@ class MrsResidualsV(QDialog, fit_line.src.ui.ui_residualsVisualization.Ui_residu
         self.ax1.set_xlabel(r'$\mu m$')
         self.ax2.set_xlabel(r'$\mu m$')
 
-        self.ax1.set_ylabel(r'$f_\lambda$')
-        #self.ax2.set_ylabel(r'$f_\lambda$')
+        self.ax1.set_ylabel(r'$f_\lambda ( \frac{erg}{s cm^2 \mu m} )$')
+        self.ax2.set_ylabel(r'$f_\lambda ( \frac{erg}{s cm^2 \mu m} )$')
 
-        self.ax1.grid()
-        self.ax2.grid()
+        self.ax1.grid(True)
+        self.ax2.grid(True)
 
     def draw_plot(self, result, wValues, fValues, residuals):
         """ Draw the plot
@@ -73,7 +73,8 @@ class MrsResidualsV(QDialog, fit_line.src.ui.ui_residualsVisualization.Ui_residu
 
         self.ax1.plot(wValues, fValues, c='#4c72b0',label='Spectrum')
         self.ax1.plot(wValues, result.best_fit, 'r-',label='Best fit')
-        self.ax2.plot(wValues, residuals, 'b-',label='Residuals')
+        self.ax2.plot(wValues, residuals,linestyle='',color= 'b', marker='o',label='Residuals')
+        self.ax2.axhline(y=0, color = "#fc0a0a", linestyle = "--")
 
         self.draw_legends()
 
@@ -118,3 +119,26 @@ class MrsResidualsV(QDialog, fit_line.src.ui.ui_residualsVisualization.Ui_residu
 
         h, labels = self.ax2.get_legend_handles_labels()
         self.ax2.legend(labels=labels, loc="upper right", frameon=True, framealpha = 1, facecolor = 'white')
+
+    def generate_all_residuals(self, path):
+        """
+        Generate each of the residuals plots to save each one on a different file
+        :param str path: Path of the generic file name where the images
+        are gonna be saved
+        """
+
+        for residuals_index_data in range(len(self.residualsAttr_list)):
+            result = self.residualsAttr_list[residuals_index_data]['result']
+            wValues = self.residualsAttr_list[residuals_index_data]['wValues']
+            fValues = self.residualsAttr_list[residuals_index_data]['fValues']
+
+            residuals = self.get_residuals(result, fValues)
+
+            self.draw_plot_area()
+            self.draw_plot(result, wValues, fValues, residuals)
+            self.save_residual_on_path(path, residuals_index_data)
+
+
+    def save_residual_on_path(self, path, index):
+        path = path + "_resid" + str(index)
+        self.figure.savefig(path, dpi = 600, bbox_inches='tight')

@@ -42,4 +42,8 @@ def apply_redshift_to_fits(path, z, wColumn, fColumn, wUnits, fUnits):
 
 	wavelength = sc.transform_wUnits(wavelength, wUnits)
 	flux = sc.transform_fUnits(flux, fUnits, wavelength)
-	return wavelength.value, flux.value, z
+	
+	wavelenthNorm =wavelength.value*(1.+z)
+	fluxNorm = flux.value/(1.+z)
+
+	return wavelenthNorm, fluxNorm, z

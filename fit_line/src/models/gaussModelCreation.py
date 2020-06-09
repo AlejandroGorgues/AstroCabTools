@@ -67,26 +67,26 @@ class gaussModel:
             self.__gaussFitPoints.leftX = xdata
             self.__gaussFitPoints.leftY = ydata
             self.__counter+= 1
-            return "Mark second continium coordinates"
+            return "Mark second continium"
 
         elif self.__counter==2:
 
             self.__gaussFitPoints.rightX = xdata
             self.__gaussFitPoints.rightY = ydata
             self.__counter+= 1
-            return "Mark first sigma coordinates"
+            return "Mark first sigma"
 
         elif self.__counter==3:
             self.__gaussFitPoints.sigma1X = xdata
             self.__gaussFitPoints.sigma1Y = ydata
             self.__counter+= 1
-            return "Mark second sigma coordinates"
+            return "Mark second sigma"
 
         elif self.__counter==4:
             self.__gaussFitPoints.sigma2X = xdata
             self.__gaussFitPoints.sigma2Y = ydata
             self.__counter+= 1
-            return "Mark top (center and height) coordinates"
+            return "Mark top (center and height)"
 
         else:
 
@@ -124,12 +124,12 @@ class gaussModel:
         #Update table of results parameters
         resultText = ""
         resultText = "Gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h'].value), str(result.params['c'].value), str(result.params['sigma'].value))
-        resultText = resultText + "\n" + "Gaussian integrated flux : "+ " = " + str(integrated_flux(result.params['h'].value, result.params['sigma'].value))
         resultText = resultText + "\n" + "Line model: {} + {} * x".format(str(result.params['a'].value), str(result.params['b'].value))
-        resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
+        resultText = resultText + "\n" + "Gaussian integrated flux : "+ " = " + str(integrated_flux(result.params['h'].value, result.params['sigma'].value))
+
         gaussFitResultList = [key + " = " + str(result.params[key].value) for key in result.params]
 
         for resultParams in gaussFitResultList:
             resultText = resultText + "\n" + resultParams
-
+        resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
         return result, resultText, wavelengthValues, fluxValues

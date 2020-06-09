@@ -10,7 +10,7 @@ import glob
 from os.path import expanduser
 
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, pyqtSlot,QIdentityProxyModel
+from PyQt5.QtCore import Qt, pyqtSlot,QIdentityProxyModel, QRegExp
 from PyQt5 import QtGui
 from PyQt5 import uic
 
@@ -24,6 +24,11 @@ class MrsPltList(QDialog, fit_line.src.ui.ui_spectrumSelection.Ui_spectrumSelect
         self.extension = "*.txt"
         self.wUnits = "um"
         self.fUnits = "erg/s/cm2/micron"
+
+        regex = QRegExp('^(0|[1-9][0-9]?|100)$')
+        validator = QtGui.QRegExpValidator(regex, self)
+        self.waveColumnLineEdit.setValidator(validator)
+        self.fluxColumnLineEdit.setValidator(validator)
 
 
         self.fileButton.clicked.connect(self.load_directory)
@@ -65,8 +70,10 @@ class MrsPltList(QDialog, fit_line.src.ui.ui_spectrumSelection.Ui_spectrumSelect
     def set_extension(self, index):
         if index == 0:
             self.extension = "*.txt"
+            self.spectrumPath.setText('')
         else:
             self.extension = "*.fits"
+            self.spectrumPath.setText('')
 
     def set_left_units(self, index):
         self.wUnits = self.wUnitsCombobox.itemText(index)

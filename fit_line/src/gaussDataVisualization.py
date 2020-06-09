@@ -27,8 +27,6 @@ class MrsFitLineData(QDialog, fit_line.src.ui.ui_gaussDataVisualization.Ui_gauss
 
         self.gaussDataCreated = []
 
-        self.setModal(False)
-
         self.residualsV = ressV.MrsResidualsV()
 
         self.saveButton.clicked.connect(self.save_data)
@@ -42,10 +40,7 @@ class MrsFitLineData(QDialog, fit_line.src.ui.ui_gaussDataVisualization.Ui_gauss
         Add model data to the list widget
         :param str data: data obtained from the model
         """
-        if self.gaussListWidget.count() > 0:
-            self.saveButton.setEnabled(True)
-        else:
-            self.saveButton.setEnabled(False)
+
 
         it = QListWidgetItem()
         self.gaussListWidget.addItem(it)
@@ -54,6 +49,8 @@ class MrsFitLineData(QDialog, fit_line.src.ui.ui_gaussDataVisualization.Ui_gauss
         it.setSizeHint(widget.sizeHint())
 
         self.gaussDataCreated.append(data)
+        self.saveButton.setEnabled(True)
+
 
     def add_delimiter_line(self):
         it = QListWidgetItem()
@@ -75,11 +72,17 @@ class MrsFitLineData(QDialog, fit_line.src.ui.ui_gaussDataVisualization.Ui_gauss
             item = self.gaussListWidget.takeItem(self.gaussListWidget.count()-1)
             del item
         self.residualsV.delete_last_residuals()
+        if self.gaussListWidget.count() == 0:
+            self.saveButton.setEnabled(False)
 
     def delete_all(self):
         self.gaussListWidget.clear()
         self.gaussDataCreated.clear()
         self.residualsV.delete_all_residuals()
+        self.saveButton.setEnabled(False)
+
+    def save_all_residuals_images(self, path):
+        self.residualsV.generate_all_residuals(path)
 
     @pyqtSlot(QListWidgetItem)
     def show_residuals(self, item):
@@ -103,19 +106,33 @@ class MrsFitLineData(QDialog, fit_line.src.ui.ui_gaussDataVisualization.Ui_gauss
             fileSave = QFileDialog()
             fileSave.setNameFilter("txt files (*.txt)")
             name = fileSave.getSaveFileName(self, 'Save File')
+            file = ""
             if name[0] !=""  :
-                file = name[0] + '.txt' if not name[0].endswith('.txt') else name[0]
-                with open(file, 'w+') as dataFile:
+
+                if name[0].endswith('.txt'):
+                    file = name[0][:-4]
+                else:
+                    file = name[0]
+                file_fitted = file + "_ajuste"
+                final_file_name = file_fitted + ".txt"
+                with open(final_file_name, 'w+') as dataFile:
                     for data in self.gaussDataCreated:
                         dataFile.write(data + '\n')
                 #Emit signal to main window to save current figure as png
-                self.savePlot.emit(file[:-4])
+
+                self.savePlot.emit(file)
+                self.residualsV.generate_all_residuals(file)
         except Exception as e:
             self.show_file_extension_alert()
+
+    def close_event(self, event):
+        """
+        Close other windows when dialog is closed
+        """
+        self.residualsV.close()
 
     def show_file_extension_alert(self):
 
         alert = QMessageBox()
-        alert.setText("Error: Filename name or extension not correct, \n in case \
-        of being the error in the extension, it must be blank or .txt ")
+        alert.setText("Error: Filename name or extension not correct, \n it must be blank or .txt ")
         alert.exec_()

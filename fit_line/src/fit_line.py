@@ -180,7 +180,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
 
 
         except Exception as e:
-            self.show_alert()
+            self.show_file_alert()
 
     def set_spectrum_ranges(self, wavelength, flux):
         """
@@ -287,6 +287,13 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
             except ValueError:
                 self.error_reduction_alert()
                 self.delete_previous_markers()
+                self.figure.canvas.draw()
+                self.modelSelectionComboBox.setEnabled(True)
+            except TypeError:
+                self.generic_alert()
+                self.delete_previous_markers()
+                self.figure.canvas.draw()
+                self.modelSelectionComboBox.setEnabled(True)
 
         #Obtain data on click event
         self.figure.canvas.mpl_connect('button_press_event', lambda event: click_fun(
@@ -513,10 +520,17 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         self.figure.pan_zoom.set_axes_limits(self.initialLimits["xlim"], self.initialLimits["ylim"])
         self.figure.pan_zoom.clear_commands()
 
-    def show_alert(self):
+    def show_file_alert(self):
 
         alert = QMessageBox()
         alert.setText("Error: Input or file values incorrect")
+        alert.setDetailedText(traceback.format_exc())
+        alert.exec_()
+
+    def generic_alert(self):
+
+        alert = QMessageBox()
+        alert.setText("Error")
         alert.setDetailedText(traceback.format_exc())
         alert.exec_()
 

@@ -211,7 +211,7 @@ class Ui_FitLine(object):
         FitLine.setWindowTitle(_translate("FitLine", "FitLine"))
         self.modelSelectionLabel.setText(_translate("FitLine", "Choose model to be fitted"))
         self.modelSelectionComboBox.setItemText(0, _translate("FitLine", "One gaussian"))
-        self.modelSelectionComboBox.setItemText(1, _translate("FitLine", "Two gaussian"))
+        self.modelSelectionComboBox.setItemText(1, _translate("FitLine", "Two gaussians"))
         self.clickNormalButton.setText(_translate("FitLine", "Click"))
         self.zoomButton.setText(_translate("FitLine", "Zoom"))
         self.panButton.setText(_translate("FitLine", "Pan"))

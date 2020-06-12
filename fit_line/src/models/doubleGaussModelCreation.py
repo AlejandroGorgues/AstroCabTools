@@ -13,7 +13,7 @@ import io
 
 
 from .pointsData import pointsData
-from  fit_line.src.utils.fitting_model_creation import calculate_intercept, calculate_slope, integrated_flux, double_curve_fitting
+from  fit_line.src.utils.fitting_model_creation import calculate_intercept, calculate_slope, integrated_flux, double_curve_fitting, gauss_fitting_function
 
 __all__ = ['doubleGaussModel']
 
@@ -123,7 +123,13 @@ class doubleGaussModel:
             self.__counter+= 1
             return ""
 
-    def draw_gauss_curve_fit(self, wavelength, flux):
+    def _generate_initial_gauss_model(self,wavelengthValues, h, c, sigma):
+        y_values = []
+        for x in wavelengthValues:
+            y_values.append(gauss_fitting_function(x, h, c, sigma))
+        return y_values
+
+    def draw_gauss_curve_fit(self, path, wavelength, flux):
         """ Generate the gauss model, draw the model results based on x value range
         and update the table that shows the results parameters"""
 
@@ -136,6 +142,12 @@ class doubleGaussModel:
         #Obtain the flux values between the indexes obtained previously
         fluxValues = flux[index1[0][0]:(index2[0][0]+1)]
 
+        inital_y1_values = self._generate_initial_gauss_model(wavelengthValues, self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.,
+            self.__firsGaussFitPoints.topX, abs(self.__firsGaussFitPoints.sigma2X - self.__firsGaussFitPoints.sigma1X)/2.355)
+
+        inital_y2_values = self._generate_initial_gauss_model(wavelengthValues, self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.,
+            self.__secondGaussFitPoints.topX, abs(self.__secondGaussFitPoints.sigma2X - self.__secondGaussFitPoints.sigma1X)/2.355)
+
         guesses = Parameters()
         guesses.add(name='a', value = calculate_intercept(calculate_slope(self.__firsGaussFitPoints.leftX,
             self.__firsGaussFitPoints.leftY,self.__firsGaussFitPoints.rightX,self.__firsGaussFitPoints.rightY), self.__firsGaussFitPoints.leftX, self.__firsGaussFitPoints.leftY))
@@ -143,17 +155,18 @@ class doubleGaussModel:
             self.__firsGaussFitPoints.leftY,self.__firsGaussFitPoints.rightX,self.__firsGaussFitPoints.rightY))
 
         guesses.add(name='h1', value = self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.)
-        guesses.add(name='c1', value = np.mean(wavelengthValues))
+        guesses.add(name='c1', value = self.__firsGaussFitPoints.topX)
         guesses.add(name='sigma1', value = abs(self.__firsGaussFitPoints.sigma2X-self.__firsGaussFitPoints.sigma1X)/2.355)
 
         guesses.add(name='h2', value = self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.)
-        guesses.add(name='c2', value = np.mean(wavelengthValues))
+        guesses.add(name='c2', value = self.__secondGaussFitPoints.topX)
         guesses.add(name='sigma2', value = abs(self.__secondGaussFitPoints.sigma2X-self.__secondGaussFitPoints.sigma1X)/2.355)
         #Obtain the model
         result = double_curve_fitting(wavelengthValues, fluxValues, guesses)
         #Update table of results parameters
-        resultText = ""
-        resultText = "First gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h1'].value), str(result.params['c1'].value), str(result.params['sigma1'].value))
+        resultText = "Path: {}".format(path)
+        resultText = resultText + "\n" + \
+            "First gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h1'].value), str(result.params['c1'].value), str(result.params['sigma1'].value))
         resultText = resultText + "\n" + \
             "Second gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h2'].value), str(result.params['c2'].value), str(result.params['sigma2'].value))
         resultText = resultText + "\n" + "Line model: {} + {} * x".format(str(result.params['a'].value), str(result.params['b'].value))
@@ -167,4 +180,4 @@ class doubleGaussModel:
                 resultText = resultText + "\n" + "Second guassian integrated flux : "+ " = " + str(integrated_flux(result.params['h2'].value, result.params['sigma2'].value))
             resultText = resultText + "\n" + resultParams
         resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
-        return result, resultText, wavelengthValues, fluxValues
+        return result, resultText, wavelengthValues, fluxValues, inital_y1_values, inital_y2_values

@@ -24,6 +24,7 @@ class MrsPltList(QDialog, fit_line.src.ui.ui_spectrumSelection.Ui_spectrumSelect
         self.extension = "*.txt"
         self.wUnits = "um"
         self.fUnits = "erg/s/cm2/micron"
+        self.spectrumPath = ''
 
         regex = QRegExp('^(0|[1-9][0-9]?|100)$')
         validator = QtGui.QRegExpValidator(regex, self)
@@ -70,10 +71,10 @@ class MrsPltList(QDialog, fit_line.src.ui.ui_spectrumSelection.Ui_spectrumSelect
     def set_extension(self, index):
         if index == 0:
             self.extension = "*.txt"
-            self.spectrumPath.setText('')
+            self.pathInputLabel.setText('')
         else:
             self.extension = "*.fits"
-            self.spectrumPath.setText('')
+            self.pathInputLabel.setText('')
 
     def set_left_units(self, index):
         self.wUnits = self.wUnitsCombobox.itemText(index)

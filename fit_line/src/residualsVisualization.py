@@ -52,11 +52,11 @@ class MrsResidualsV(QDialog, fit_line.src.ui.ui_residualsVisualization.Ui_residu
         self.ax2.clear()
 
         #Set text and range of the axes
-        self.ax1.set_xlabel(r'$\mu m$')
-        self.ax2.set_xlabel(r'$\mu m$')
+        self.ax1.set_xlabel(r'$Wavelength(\mu m)$')
+        self.ax2.set_xlabel(r'$Wavelength(\mu m)$')
 
-        self.ax1.set_ylabel(r'$f_\lambda ( \frac{erg}{s cm^2 \mu m} )$')
-        self.ax2.set_ylabel(r'$f_\lambda ( \frac{erg}{s cm^2 \mu m} )$')
+        self.ax1.set_ylabel(r'$f_\lambda ( \frac{erg}{s\enspace cm^2\>\mu m} )$')
+        self.ax2.set_ylabel(r'$f_\lambda ( \frac{erg}{s\enspace cm^2\>\mu m} )$')
 
         self.ax1.grid(True)
         self.ax2.grid(True)
@@ -108,7 +108,8 @@ class MrsResidualsV(QDialog, fit_line.src.ui.ui_residualsVisualization.Ui_residu
         self.draw_plot(result, wValues, fValues, residuals)
 
     def delete_last_residuals(self):
-        self.residualsAttr_list.pop()
+        if len(self.residualsAttr_list)> 0:
+            self.residualsAttr_list.pop()
 
     def delete_all_residuals(self):
         self.residualsAttr_list.clear()

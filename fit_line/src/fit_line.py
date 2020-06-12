@@ -120,9 +120,9 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         self.ax1.clear()
 
         #Set text and range of the axes
-        self.ax1.set_xlabel(r'$\mu m$')
+        self.ax1.set_xlabel(r'$Wavelength(\mu m)$')
 
-        self.ax1.set_ylabel(r'$f_\lambda ( \frac{erg}{s cm^2 \mu m} )$')
+        self.ax1.set_ylabel(r'$f_\lambda ( \frac{erg}{s\enspace cm^2\>\mu m} )$')
 
         self.ax1.grid(True)
 
@@ -166,6 +166,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         :param str fUnits: units of the flux values
         """
         try:
+            self.path = path
             if fileExt =='*.txt':
                 self.wavelength, self.flux, z = apply_redshift_to_txt(path, z, wColumn, fColumn, wUnits, fUnits)
             elif fileExt == '*.fits':
@@ -253,29 +254,31 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
 
                             self.counterState=False
                             self.pointsGenerationButton.setText("Mark points")
-                            result, resultText, wavelengthValues, fluxValues = self.model.draw_gauss_curve_fit(self.wavelength, self.flux)
+                            result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values = self.model.draw_gauss_curve_fit(self.path, self.wavelength, self.flux)
                             self.gaussDataV.add_spectrum_values(result, wavelengthValues, fluxValues)
                             self.gaussDataV.add_gauss_data(resultText)
                             self.gaussDataV.add_delimiter_line()
-                            if isinstance(self.model, fit_line.src.models.gaussModelCreation.gaussModel):
-                                #Draw the plots
-                                self.model.lines = self.ax1.plot(wavelengthValues, result.init_fit, 'y--',label='Initial fit')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
-                                comps = result.eval_components()
 
-                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'], 'k--',label='Fitted gaussian')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'] + comps['line_fitting_function'], 'k:')[0]
+                            if isinstance(self.model, fit_line.src.models.gaussModelCreation.gaussModel):
+
+                                #Draw the plots
+                                comps = result.eval_components()
+                                self.model.lines = self.ax1.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
+
+
+                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
                                 self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
 
                             else:
                                 #Draw the plots
-                                self.model.lines = self.ax1.plot(wavelengthValues, result.init_fit, 'y--',label='Initial fit')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
                                 comps = result.eval_components()
+                                self.model.lines = self.ax1.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, initial_y2_values+ comps['line_fitting_function'], 'y--')[0]
+                                self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
 
-                                self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function1'], 'k--',label='Fitted gaussian')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function2'], 'k--')[0]
-                                self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function1'] + comps['line_fitting_function'], 'k:')[0]
+
+                                self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function1'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
                                 self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function2'] + comps['line_fitting_function'], 'k:')[0]
                                 self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
 
@@ -284,17 +287,11 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
                             self.check_repeat_model_labels()
 
                 self.figure.canvas.draw()
-            except ValueError:
-                self.error_reduction_alert()
-                self.delete_previous_markers()
-                self.figure.canvas.draw()
-                self.modelSelectionComboBox.setEnabled(True)
-            except TypeError:
+            except Exception as e:
                 self.generic_alert()
                 self.delete_previous_markers()
                 self.figure.canvas.draw()
                 self.modelSelectionComboBox.setEnabled(True)
-
         #Obtain data on click event
         self.figure.canvas.mpl_connect('button_press_event', lambda event: click_fun(
             event))
@@ -369,6 +366,8 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         if int == QDialog.Accepted:
             path, redshift, wColumn, fColumn, wUnits, fUnits, fileExt = self.spectrumSelection.get_data()
             self.load_file(path, redshift, wColumn, fColumn, wUnits, fUnits, fileExt)
+            self.activate_click()
+            self.gaussDataV.delete_gauss_data()
         self.figure.canvas.draw()
 
     @pyqtSlot()
@@ -377,41 +376,44 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         Becuase for each model, 4 lines, 5 markers and 4 legends labels are created,
         deleting the last of them requires to delete the ones that has been created with it also
         """
-        model = self.models.pop()
-        for i in range(len(model.lines)):
-            line = model.lines[-1]
-            self.ax1.lines.remove(line)
-            model.del_line(line)
-            del line
+        if len(self.models) > 0:
+            model = self.models.pop()
+            for i in range(len(model.lines)):
+                line = model.lines[-1]
+                self.ax1.lines.remove(line)
+                model.del_line(line)
+                del line
 
 
-        for i in range(len(model.markers)):
-            marker = model.markers[-1]
-            self.ax1.collections.remove(marker)
-            model.del_marker(marker)
-            del marker
+            for i in range(len(model.markers)):
+                marker = model.markers[-1]
+                self.ax1.collections.remove(marker)
+                model.del_marker(marker)
+                del marker
 
-        if len(self.ax1.lines) ==1:
-            self.update_legend()
-            self.currLabels.clear()
-        self.figure.canvas.draw()
-        self.gaussDataV.delete_gauss_data()
-        del model
+            if len(self.ax1.lines) ==1:
+                self.update_legend()
+                self.currLabels.clear()
+            self.figure.canvas.draw()
+            self.gaussDataV.delete_gauss_data()
+            del model
 
 
     @pyqtSlot()
     def clear_fitted_models(self):
         """ Delete only the models and markers from the canvas"""
-        for model in self.models:
-            for i in range(len(model.lines)):
+
+        for i in reversed(range(len(self.models))):
+            model = self.models[i]
+            for j in range(len(model.lines)):
                 line = next((line for line in self.ax1.lines if line in model.lines), None)
                 if line != None:
                     self.ax1.lines.remove(line)
                     model.del_line(line)
                     del line
 
-            for i in range(len(model.markers)):
-                marker = next((marker for marker in self.ax1.collections), None)
+            for j in reversed(range(len(model.markers))):
+                marker = model.markers[j]
                 self.ax1.collections.remove(marker)
                 model.del_marker(marker)
                 del marker

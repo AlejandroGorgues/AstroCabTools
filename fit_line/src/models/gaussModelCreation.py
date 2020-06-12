@@ -12,7 +12,7 @@ import traceback
 import io
 
 from .pointsData import pointsData
-from  fit_line.src.utils.fitting_model_creation import calculate_intercept, calculate_slope, integrated_flux, curve_fitting
+from  fit_line.src.utils.fitting_model_creation import calculate_intercept, calculate_slope, integrated_flux, curve_fitting, gauss_fitting_function
 
 __all__ = ['gaussModel']
 
@@ -95,10 +95,16 @@ class gaussModel:
             self.__counter+= 1
             return ""
 
+    def _generate_initial_gauss_model(self,wavelengthValues, h, c, sigma):
+        y_values = []
+        for x in wavelengthValues:
+            y_values.append(gauss_fitting_function(x, h, c, sigma))
+        return y_values
 
 
 
-    def draw_gauss_curve_fit(self, wavelength, flux):
+
+    def draw_gauss_curve_fit(self, path, wavelength, flux):
         """ Generate the gauss model, draw the model results based on x value range
         and update the table that shows the results parameters"""
 
@@ -111,6 +117,9 @@ class gaussModel:
         #Obtain the flux values between the indexes obtained previously
         fluxValues = flux[index1[0][0]:(index2[0][0]+1)]
 
+        inital_y_values = self._generate_initial_gauss_model(wavelengthValues, self.__gaussFitPoints.topY - (self.__gaussFitPoints.leftY + self.__gaussFitPoints.rightY)/2.,
+            self.__gaussFitPoints.topX, abs(self.__gaussFitPoints.sigma2X-self.__gaussFitPoints.sigma1X)/2.355)
+
         guesses = Parameters()
         guesses.add(name='a', value = calculate_intercept(calculate_slope(self.__gaussFitPoints.leftX,
             self.__gaussFitPoints.leftY,self.__gaussFitPoints.rightX,self.__gaussFitPoints.rightY), self.__gaussFitPoints.leftX, self.__gaussFitPoints.leftY))
@@ -122,8 +131,9 @@ class gaussModel:
         #Obtain the model
         result = curve_fitting(wavelengthValues, fluxValues, guesses)
         #Update table of results parameters
-        resultText = ""
-        resultText = "Gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h'].value), str(result.params['c'].value), str(result.params['sigma'].value))
+        resultText = "Path: {}".format(path)
+        resultText = resultText + "\n" + \
+            "Gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h'].value), str(result.params['c'].value), str(result.params['sigma'].value))
         resultText = resultText + "\n" + "Line model: {} + {} * x".format(str(result.params['a'].value), str(result.params['b'].value))
         resultText = resultText + "\n" + "Gaussian integrated flux : "+ " = " + str(integrated_flux(result.params['h'].value, result.params['sigma'].value))
 
@@ -132,4 +142,7 @@ class gaussModel:
         for resultParams in gaussFitResultList:
             resultText = resultText + "\n" + resultParams
         resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
-        return result, resultText, wavelengthValues, fluxValues
+
+
+
+        return result, resultText, wavelengthValues, fluxValues, inital_y_values, None

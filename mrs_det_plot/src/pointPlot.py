@@ -27,7 +27,6 @@ class MrsPointPlot(QDialog, mrs_det_plot.src.ui.ui_point_plot.Ui_MrsPointPlot):
 
         self.minorXLabels = []
         self.mayorXLabels = []
-        self.setModal(False)
         self.create_point_plot()
         plt.style.use('seaborn')
 

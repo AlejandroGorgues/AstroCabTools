@@ -64,6 +64,10 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSp
         self.spectrumSelection = pltS.MrsSpctrmList()
         self.templateSelection = tmpltS.MrsTmpltList()
 
+        self.templateSelection.finished.connect(self.get_templates)
+        self.spectrumSelection.finished.connect(self.get_spectrum)
+        self.loiSelection.finished.connect(self.get_loi)
+
         self.create_top_widgets()
         self.create_middle_spectrum()
         self.create_bottom_chan_data()
@@ -73,14 +77,14 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSp
 
         self.zEdit.setValidator(QtGui.QDoubleValidator())
 
-        self.loadSpectra.clicked.connect(self.get_spectrum)
+        self.loadSpectra.clicked.connect(self.select_spectrum)
 
         self.loadOpWavelengthButton.clicked.connect(
             lambda: self.load_op_wavelength(self.lambdaEdit.text(),self.zEdit.text()))
 
-        self.loadLoi.clicked.connect(self.get_loi)
+        self.loadLoi.clicked.connect(self.select_loi)
 
-        self.loadTemplate.clicked.connect(self.get_templates)
+        self.loadTemplate.clicked.connect(self.select_templates)
 
         self.saveButton.clicked.connect(self.save_plot_image)
 
@@ -483,14 +487,34 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSp
             self.show_alert()
 
     @pyqtSlot()
-    def get_templates(self):
+    def select_templates(self):
         """Clear selection and list made previously to allow to select the same
-        template with different redshift"""
+        template with different redshift
+        """
         self.templateSelection.uncheck_list()
         self.templateSelection.clear_list()
         self.templateSelection.show()
         self.templateSelection.open()
-        if self.templateSelection.exec_() == QDialog.Accepted:
+
+    @pyqtSlot()
+    def select_spectrum(self):
+        """Clear selection and list made previously to allow to select the same
+        spectrum with different redshift
+        """
+        self.spectrumSelection.uncheck_list()
+        self.spectrumSelection.clear_list()
+        self.spectrumSelection.show()
+        self.spectrumSelection.open()
+        self.spectrumSelection.reload_directory()
+
+    @pyqtSlot()
+    def select_loi(self):
+        self.loiSelection.show()
+        self.loiSelection.open()
+
+    @pyqtSlot(int)
+    def get_templates(self, int):
+        if int == QDialog.Accepted:
 
             self.specISelected = self.templateSelection.get_data()
 
@@ -500,16 +524,10 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSp
 
         self.figure.canvas.draw()
 
-    @pyqtSlot()
-    def get_spectrum(self):
-        """Clear selection and list made previously to allow to select the same
-        spectrum with different redshift"""
-        self.spectrumSelection.uncheck_list()
-        self.spectrumSelection.clear_list()
-        self.spectrumSelection.show()
-        self.spectrumSelection.open()
-        self.spectrumSelection.reload_directory()
-        if self.spectrumSelection.exec_() == QDialog.Accepted:
+    @pyqtSlot(int)
+    def get_spectrum(self, int):
+
+        if int == QDialog.Accepted:
 
             self.specISelected = self.spectrumSelection.get_data()
 
@@ -518,13 +536,9 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSp
                 self.load_file(key, values)
         self.figure.canvas.draw()
 
-    @pyqtSlot()
-    def get_loi(self):
-
-        self.loiSelection.show()
-        self.loiSelection.open()
-
-        if self.loiSelection.exec_() == QDialog.Accepted:
+    @pyqtSlot(int)
+    def get_loi(self, int):
+        if int == QDialog.Accepted:
             #Delete previous loi ticks to show only the new ones
             self.remove_loi_ticks()
             self.remove_loi_lines()

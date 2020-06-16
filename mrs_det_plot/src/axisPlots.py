@@ -24,7 +24,6 @@ class MrsAxisPlot(QDialog, mrs_det_plot.src.ui.ui_axis_plot.Ui_MrsAxisPlot):
     def __init__(self, parent=None ):
         super(MrsAxisPlot, self).__init__(parent)
         self.setupUi(self)
-        self.setModal(False)
         self.create_axis_plots()
         plt.style.use('seaborn')
 

@@ -68,8 +68,7 @@ Done:
  + [x] Management of the scale, stretch and colour of all the images
  + [x] Visualization of values selected on an specified image along each axis
 + fit_line features:
- + [x] Make gauss fitted model based on five points from an spectrum
- + [x] Make double gaussian fitted model
+ + [x] Make several fitted gauss models
  + [x] Show residuals
  + [x] Make units conversion to the normalized units
  + [x] Select columns and units where the wavelength and flux values are

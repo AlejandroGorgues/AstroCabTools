@@ -30,8 +30,6 @@ class MrsImagesFits(QDialog, mrs_det_plot.src.ui.ui_images_fits.Ui_MrsImagesFits
         super(MrsImagesFits, self).__init__(parent)
         self.setupUi(self)
 
-        self.setModal(False)
-
         plt.style.use('seaborn')
 
         self.imageAxes = {}

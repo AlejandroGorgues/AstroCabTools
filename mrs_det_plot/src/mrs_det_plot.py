@@ -80,7 +80,6 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot)
         self.create_bottom_info()
 
         self.midButton.clicked.connect(self.show_images_fits)
-
         self.show_images_fits()
 
     def create_top_sliders_widgets(self):

@@ -75,3 +75,4 @@ Done:
  + [x] Modified Zoom to do a zoom on rectangle selected area
  + [x] Add zoom undo feature
  + [x] Calculate flux density
+ + [x] Modified fitted models representation

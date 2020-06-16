@@ -13,7 +13,8 @@ setup(
 	author_email='email',
 	url='url',
 	description='description',
-	packages=['mrs_chan/src',
+	packages=['all_tools/src',
+		'mrs_chan/src',
 		'mrs_spec_chan/src',
 		'mrs_det_plot/src',
 		'fit_line'],
@@ -33,6 +34,7 @@ setup(
 	],
 	entry_points={
 		'gui_scripts':[
+			'allTools = all_tools.src.all_tools:main',
 			'fitLine = fit_line.src.fit_line:main',
 			'detPlot = mrs_det_plot.src.mrs_det_plot:main',
 			'specChan = mrs_spec_chan.src.mrs_spec_chan:main',

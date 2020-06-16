@@ -34,7 +34,7 @@ import mrs_det_plot.src.ui.ui_mrs_det_plot
 
 from .utils.imgPlot import imgPlot
 from .utils.globalStats import globalStats
-from .utils.fits import fits
+from .utils.fits import fitsClass
 
 class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot):
 
@@ -387,7 +387,7 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot)
         """ Initialize fits object based on fits value from the file selected
         :param int index: current axis selected
         """
-        fitsObj = fits(0, 0, -1, -1, 0, 0, 0, 0, '', 0, 0, '')
+        fitsObj = fitsClass(0, 0, -1, -1, 0, 0, 0, 0, '', 0, 0, '')
 
 
         #Frames and integration could change positions, because of that

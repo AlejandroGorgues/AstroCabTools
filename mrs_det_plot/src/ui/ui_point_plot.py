@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'pointPlot.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_MrsPointPlot(object):
     def setupUi(self, MrsPointPlot):
@@ -18,15 +16,15 @@ class Ui_MrsPointPlot(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.mainLayout = QtWidgets.QGridLayout()
         self.mainLayout.setObjectName("mainLayout")
-        self.pointPlot = QtWidgets.QGroupBox(MrsPointPlot)
-        self.pointPlot.setTitle("")
-        self.pointPlot.setObjectName("groupBox")
-        self.gridLayout = QtWidgets.QGridLayout(self.pointPlot)
+        self.groupBox = QtWidgets.QGroupBox(MrsPointPlot)
+        self.groupBox.setTitle("")
+        self.groupBox.setObjectName("groupBox")
+        self.gridLayout = QtWidgets.QGridLayout(self.groupBox)
         self.gridLayout.setObjectName("gridLayout")
-        self.axis_vbox = QtWidgets.QVBoxLayout()
-        self.axis_vbox.setObjectName("axis_vbox")
-        self.gridLayout.addLayout(self.axis_vbox, 0, 0, 1, 1)
-        self.mainLayout.addWidget(self.pointPlot, 0, 0, 1, 1)
+        self.point_vbox = QtWidgets.QVBoxLayout()
+        self.point_vbox.setObjectName("point_vbox")
+        self.gridLayout.addLayout(self.point_vbox, 0, 0, 1, 1)
+        self.mainLayout.addWidget(self.groupBox, 0, 0, 1, 1)
         self.saveButton = QtWidgets.QPushButton(MrsPointPlot)
         self.saveButton.setObjectName("saveButton")
         self.mainLayout.addWidget(self.saveButton, 1, 0, 1, 1)
@@ -39,3 +37,4 @@ class Ui_MrsPointPlot(object):
         _translate = QtCore.QCoreApplication.translate
         MrsPointPlot.setWindowTitle(_translate("MrsPointPlot", "PointPlot"))
         self.saveButton.setText(_translate("MrsPointPlot", "Save as png"))
+

@@ -46,8 +46,6 @@ class MrsAxisPlot(QDialog, mrs_det_plot.src.ui.ui_axis_plot.Ui_MrsAxisPlot):
         self.axisAx1.set_visible(False)
         self.axisAx2.set_visible(False)
 
-        self.axisPlot.setLayout(self.axis_vbox)
-
     def axis_plot(self, xValues, yValues, xLabel, yLabel, zUnit, filename):
         """ Draw the values from the both axis based on the position where the user clicked
         :param NumpyArray xValues: All values along the xAxis

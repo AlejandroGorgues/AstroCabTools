@@ -2,9 +2,9 @@
 Class that containts data related to the fits image
 """
 
-__all__=['fits']
+__all__=['fitsClass']
 
-class fits:
+class fitsClass:
 
     def __init__(self, currFrame, currIntegration, maxFrame, maxIntegration, shiftedXValue,shiftedYValue,
      fitsXCenter, fitsYCenter, fitsZUnit, maxXAxis, maxYAxis, filename ):

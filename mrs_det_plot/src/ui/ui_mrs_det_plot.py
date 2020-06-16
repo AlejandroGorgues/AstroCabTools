@@ -2,19 +2,17 @@
 
 # Form implementation generated from reading ui file 'mrs_det_plot.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_MrsDetPlot(object):
     def setupUi(self, MrsDetPlot):
         MrsDetPlot.setObjectName("MrsDetPlot")
         MrsDetPlot.resize(1096, 600)
-        MrsDetPlot.setMinimumSize(QtCore.QSize(600, 600))
+        MrsDetPlot.setMinimumSize(QtCore.QSize(1096, 600))
         MrsDetPlot.setMaximumSize(QtCore.QSize(1096, 600))
         self.centralwidget = QtWidgets.QWidget(MrsDetPlot)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
@@ -615,3 +613,4 @@ class Ui_MrsDetPlot(object):
         self.radioBColor4.setText(_translate("MrsDetPlot", "Heat"))
         self.radioBColor5.setText(_translate("MrsDetPlot", "Rainbow"))
         self.radioBColor2.setText(_translate("MrsDetPlot", "CoolWarm"))
+

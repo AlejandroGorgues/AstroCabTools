@@ -44,12 +44,12 @@ class MrsPointPlot(QDialog, mrs_det_plot.src.ui.ui_point_plot.Ui_MrsPointPlot):
 
         self.axis = self.pointFigure.add_subplot(spec[0, 0])
 
-        self.axis_vbox.addWidget(self.pointCanvas)
+        #layout = QVBoxLayout()
+        self.point_vbox.addWidget(self.pointCanvas)
 
         self.axis.set_visible(False)
 
-
-        self.pointPlot.setLayout(self.axis_vbox)
+        #self.pointPlot.setLayout(layout)
 
     def point_plot(self,maxFrame, maxIntegration, xValue, yValue, zValues, zUnit, filename):
         """ Draw the pixel values alngo time where the user clicked

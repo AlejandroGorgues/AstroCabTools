@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""
+Main clas that generate the interface of the all_tools tool
+"""
 import sys
 import traceback
 import io

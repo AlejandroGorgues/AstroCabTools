@@ -13,6 +13,7 @@ Set of tools made in order to:
 + mrs_spec_chan.py - Visualization of relationship emitted wavelength and density flux associate.
 + mrs_det_plot.py - Manipulation of astronomic images based of frame and integration values.
 + fit_line.py - Representation of multiple gauss fitted models based on an spectrum.
++ all_tools.py - Simple inteface that allow to load each tool without using command line (provisional tool name).
 
 ### Tools used
 
@@ -44,10 +45,15 @@ For each tool, this repo uses a number of libraries and packages on python:
   2. `specChan` to execute mrs_spec_chan.
   3. `detPlot` to execute mrs_det_plot.
   4. `fitLine` to execute fit_line.
+  5. `allTools` to execute all_tools.
 
 ### Development
 
 ### To dos
+
+New:
+
++ [ ] all_tool interface and interaction with other tools
 
 Old:
 

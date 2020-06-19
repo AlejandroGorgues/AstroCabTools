@@ -17,10 +17,10 @@ import mrs_det_plot
 import fit_line
 
 import all_tools.src.ui.ui_all_tools
-import mrs_chan.src.mrs_chan as chan
-import fit_line.src.fit_line as fitLine
-import mrs_spec_chan.src.mrs_spec_chan as specChan
-import mrs_det_plot.src.mrs_det_plot as detPlot
+import mrs_chan.src.viewers.mrs_chan as chan
+import fit_line.src.viewers.fit_line as fitLine
+import mrs_spec_chan.src.viewers.mrs_spec_chan as specChan
+import mrs_det_plot.src.viewers.mrs_det_plot as detPlot
 
 class AllTools(QMainWindow, all_tools.src.ui.ui_all_tools.Ui_all_tools):
 
@@ -62,13 +62,13 @@ class AllTools(QMainWindow, all_tools.src.ui.ui_all_tools.Ui_all_tools):
         self.fitLine.show()
 
     def closeEvent(self, event):
-        if isinstance(self.mrsChan, mrs_chan.src.mrs_chan.MrsChanell):
+        if isinstance(self.mrsChan, mrs_chan.src.viewers.mrs_chan.MrsChanell):
             self.mrsChan.close()
-        if isinstance(self.mrsSpecChan, mrs_spec_chan.src.mrs_spec_chan.MrsSpecChanell):
+        if isinstance(self.mrsSpecChan, mrs_spec_chan.src.viewers.mrs_spec_chan.MrsSpecChanell):
             self.mrsSpecChan.close()
-        if isinstance(self.mrsDetPlot, mrs_det_plot.src.mrs_det_plot.MrsDetPlot):
+        if isinstance(self.mrsDetPlot, mrs_det_plot.src.viewers.mrs_det_plot.MrsDetPlot):
             self.mrsDetPlot.close()
-        if isinstance(self.fitLine, fit_line.src.fit_line.MrsFitLine):
+        if isinstance(self.fitLine, fit_line.src.viewers.fit_line.MrsFitLine):
             self.fitLine.close()
 
 def main():

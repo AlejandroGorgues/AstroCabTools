@@ -13,8 +13,8 @@ from PyQt5.QtCore import Qt, pyqtSlot, QSize, pyqtSignal
 from PyQt5 import uic
 
 
-import fit_line.src.gaussDataCreatedListWidget as gausslw
-import fit_line.src.residualsVisualization as ressV
+import fit_line.src.viewers.gaussDataCreatedListWidget as gausslw
+import fit_line.src.viewers.residualsVisualization as ressV
 import fit_line.src.ui.ui_gaussDataVisualization
 
 

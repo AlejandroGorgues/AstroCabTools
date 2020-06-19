@@ -28,6 +28,7 @@ import weakref
 import matplotlib.pyplot as _plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
+__all__ = ["figure_pz"]
 
 class MplInteraction(object):
 
@@ -151,7 +152,7 @@ class ZoomOnWheel(MplInteraction):
             transform = ax.transData.inverted()
             xdata, ydata = transform.transform_point((event.x, event.y))
 
-            
+
             xlim = ax.get_xlim()
             xlim = self._zoom_range(xlim[0], xlim[1],
                                     xdata, scale_factor,

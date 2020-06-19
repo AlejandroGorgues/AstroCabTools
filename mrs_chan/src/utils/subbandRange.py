@@ -2,6 +2,8 @@
 Method that calculate the subband channels that a value is in
 """
 
+__all__ = ['obtain_sub_band']
+
 def obtain_sub_band(value, channell):
       """ Return subband from same channel, min and max range values of each subband
       :param int value: lambda transformed value

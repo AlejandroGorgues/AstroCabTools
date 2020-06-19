@@ -16,11 +16,12 @@ from PyQt5 import QtGui
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import mrs_chan.src.subbandRange as sR
-import mrs_chan.src.ui_mrs_chan
+from ..utils.subbandRange import obtain_sub_band
+import mrs_chan.src.ui.ui_mrs_chan
 
+__all__ = ['MrsChanell']
 
-class MrsChanell(QMainWindow, mrs_chan.src.ui_mrs_chan.Ui_MrsChanell):
+class MrsChanell(QMainWindow, mrs_chan.src.ui.ui_mrs_chan.Ui_MrsChanell):
 
     def __init__(self, parent = None):
         """Initializer
@@ -28,6 +29,8 @@ class MrsChanell(QMainWindow, mrs_chan.src.ui_mrs_chan.Ui_MrsChanell):
         """
         super(MrsChanell, self).__init__(parent)
         self.setupUi(self)
+
+        plt.style.use('seaborn')
 
         self.lambdaIcon = u"\u03BC"
         self.microIcon = u"\u03BB"
@@ -175,7 +178,7 @@ class MrsChanell(QMainWindow, mrs_chan.src.ui_mrs_chan.Ui_MrsChanell):
 
                 else:
                     channel = '1'
-                    chan, minL, maxL = sR.obtain_sub_band(obs, channel)
+                    chan, minL, maxL = obtain_sub_band(obs, channel)
             elif 7.76 < obs <= 11.87:
                 if obs >= 11.47:
                     channel = "2,3"
@@ -184,7 +187,7 @@ class MrsChanell(QMainWindow, mrs_chan.src.ui_mrs_chan.Ui_MrsChanell):
                     maxL = [11.87, 13.67]
                 else:
                     channel = '2'
-                    chan, minL, maxL = sR.obtain_sub_band(obs, channel)
+                    chan, minL, maxL = obtain_sub_band(obs, channel)
             elif 11.87 < obs <= 18.24:
                 if obs >= 17.54:
                     channel = "3,4"
@@ -193,10 +196,10 @@ class MrsChanell(QMainWindow, mrs_chan.src.ui_mrs_chan.Ui_MrsChanell):
                     maxL = [18.24, 21.10]
                 else:
                     channel = '3'
-                    chan, minL, maxL = sR.obtain_sub_band(obs, channel)
+                    chan, minL, maxL = obtain_sub_band(obs, channel)
             elif 8.24 < obs <= 28.82:
                 channel = '4'
-                chan, minL, maxL = sR.obtain_sub_band(obs, channel)
+                chan, minL, maxL = obtain_sub_band(obs, channel)
             else:
                 channel = "Out of range values"
 
@@ -220,18 +223,3 @@ class MrsChanell(QMainWindow, mrs_chan.src.ui_mrs_chan.Ui_MrsChanell):
         alert.setText("Error: incorrect input values")
         alert.setDetailedText(traceback.format_exc(limit=1))
         alert.exec_()
-
-def main():
-    plt.style.use('seaborn')
-    app = QApplication(sys.argv)
-    mrss = MrsChanell()
-    mrss.setWindowFlags(mrss.windowFlags() |
-                        Qt.WindowMinimizeButtonHint |
-                        Qt.WindowMaximizeButtonHint |
-                        Qt.WindowSystemMenuHint)
-    mrss.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-	main()

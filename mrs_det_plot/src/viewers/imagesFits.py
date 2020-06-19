@@ -15,11 +15,11 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 
-import mrs_det_plot.src.panZoom as pz
+from .canvas_interaction.panZoom import figure_pz
 import mrs_det_plot.src.ui.ui_images_fits
 
-from .utils.imgPlot import imgPlot
-from .utils.globalStats import globalStats
+from ..utils.imgPlot import imgPlot
+from ..utils.globalStats import globalStats
 
 
 class MrsImagesFits(QDialog, mrs_det_plot.src.ui.ui_images_fits.Ui_MrsImagesFits):
@@ -47,7 +47,7 @@ class MrsImagesFits(QDialog, mrs_det_plot.src.ui.ui_images_fits.Ui_MrsImagesFits
     def create_images_plot(self):
         """ Create the middle layout that will show the x,y,z values selected on the middle plot"""
 
-        self.imagesFigure, self.imagesFigure.canvas = pz.figure_pz()
+        self.imagesFigure, self.imagesFigure.canvas = figure_pz()
         k = 1
 
         #Create grid plots with gridspec

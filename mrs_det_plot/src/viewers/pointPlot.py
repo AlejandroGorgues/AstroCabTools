@@ -15,7 +15,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 
-import mrs_det_plot.src.panZoom as pz
+from .canvas_interaction.panZoom import figure_pz
+
 import mrs_det_plot.src.ui.ui_point_plot
 
 
@@ -35,7 +36,7 @@ class MrsPointPlot(QDialog, mrs_det_plot.src.ui.ui_point_plot.Ui_MrsPointPlot):
 
     def create_point_plot(self):
 
-        self.pointFigure, self.pointCanvas = pz.figure_pz()
+        self.pointFigure, self.pointCanvas = figure_pz()
 
         #Create grid plots with gridspec
         #To change size of subplots

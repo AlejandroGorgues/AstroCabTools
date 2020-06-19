@@ -28,6 +28,7 @@ import weakref
 import matplotlib.pyplot as _plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
+__all__=["figure_pz"]
 
 class MplInteraction(object):
 

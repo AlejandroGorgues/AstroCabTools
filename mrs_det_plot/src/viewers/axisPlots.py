@@ -15,7 +15,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 
-import mrs_det_plot.src.panZoom as pz
+from .canvas_interaction.panZoom import figure_pz
 import mrs_det_plot.src.ui.ui_axis_plot
 
 
@@ -31,7 +31,7 @@ class MrsAxisPlot(QDialog, mrs_det_plot.src.ui.ui_axis_plot.Ui_MrsAxisPlot):
 
     def create_axis_plots(self):
 
-        self.axisFigure, self.axisCanvas = pz.figure_pz()
+        self.axisFigure, self.axisCanvas = figure_pz()
 
         #Create grid plots with gridspec
         #To change size of subplots

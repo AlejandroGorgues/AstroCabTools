@@ -14,11 +14,11 @@ from PyQt5.QtCore import Qt, pyqtSlot,QIdentityProxyModel
 from PyQt5 import uic
 
 
-import mrs_spec_chan.src.spectrumSelectionListWidget as pltw
+import mrs_spec_chan.src.viewers.spectrumSelectionListWidget as pltw
 
 import mrs_spec_chan.src.ui.ui_spectrum_selection
 
-from .utils.fileDialogProxyModel import ProxyModel
+from ..utils.fileDialogProxyModel import ProxyModel
 
 
 class MrsSpctrmList(QDialog, mrs_spec_chan.src.ui.ui_spectrum_selection.Ui_MrsSpctrmList):

@@ -12,7 +12,8 @@ from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import fit_line.src.panZoomResiduals as pz
+from .canvas_interaction.panZoomResiduals import figure_pz
+
 import fit_line.src.ui.ui_residualsVisualization
 
 class MrsResidualsV(QDialog, fit_line.src.ui.ui_residualsVisualization.Ui_residualsVisualization):
@@ -28,7 +29,7 @@ class MrsResidualsV(QDialog, fit_line.src.ui.ui_residualsVisualization.Ui_residu
     def create_middle_plot(self):
         """ Create the canvas to draw the plot"""
 
-        self.figure, self.figure.canvas = pz.figure_pz()
+        self.figure, self.figure.canvas = figure_pz()
 
         #To allow the user to move through the plot, it need to be focused (in this case when the user click on image)
         self.figure.canvas.setFocusPolicy(Qt.ClickFocus)

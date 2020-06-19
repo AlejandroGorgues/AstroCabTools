@@ -35,10 +35,10 @@ setup(
 	entry_points={
 		'gui_scripts':[
 			'allTools = all_tools.src.all_tools:main',
-			'fitLine = fit_line.src.fit_line:main',
-			'detPlot = mrs_det_plot.src.mrs_det_plot:main',
-			'specChan = mrs_spec_chan.src.mrs_spec_chan:main',
-			'bandChan = mrs_chan.src.mrs_chan:main'
+			'fitLine = fit_line.src.main:main',
+			'detPlot = mrs_det_plot.src.main:main',
+			'specChan = mrs_spec_chan.src.main:main',
+			'bandChan = mrs_chan.src.main:main'
 		],
 	}
 )

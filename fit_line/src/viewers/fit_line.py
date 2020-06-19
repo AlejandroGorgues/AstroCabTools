@@ -25,15 +25,18 @@ from matplotlib.figure import Figure
 from pubsub import pub
 
 import fit_line
-import fit_line.src.panZoomFitLine as pz
-import fit_line.src.spectrumSelection as stmS
-import fit_line.src.gaussDataVisualization as gaussS
+import fit_line.src.viewers.spectrumSelection as stmS
+import fit_line.src.viewers.gaussDataVisualization as gaussS
 import fit_line.src.ui.ui_fit_line
 
-from .io.ascii_load import apply_redshift_to_txt
-from .io.fits_load import apply_redshift_to_fits
-from .models.gaussModelCreation import gaussModel
-from .models.doubleGaussModelCreation import doubleGaussModel
+from .canvas_interaction.panZoomFitLine import figure_pz
+
+from ..io.ascii_load import apply_redshift_to_txt
+from ..io.fits_load import apply_redshift_to_fits
+from ..models.gaussModelCreation import gaussModel
+from ..models.doubleGaussModelCreation import doubleGaussModel
+
+__all__=["MrsFitLine"]
 
 class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
 
@@ -43,6 +46,8 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         """
         super(MrsFitLine, self).__init__(parent)
         self.setupUi(self)
+
+        plt.style.use('seaborn')
 
         self.microIcon = u"\u03BC"
         self.lambdaIcon = u"\u03BB"
@@ -89,7 +94,7 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
     def create_middle_plot(self):
         """ Create the canvas to draw the plot"""
 
-        self.figure, self.figure.canvas = pz.figure_pz()
+        self.figure, self.figure.canvas = figure_pz()
         #Subscribe method to setStateUndo event
         pub.subscribe(self.change_state_undo_button,'setStateUndo')
 
@@ -548,20 +553,3 @@ class MrsFitLine(QMainWindow, fit_line.src.ui.ui_fit_line.Ui_FitLine):
         alert = QMessageBox()
         alert.setText("Error: Zero-size array to reduction operation minimum which has no identity ")
         alert.exec_()
-
-
-
-def main():
-    plt.style.use('seaborn')
-    app = QApplication(sys.argv)
-    mrss = MrsFitLine()
-    mrss.setWindowFlags(mrss.windowFlags() |
-                        Qt.WindowMinimizeButtonHint |
-                        Qt.WindowMaximizeButtonHint |
-                        Qt.WindowSystemMenuHint)
-
-    mrss.show()
-    sys.exit(app.exec_())
-
-if __name__ == "__main__":
-	main()

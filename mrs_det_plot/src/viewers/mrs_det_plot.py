@@ -26,15 +26,19 @@ import matplotlib.font_manager as font_manager
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-import mrs_det_plot.src.panZoom as pz
-import mrs_det_plot.src.axisPlots as ap
-import mrs_det_plot.src.pointPlot as pp
-import mrs_det_plot.src.imagesFits as isfs
+
+import mrs_det_plot.src.viewers.axisPlots as ap
+import mrs_det_plot.src.viewers.pointPlot as pp
+import mrs_det_plot.src.viewers.imagesFits as isfs
 import mrs_det_plot.src.ui.ui_mrs_det_plot
 
-from .utils.imgPlot import imgPlot
-from .utils.globalStats import globalStats
-from .utils.fits import fitsClass
+from .canvas_interaction.panZoom import figure_pz
+
+from ..utils.imgPlot import imgPlot
+from ..utils.globalStats import globalStats
+from ..utils.fits import fitsClass
+
+__all__= ["MrsDetPlot"]
 
 class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot):
 
@@ -69,7 +73,6 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot)
         self.pointPlot = pp.MrsPointPlot()
         self.imagesFits = isfs.MrsImagesFits()
 
-        #plt.style.use(astropy_mpl_style)
         plt.style.use('seaborn')
 
         #Create the canvas to load the plot
@@ -246,7 +249,7 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot)
     def create_middle_plot(self):
         """ Create the middle layout that will show the x,y,z values selected on the middle plot"""
 
-        self.midFigure, self.midFigure.canvas = pz.figure_pz()
+        self.midFigure, self.midFigure.canvas = figure_pz()
 
         #Create grid plots with gridspec
         #To change size of subplots to be able to make bigger the imow than the colorbar
@@ -784,7 +787,6 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot)
         """
 
         self.minMaxRadioB.setChecked(state)
-        #self.topRightTabWidget.setEnabled(state)
         self.radioBColor1.setChecked(state)
 
         self.radioBScale1.setChecked(state)
@@ -812,16 +814,3 @@ class MrsDetPlot(QMainWindow, mrs_det_plot.src.ui.ui_mrs_det_plot.Ui_MrsDetPlot)
 
     def closeEvent(self, event):
         self.imagesFits.close()
-
-def main():
-    app = QApplication(sys.argv)
-    mrss = MrsDetPlot()
-    mrss.setWindowFlags(mrss.windowFlags() |
-                        Qt.WindowMinimizeButtonHint |
-                        Qt.WindowMaximizeButtonHint |
-                        Qt.WindowSystemMenuHint)
-    mrss.show()
-    sys.exit(app.exec_())
-
-if __name__ == "__main__":
-    main()

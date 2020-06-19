@@ -15,7 +15,7 @@ from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5 import uic
 
 
-import mrs_spec_chan.src.spectrumSelectionListWidget as pltw
+import mrs_spec_chan.src.viewers.spectrumSelectionListWidget as pltw
 import mrs_spec_chan.src.ui.ui_template_selection
 
 

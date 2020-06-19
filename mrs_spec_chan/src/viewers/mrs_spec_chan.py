@@ -23,16 +23,19 @@ from PyQt5 import uic
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import mrs_spec_chan.src.panZoom as pz
-import mrs_spec_chan.src.spectrumManageListWidget as slw
-import mrs_spec_chan.src.loiSelection as loiS
-import mrs_spec_chan.src.spectrumSelection as pltS
-import mrs_spec_chan.src.templateSelection as tmpltS
 
+import mrs_spec_chan.src.viewers.spectrumManageListWidget as slw
+import mrs_spec_chan.src.viewers.loiSelection as loiS
+import mrs_spec_chan.src.viewers.spectrumSelection as pltS
+import mrs_spec_chan.src.viewers.templateSelection as tmpltS
 import mrs_spec_chan.src.ui.ui_mrs_spec_chan
 
-from .utils.operations import transform_spectrum, divide_op_wavelength
-from .utils.constants import LOID
+from .canvas_interaction.panZoom import figure_pz
+
+from ..utils.operations import transform_spectrum, divide_op_wavelength
+from ..utils.constants import LOID
+
+__all__= ["MrsSpecChanell"]
 
 class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSpecChan):
 
@@ -42,6 +45,8 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSp
         """
         super(MrsSpecChanell, self).__init__(parent)
         self.setupUi(self)
+
+        plt.style.use('seaborn')
 
         self.microIcon = u"\u03BC"
         self.lambdaIcon = u"\u03BB"
@@ -93,7 +98,7 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSp
     def create_middle_spectrum(self):
         """ Create the canvas to draw the plot"""
 
-        self.figure, self.figure.canvas = pz.figure_pz()
+        self.figure, self.figure.canvas = figure_pz()
 
         #To allow the user to move through the plot, it need to be focused (in this case when the user click on image)
         self.figure.canvas.setFocusPolicy(Qt.ClickFocus)
@@ -666,17 +671,3 @@ class MrsSpecChanell(QMainWindow, mrs_spec_chan.src.ui.ui_mrs_spec_chan.Ui_MrsSp
         alert.setText("Error: Filename name or extension not correct, \n in case \
         of being the error in the extension, it must be blank or .txt ")
         alert.exec_()
-
-def main():
-    plt.style.use('seaborn')
-    app = QApplication(sys.argv)
-    mrss = MrsSpecChanell()
-    mrss.setWindowFlags(mrss.windowFlags() |
-                        Qt.WindowMinimizeButtonHint |
-                        Qt.WindowMaximizeButtonHint |
-                        Qt.WindowSystemMenuHint)
-    mrss.show()
-    sys.exit(app.exec_())
-
-if __name__ == "__main__":
-	main()

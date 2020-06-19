@@ -31,8 +31,9 @@ from matplotlib.widgets import RectangleSelector
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from pubsub import pub
 
-from .utils.command_pattern import UndoHistoryZoomInvoker, UndoHistoryPanInvoker, ZoomFitCommand, PanCommand, ZoomCommand
+from fit_line.src.utils.command_pattern import UndoHistoryZoomInvoker, UndoHistoryPanInvoker, ZoomFitCommand, PanCommand, ZoomCommand
 
+__all__ = ["figure_pz"]
 
 class MplInteraction(object):
 

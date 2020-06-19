@@ -12,9 +12,9 @@ from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5 import uic
 
 
-import mrs_spec_chan.src.lineOfInterestSelectionListWidget as loiw
+import mrs_spec_chan.src.viewers.lineOfInterestSelectionListWidget as loiw
 
-from .utils.constants import LOID
+from ..utils.constants import LOID
 
 import mrs_spec_chan.src.ui.ui_loi_selection
 

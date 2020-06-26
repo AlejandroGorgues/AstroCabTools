@@ -13,7 +13,7 @@ Set of tools made in order to:
 + mrs_spec_chan.py - Visualization of relationship emitted wavelength and density flux associate.
 + mrs_det_plot.py - Manipulation of astronomic images based of frame and integration values.
 + fit_line.py - Representation of multiple gauss fitted models based on an spectrum.
-+ all_tools.py - Simple inteface that allow to load each tool without using command line (provisional tool name).
++ all_tools.py - Simple inteface that allows to load each tool without using command line (provisional tool name).
 
 ### Tools used
 

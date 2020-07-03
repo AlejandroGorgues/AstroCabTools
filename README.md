@@ -12,7 +12,12 @@ Set of tools made in order to:
 + mrs_chan.py - To identify wich channels from the MRS range, an emitted wavelenth is.
 + mrs_spec_chan.py - Visualization of relationship emitted wavelength and density flux associate.
 + mrs_det_plot.py - Manipulation of astronomic images based of frame and integration values.
+<<<<<<< HEAD
 + fit_line.py - Representation of multiple gauss fitting models based on an spectrum.
+=======
++ fit_line.py - Representation of multiple gauss fitted models based on an spectrum.
++ all_tools.py - Simple inteface that allows to load each tool without using command line (provisional tool name).
+>>>>>>> eb377840a923897fe961508048f298ab5c5acec5
 
 ### Tools used
 

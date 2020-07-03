@@ -10,14 +10,19 @@ setup(
 	name='astroTools',
 	version='1.0.0',
 	author='Alejandro',
-	author_email='email',
-	url='url',
+	author_email='correo',
+	url='sdfsd',
 	description='description',
-	packages=['all_tools/src',
-		'mrs_chan/src',
-		'mrs_spec_chan/src',
-		'mrs_det_plot/src',
-		'fit_line'],
+	package_dir={'src':'mrs_chan',
+		'src':'mrs_spec_chan',
+		'src':'mrs_det_plot',
+		'src':'fit_line',
+                'src':'all_tools'},
+	packages=['astrotools/mrs_chan/src',
+		'astrotools/mrs_spec_chan/src',
+		'astrotools/mrs_det_plot/src',
+		'astrotools/fit_line/src',
+                'astrotools/all_tools/src'],
 	include_package_data=True,
 	classifiers=[
 		'Programming Language :: Python :: 3.7',
@@ -30,15 +35,15 @@ setup(
 		'numpy>=1.18.1',
 		'seaborn>=0.9.0',
 		'lmfit>=1.0.0',
-		'PyPubSub>=4.0.3'
+                'PyPubSub>=4.0.3',
 	],
 	entry_points={
 		'gui_scripts':[
-			'allTools = all_tools.src.all_tools:main',
-			'fitLine = fit_line.src.main:main',
-			'detPlot = mrs_det_plot.src.main:main',
-			'specChan = mrs_spec_chan.src.main:main',
-			'bandChan = mrs_chan.src.main:main'
+			'fitLine = astrotools.fit_line.src.main:main',
+			'detPlot = astrotools.mrs_det_plot.src.main:main',
+			'specChan = astrotools.mrs_spec_chan.src.main:main',
+			'bandChan = astrotools.mrs_chan.src.main:main',
+                        'allTools = astrotools.all_tools.src.all_tools:main',
 		],
 	}
 )

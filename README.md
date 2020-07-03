@@ -12,8 +12,7 @@ Set of tools made in order to:
 + mrs_chan.py - To identify wich channels from the MRS range, an emitted wavelenth is.
 + mrs_spec_chan.py - Visualization of relationship emitted wavelength and density flux associate.
 + mrs_det_plot.py - Manipulation of astronomic images based of frame and integration values.
-+ fit_line.py - Representation of multiple gauss fitted models based on an spectrum.
-+ all_tools.py - Simple inteface that allow to load each tool without using command line (provisional tool name).
++ fit_line.py - Representation of multiple gauss fitting models based on an spectrum.
 
 ### Tools used
 
@@ -25,7 +24,6 @@ For each tool, this repo uses a number of libraries and packages on python:
 + [Astropy](https://www.astropy.org/) - Collection of software packages used for astronomy
 + [Seaborn](https://seaborn.pydata.org/) - Statistical data visualization
 + [Lmfit](https://lmfit.github.io//lmfit-py/) - Non-Linear Least-Squares Minimization and Curve-Fitting for Python
-+ [PyPubSub](https://github.com/schollii/pypubsub/) - Package that provides a publish-subscribe API
 
 ### Requirements
 + Python 3.8.0 or newer
@@ -34,7 +32,6 @@ For each tool, this repo uses a number of libraries and packages on python:
 + PyQt5 5.14.0 or newer
 + Seaborn 0.9.0 or newer
 + lmfit 1.0.0 or newer
-+ PyPubSub 4.0.3 or newer
 
 ## How to install and execute
 1. Download the project as a zip and unzip it or clone it.
@@ -45,20 +42,24 @@ For each tool, this repo uses a number of libraries and packages on python:
   2. `specChan` to execute mrs_spec_chan.
   3. `detPlot` to execute mrs_det_plot.
   4. `fitLine` to execute fit_line.
-  5. `allTools` to execute all_tools.
 
 ### Development
 
 ### To dos
 
-New:
-
-+ [ ] all_tool interface and interaction with other tools
-
 Old:
 
 + [ ] Optimize code of all tools
 + [ ] Write proper documentation
+
+New:
+
++ fit_line features:
+ + [ ] Make gauss fitting model based on five points from an spectrum
+ + [ ] Allow to make more than one gauss fitting model
+ + [ ] Represent all gauss models
+
+
 
 Done:
 
@@ -73,12 +74,3 @@ Done:
  + [x] Visualization of multiple .fits images
  + [x] Management of the scale, stretch and colour of all the images
  + [x] Visualization of values selected on an specified image along each axis
-+ fit_line features:
- + [x] Make several fitted gauss models
- + [x] Show residuals
- + [x] Make units conversion to the normalized units
- + [x] Select columns and units where the wavelength and flux values are
- + [x] Modified Zoom to do a zoom on rectangle selected area
- + [x] Add zoom undo feature
- + [x] Calculate flux density
- + [x] Modified fitted models representation

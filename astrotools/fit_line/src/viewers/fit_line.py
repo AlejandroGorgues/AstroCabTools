@@ -264,7 +264,7 @@ class MrsFitLine(QMainWindow, astrotools.fit_line.src.ui.ui_fit_line.Ui_FitLine)
                             self.gaussDataV.add_delimiter_line()
                             comps = result.eval_components()
 
-                            if isinstance(self.model, fit_line.src.models.gaussModelCreation.gaussModel):
+                            if isinstance(self.model, astrotools.fit_line.src.models.gaussModelCreation.gaussModel):
 
                                 #Draw the plots
 

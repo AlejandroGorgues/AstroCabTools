@@ -24,8 +24,8 @@
 # ###########################################################################*/
 import numpy as np
 import weakref
-
 import matplotlib.pyplot as _plt
+
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
 from matplotlib.widgets import RectangleSelector
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -60,7 +60,7 @@ class MplInteraction(object):
 
     def create_rectangle_ax(self, ax):
         rectprops = dict(facecolor = None, edgecolor = 'black', alpha = 1,
-         fill=False, linewidth = 1, linestyle = '--')
+         fill=False, linewidth = 1, linestyle = '-')
         self._rectangle_selector = RectangleSelector(ax, self._callback_rectangle,
                                            drawtype='box', useblit=True,
                                            rectprops = rectprops,
@@ -230,6 +230,7 @@ class ZoomWithMouse(MplInteraction):
         :param Figure figure: The matplotlib figure to attach the behavior to.
         """
         super(ZoomWithMouse, self).__init__(figure)
+
         self._add_connection_zoom('button_release_event', self._rectangle_release)
         #Because the rectangle selector can only be created when an axe is created, it passes
         #the callback function that is gonna be added to the rectangle selector properties

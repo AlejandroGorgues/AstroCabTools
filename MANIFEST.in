@@ -6,7 +6,7 @@ recursive-include astrotools/mrs_chan/src *
 recursive-include astrotools/mrs_spec_chan/src *
 recursive-include astrotools/mrs_det_plot/src *
 recursive-include astrotools/all_tools/src *
-
+recursive-include docs *
 
 include mrs_spec_chan/src/templates/ *txt
 

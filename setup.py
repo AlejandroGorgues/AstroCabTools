@@ -9,11 +9,9 @@ with open(path.join(absPath, 'README.md'), encoding='utf-8') as f:
 
 setup(
 	name='astroTools',
-	version='1.0.0',
+	version='0.9.2',
 	author='Alejandro',
-	author_email='correo',
-	url='sdfsd',
-	description='description',
+	description='Set of analysis tools of MRS data',
 	package_dir={'src':'mrs_chan',
 		'src':'mrs_spec_chan',
 		'src':'mrs_det_plot',

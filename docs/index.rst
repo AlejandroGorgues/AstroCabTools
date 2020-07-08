@@ -1,13 +1,8 @@
-.. AstroTools documentation master file, created by
-   sphinx-quickstart on Mon Jun 29 11:51:38 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 ======================
 Welcome to AstroTools
 ======================
 
-Tool that do some things Astronomy and Python
+Set of tools that analize data from JWST in Python
 
 Current version is |release|
 
@@ -100,7 +95,7 @@ Authors and License
 
 The ``Astrotools`` package is written mostly by Alejandro Gorgues and Alvaro Labiano.
 
-It's licenseXXXX and freely available.
+It has a custom license.
 
 Table of Contents
 =================
@@ -108,8 +103,6 @@ Table of Contents
    :maxdepth: 2
    :name: mastertoc
    
-   getting_started
-   custom_look
    mrs_chan_tutorial
    mrs_spec_chan_tutorial
    mrs_det_plot_tutorial

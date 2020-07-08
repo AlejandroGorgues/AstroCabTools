@@ -14,7 +14,6 @@ import os
 import sys
 import re
 import io
-import sphinx_glpi_theme
 
 _docs_path = os.path.dirname(__file__)
 _version_path = os.path.abspath(os.path.join(_docs_path,
@@ -75,8 +74,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'glpi'
-html_theme_path= sphinx_glpi_theme.get_html_themes_path()
+html_theme= 'bizstyle'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

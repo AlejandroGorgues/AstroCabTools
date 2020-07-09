@@ -1,6 +1,6 @@
 [![Documentation Status](https://readthedocs.org/projects/astrotools/badge/?version=latest)](https://astrotools.readthedocs.io/en/latest/?badge=latest)
 
-# AstroTools
+# AstroCabTools
 
 Set of tools made in order to:
 

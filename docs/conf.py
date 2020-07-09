@@ -17,7 +17,7 @@ import io
 
 _docs_path = os.path.dirname(__file__)
 _version_path = os.path.abspath(os.path.join(_docs_path,
-    '..', 'astrotools', '__init__.py'))
+    '..', 'astrocabtools', '__init__.py'))
 
 with io.open(_version_path, 'r', encoding='latin1') as fp:
     try:
@@ -32,7 +32,7 @@ with io.open(_version_path, 'r', encoding='latin1') as fp:
 
 # -- Project information -----------------------------------------------------
 
-project = 'AstroTools'
+project = 'AstroCabTools'
 copyright = '2020, Alejandro Gorgues'
 author = 'Alejandro Gorgues'
 

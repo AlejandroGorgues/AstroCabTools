@@ -1,13 +1,13 @@
 include LICENSE
 include README.md
 
-recursive-include astrotools/fit_line/src *
-recursive-include astrotools/mrs_chan/src *
-recursive-include astrotools/mrs_spec_chan/src *
-recursive-include astrotools/mrs_det_plot/src *
-recursive-include astrotools/all_tools/src *
+recursive-include astrocabtools/fit_line/src *
+recursive-include astrocabtools/mrs_chan/src *
+recursive-include astrocabtools/mrs_spec_chan/src *
+recursive-include astrocabtools/mrs_det_plot/src *
+recursive-include astrocabtools/all_tools/src *
 recursive-include docs *
-recursive-include astrotools *
+recursive-include astrocabtools *
 
 include mrs_spec_chan/src/templates/ *txt
 

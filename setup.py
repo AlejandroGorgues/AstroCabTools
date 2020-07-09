@@ -8,8 +8,8 @@ with open(path.join(absPath, 'README.md'), encoding='utf-8') as f:
 	long_description = f.read()
 
 setup(
-	name='astroTools',
-	version='0.9.2',
+	name='AstroCabTools',
+	version='0.9.3',
 	author='Alejandro',
 	description='Set of analysis tools of MRS data',
 	package_dir={'src':'mrs_chan',
@@ -17,11 +17,11 @@ setup(
 		'src':'mrs_det_plot',
 		'src':'fit_line',
                 'src':'all_tools'},
-	packages=['astrotools/mrs_chan/src',
-		'astrotools/mrs_spec_chan/src',
-		'astrotools/mrs_det_plot/src',
-		'astrotools/fit_line/src',
-                'astrotools/all_tools/src'],
+	packages=['astrocabtools/mrs_chan/src',
+		'astrocabtools/mrs_spec_chan/src',
+		'astrocabtools/mrs_det_plot/src',
+		'astrocabtools/fit_line/src',
+                'astrocabtools/all_tools/src'],
 	include_package_data=True,
 	classifiers=[
 		'Programming Language :: Python :: 3.7',
@@ -38,11 +38,11 @@ setup(
 	],
 	entry_points={
 		'gui_scripts':[
-			'fitLine = astrotools.fit_line.src.main:main',
-			'detPlot = astrotools.mrs_det_plot.src.main:main',
-			'specChan = astrotools.mrs_spec_chan.src.main:main',
-			'bandChan = astrotools.mrs_chan.src.main:main',
-                        'allTools = astrotools.all_tools.src.all_tools:main',
+			'fitLine = astrocabtools.fit_line.src.main:main',
+			'detPlot = astrocabtools.mrs_det_plot.src.main:main',
+			'specChan = astrocabtools.mrs_spec_chan.src.main:main',
+			'bandChan = astrocabtools.mrs_chan.src.main:main',
+                        'allTools = astrocabtools.all_tools.src.all_tools:main',
 		],
 	}
 )

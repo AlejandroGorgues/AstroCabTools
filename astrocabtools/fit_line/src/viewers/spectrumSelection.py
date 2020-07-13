@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 import sys
 import glob
+import traceback
 from os.path import expanduser
 
 from PyQt5.QtWidgets import *
@@ -26,7 +27,6 @@ class MrsPltList(QDialog, astrocabtools.fit_line.src.ui.ui_spectrumSelection.Ui_
         self.fUnits = "erg/s/cm2/micron"
         self.spectrumPath = ''
         self.redshift = 0.0
-
         regex = QRegExp('^(0|[1-9][0-9]?|100)$')
         validator = QtGui.QRegExpValidator(regex, self)
         self.waveColumnLineEdit.setValidator(validator)
@@ -59,12 +59,21 @@ class MrsPltList(QDialog, astrocabtools.fit_line.src.ui.ui_spectrumSelection.Ui_
     @pyqtSlot()
     def update_redshift(self):
         """Modified redshift value wen line edit update"""
-        if self.redshiftLineEdit.text() != '':
-            self.redshift=float(self.redshiftLineEdit.text())
+        #try:
 
+         #   if self.redshiftLineEdit.text() != '':
+          #      self.redshift=float(self.redshiftLineEdit.text())
+
+           # if self.redshiftLineEdit.text() == '':
+            #    self.redshift= 0.0
+        #except Exception as e:
+         #   self.redshift_alert()
+        
+        if self.redshiftLineEdit.text() != '':
+            #self.redshift=float(self.redshiftLineEdit.text())
+            self.redshift = self.redshiftLineEdit.text()
         if self.redshiftLineEdit.text() == '':
             self.redshift= 0.0
-
     def set_extension(self, index):
         if index == 0:
             self.extension = "*.txt"
@@ -87,4 +96,10 @@ class MrsPltList(QDialog, astrocabtools.fit_line.src.ui.ui_spectrumSelection.Ui_
             wColumn = self.waveColumnLineEdit.placeholderText()
         if fColumn == '':
             fColumn = self.fluxColumnLineEdit.placeholderText()
-        return self.spectrumPath, self.redshift, int(wColumn), int(fColumn), self.wUnits, self.fUnits, self.extension
+        return self.spectrumPath, float(self.redshift), int(wColumn), int(fColumn), self.wUnits, self.fUnits, self.extension
+
+    def redhisft_alert(self):
+        alert = QMessageBOx()
+        alert.setText("Error: Wrong redshift value")
+        alert.setDetailedText(traceback.format_exc())
+        alert.exec_()

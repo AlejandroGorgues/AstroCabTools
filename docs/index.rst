@@ -1,12 +1,19 @@
-======================
+========================
 Welcome to AstroCabTools
-======================
+========================
 
 Set of tools that analize data from JWST in Python
 
 Current version is |release|
 
 .. _GitHub: https://github.com/AlejandroGorgues/AstroCabTools
+
+Acknowledgment
+===============
+
+This work has been partially funded by the Ministerio de Ciencia e Innovación through its program “promoción de empleo joven e implantación de la Garantía Juvenil en I+D+i 2018, PEJ2018-002877-A”, the Comunidad de Madrid through the Atracción de Talento grant 2017-T1/TIC-5213, and he Spanish State Research Agency (AEI) Project MDM-2017-0737 Unidad de Excelencia “María de Maeztu”- Centro de Astrobiología (CSIC-INTA).
+
+.. image:: _static/LogoFinal.png
 
 Key Features
 ============
@@ -30,18 +37,11 @@ Libraries Used
 Tools Installation
 ====================
 
-Because the tools are not loaded into pip,
-they need to be downloaded or cloned with the next command:
+The set of tools can be downloaded using the next pip command:
 
 .. code-block:: bash
 
-       $ clone url
-
-After the package has been downloaded, it need to be installed:
-
-.. code-block:: bash
-
-       $ python install
+       $ pip install AstroCabTools
 
 Tools execution
 =================
@@ -108,10 +108,3 @@ Table of Contents
    mrs_det_plot_tutorial
    fit_line_tutorial
    all_tools_tutorial
-
-Acknowledgment
-===============
-
-This work has been partially funded by the Ministerio de Ciencia e Innovación through its program “promoción de empleo joven e implantación de la Garantía Juvenil en I+D+i 2018, PEJ2018-002877-A”, the Comunidad de Madrid through the Atracción de Talento grant 2017-T1/TIC-5213, and he Spanish State Research Agency (AEI) Project MDM-2017-0737 Unidad de Excelencia “María de Maeztu”- Centro de Astrobiología (INTA-CSIC).
-
-.. image:: _static/CAB_CAM.png

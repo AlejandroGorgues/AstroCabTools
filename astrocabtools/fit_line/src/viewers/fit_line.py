@@ -368,12 +368,15 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
     @pyqtSlot(int)
     def get_plot(self, int):
-        if int == QDialog.Accepted:
-            path, redshift, wColumn, fColumn, wUnits, fUnits, fileExt = self.spectrumSelection.get_data()
-            self.load_file(path, redshift, wColumn, fColumn, wUnits, fUnits, fileExt)
-            self.activate_click()
-            self.gaussDataV.delete_gauss_data()
-        self.figure.canvas.draw()
+        try:
+            if int == QDialog.Accepted:
+                path, redshift, wColumn, fColumn, wUnits, fUnits, fileExt = self.spectrumSelection.get_data()
+                self.load_file(path, redshift, wColumn, fColumn, wUnits, fUnits, fileExt)
+                self.activate_click()
+                self.gaussDataV.delete_gauss_data()
+            self.figure.canvas.draw()
+        except Exception as e:
+            self.show_file_extension_alert()
 
     @pyqtSlot()
     def clear_last_fitted_model(self):

@@ -9,9 +9,11 @@ with open(path.join(absPath, 'README.md'), encoding='utf-8') as f:
 
 setup(
 	name='AstroCabTools',
-	version='0.9.3',
-	author='Alejandro',
+	version='0.9.4',
+	author='Alejandro Gorgues',
 	description='Set of analysis tools of MRS data',
+        long_description=long_description,
+        long_description_content_type='text/markdown',
 	package_dir={'src':'mrs_chan',
 		'src':'mrs_spec_chan',
 		'src':'mrs_det_plot',

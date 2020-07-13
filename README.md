@@ -39,14 +39,13 @@ For each tool, this repo uses a number of libraries and packages on python:
 + PyPubSub (tested for 4.0.3)
 
 ## How to install and execute
-1. Download the project as a zip and unzip it or clone it.
-2. Open the terminal and move to the project directory.
-3. Write `python setup.py install` on the terminal.
-4. Once all the libraries had been updated and the package installed, to execute each program, the next commands need to be written on the terminal:
+1. Open the terminal and write `pip install AstroCabTools`
+2. Once all the libraries had been updated and the package installed, to execute each program, the next commands need to be written on the terminal:
   	- `bandChan` to execute mrs_chan.
   	- `specChan` to execute mrs_spec_chan.
   	- `detPlot` to execute mrs_det_plot.
   	- `fitLine` to execute fit_line.
+	- `allTools` to execute all_tools.
 
 ### Development
 
@@ -72,3 +71,5 @@ Done:
  + [x] Make gauss fitting model based on five points from an spectrum
  + [x] Allow to make more than one gauss fitting model
  + [x] Represent all gauss models
++ all_tools features:
+ + [x] Execute each one of the four programs independently

@@ -6,7 +6,7 @@ Mrs_spec_chan tutorial
 Overview
 ---------
 
-Mrs_spec_chan transform and represent into a plot the relationship between an emitted wavelength (lambda emt) and its associated flux (ujy), being the second functionalities:
+Mrs_spec_chan transform and represent into a plot the relationship between an emitted wavelength (:math:`\lambda_{emt}`) and its associated flux (:math:`uJy`), being the second functionalities:
 
 * Represent multiples relationships from the same spectrum or diferent ones as well as to be able to hide or show them.
 * Know in which of the MIRS sub bands, NIRSpec IFU ranges and NIRS gaps, the relationship falls.
@@ -51,7 +51,7 @@ Once it has been clicked, a new window will appear. On this window, the "Select 
 .. _figure2:        
 .. figure:: _static/proj2-in2.PNG
 
-Because the specturm is added to the list of the ones that are going to be loaded once its corresponding checkbox has been checked, it's also possible to select different spectra from different directories pressing the "Select DIrectory" button again to change it.
+Because the specturm is added to the list of the ones that are going to be loaded once its corresponding checkbox has been checked, it's also possible to select different spectra from different directories pressing the "Select Directory" button again to change it.
 
 Once the spectra have been selected, the user can click on the "Accept" button to load them or to click on the "Cancel" button to close it and remove the spectra selected if any have been selected (see :numref:`figure3`).
 
@@ -90,7 +90,7 @@ Channel selection
 
 To observe specific elements, the tool provides the options to show and hide each one of them using the checkboxes located at the bottom of the main window.
 
-Once the spectra have been loaded, all checkboxe are selected by default, however, if one of the is unchecked, the once associated, will hide on the canvas. In :numref:`figure5` , the MRS sub band has been unchecked as an example.
+Once the spectra have been loaded, all checkboxe are selected by default, however, if one of the is unchecked, the once associated, will hide on the canvas. In :numref:`figure5`, the MRS sub band has been unchecked as an example.
 
 .. _figure5:
 .. figure:: _static/proj2-re6.png
@@ -100,7 +100,7 @@ Spectrum management
 
 THe posibility to hide the elements, as show in the last header, also applies to the spectra, which can be hidden.
 
-Above the canvas,it appears a component that correspond to a list element, which shows all the spectra selected with its corresponding redshift, but not only shows them, they can be hidden and removed from the specturm list (see FIgure X), which mean that tom make them appear on the canvas, they mus be selected again. TO give the possibility to do such options, two components were used:
+Above the canvas,it appears a component that correspond to a list element, which shows all the spectra selected with its corresponding redshift, but not only shows them, they can be hidden and removed from the specturm list (see :numref:`figure6`), which mean that tom make them appear on the canvas, they mus be selected again. To give the possibility to do such options, two components were used:
 
 * A checkbox, checked by default, that will show or hide the spectrum on the canvas.
 * A button with a "D" letter that will delete the spectrum from the list and remove it from the canvas.
@@ -113,7 +113,7 @@ If all the spectra are deleted, all componentes will be disabled, and the canvas
 Optional wavelength values representation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Aside from the elements of the canvas, spcific wavelength values can be added after it's corresponded redshift is applied to each one. IN order to add them, the wavelength values must be written on the text fields tht appear on the top of the main window separated with commas and the redshift that is going to be applied to each one respectively. After writting the values, if the button, to the right of the text fileds is clicked, will update the canvas with the new wavelengths, represented as pink vertical lines with its corresponding observed wavelength value on the top axis (see :numref:`figure7`).
+Aside from the elements of the canvas, spcific wavelength values can be added after it's corresponded redshift is applied to each one. In order to add them, the wavelength values must be written on the text fields tht appear on the top of the main window separated with commas and the redshift that is going to be applied to each one respectively. After writting the values, if the button, to the right of the text fileds is clicked, will update the canvas with the new wavelengths, represented as pink vertical lines with its corresponding observed wavelength value on the top axis (see :numref:`figure7`).
 
 .. _figure7:
 .. figure:: _static/proj2-re10.png

@@ -5,10 +5,15 @@ Mrs_chan tutorial
 
 Overview
 ---------
-Mrs_chan transforms and represents (text and graph) a user given emitted wavelength (in microns um) and redshift into an observed wavelength and the MRS sub-band where it will fall (using the ranges for sub-bdans given in AD1). THe emitted wavelength is shifted into an observed wavelength using the standard Doppler effect transformation
+Mrs_chan transforms and represents a user given emitted wavelength (:math:`\mu m`) and redshift into an observed wavelength and the MRS sub-band where it will fall (using the ranges for sub-bands given in [1]_). The emitted wavelength is shifted into an observed wavelength using the standard Doppler effect transformation
 
-WRITE LATEX FUNCTION.
+.. math::
 
+        \lambda_{obs} = \lambda_{emit}x(1 + z)
+
+
+
+.. [1] `The Mid-Infrared Instrument for the JamesWebbSpaceTelescope, VI:The Medium Resolution Spectrometer <https://iopscience.iop.org/article/10.1086/682281/pdf>`_
 
 Requirements
 ------------
@@ -37,7 +42,10 @@ Results
 -------
 The results are shown in two different componentes:
 
-#. Two text boxes that will print the list of sub band(s) where the observed wavelength itself as show in Figure X.
+#. Two text boxes that will print the list of sub band(s) where the observed wavelength itself as show in :numref:`figure3`.
+
+.. _figure3:
+.. figure:: _static/proj1-re1.PNG
 
 #. A canvas where it will draw where the wavelength or wavelengths is located within the MRS sub bands. Based on the value specificacion for each channel from MRS, the wavelength will only be located on one or two sub bands.
 

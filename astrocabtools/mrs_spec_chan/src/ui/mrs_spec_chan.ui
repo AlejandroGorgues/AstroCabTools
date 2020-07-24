@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>MrsSpecChan</string>
+   <string>MrsSpecChan - Beta version</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">

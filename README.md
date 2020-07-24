@@ -11,11 +11,11 @@ Set of tools made in order to:
 
 ## Tools
 
-+ mrs_chan.py - To identify wich channels from the MRS range, an emitted wavelenth is.
-+ mrs_spec_chan.py - Visualization of relationship emitted wavelength and density flux associate.
-+ mrs_det_plot.py - Manipulation of astronomic images based of frame and integration values.
++ mrs_chan.py - To identify wich channels from the MRS range, an emitted wavelenth is (BETA version).
++ mrs_spec_chan.py - Visualization of relationship emitted wavelength and density flux associate (BETA version).
++ mrs_det_plot.py - Manipulation of astronomic images based of frame and integration values (BETA version).
 + fit_line.py - Representation of multiple gauss fitted models based on an spectrum.
-+ astro_tools - Interface that allows to load each tool without using command line.
++ all_tools - Interface that allows to load each tool without using command line.
 
 ### Packages used
 
@@ -30,7 +30,7 @@ For each tool, this repo uses a number of libraries and packages on python:
 + [PyPuSub](https://github.com/schollii/pypubsub) - A Python publish-subcribe library
 
 ### Requirements
-+ Python (tested for 3.8.0)
++ Python (tested for 3.7.0)
 + Matplotlib (tested for 3.1.2)
 + Numpy (tested for 1.81.1)
 + PyQt5 (tested for 5.14.0)

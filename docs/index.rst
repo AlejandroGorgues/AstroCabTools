@@ -76,6 +76,10 @@ fit_line execution:
 
        $ fitLine
 
+Beta Versions
+========
+
+Currently mrs_chan, mrs_spec_chan and mrs_det_plot are tools in beta versions.
 
 Tutorials
 =========
@@ -90,21 +94,25 @@ Tutorials
 
 #. :ref:`all_tools_tutorial`
 
-Authors and License
-===================
 
-The ``AstroCabTools`` package is written mostly by Alejandro Gorgues and Alvaro Labiano.
+Authors
+========
 
-It has a custom license.
+The ``AstroCabTools`` package has been developed by the INTA Research and Development Group as part of the JWST/MIRI consortium.
+The main contributors to this software are:
+
+Alejandro Gorgues Valenciano.
+Centro de Astrobiología (CSIC-INTA), Madrid, Spain
 
 Table of Contents
 =================
 .. toctree::
    :maxdepth: 2
    :name: mastertoc
-   
+
    mrs_chan_tutorial
    mrs_spec_chan_tutorial
    mrs_det_plot_tutorial
    fit_line_tutorial
    all_tools_tutorial
+   templates

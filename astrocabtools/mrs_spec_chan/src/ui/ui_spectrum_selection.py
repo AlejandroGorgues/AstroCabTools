@@ -65,7 +65,7 @@ class Ui_MrsSpctrmList(object):
 
     def retranslateUi(self, MrsSpctrmList):
         _translate = QtCore.QCoreApplication.translate
-        MrsSpctrmList.setWindowTitle(_translate("MrsSpctrmList", "Spectra selection"))
+        MrsSpctrmList.setWindowTitle(_translate("MrsSpctrmList", "Spectra selection  - Beta version"))
         self.groupBox.setTitle(_translate("MrsSpctrmList", "Spectra"))
         self.fileButton.setText(_translate("MrsSpctrmList", "Select Directory"))
         self.groupBox_2.setTitle(_translate("MrsSpctrmList", "Options"))

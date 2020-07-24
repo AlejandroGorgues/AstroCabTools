@@ -152,7 +152,7 @@ class Ui_MrsChanell(object):
 
     def retranslateUi(self, MrsChanell):
         _translate = QtCore.QCoreApplication.translate
-        MrsChanell.setWindowTitle(_translate("MrsChanell", "MrsChanell"))
+        MrsChanell.setWindowTitle(_translate("MrsChanell", "MrsChanell - Beta version"))
         self.groupBox_2.setTitle(_translate("MrsChanell", "Results"))
         self.label_4.setText(_translate("MrsChanell", "Channel:"))
         self.lambdaObsLabel.setText(_translate("MrsChanell", "TextLabel"))

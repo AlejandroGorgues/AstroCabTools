@@ -62,13 +62,13 @@ class AllTools(QMainWindow, astrocabtools.all_tools.src.ui.ui_all_tools.Ui_all_t
         self.fitLine.show()
 
     def closeEvent(self, event):
-        if isinstance(self.mrsChan, astrotools.mrs_chan.src.viewers.mrs_chan.MrsChanell):
+        if isinstance(self.mrsChan, astrocabtools.mrs_chan.src.viewers.mrs_chan.MrsChanell):
             self.mrsChan.close()
-        if isinstance(self.mrsSpecChan, astrotools.mrs_spec_chan.src.viewers.mrs_spec_chan.MrsSpecChanell):
+        if isinstance(self.mrsSpecChan, astrocabtools.mrs_spec_chan.src.viewers.mrs_spec_chan.MrsSpecChanell):
             self.mrsSpecChan.close()
-        if isinstance(self.mrsDetPlot, astrotools.mrs_det_plot.src.viewers.mrs_det_plot.MrsDetPlot):
+        if isinstance(self.mrsDetPlot, astrocabtools.mrs_det_plot.src.viewers.mrs_det_plot.MrsDetPlot):
             self.mrsDetPlot.close()
-        if isinstance(self.fitLine, astrotools.fit_line.src.viewers.fit_line.MrsFitLine):
+        if isinstance(self.fitLine, astrocabtools.fit_line.src.viewers.fit_line.MrsFitLine):
             self.fitLine.close()
 
 def main():

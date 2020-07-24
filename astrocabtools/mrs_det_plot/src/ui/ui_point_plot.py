@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'pointPlot.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MrsPointPlot(object):
     def setupUi(self, MrsPointPlot):
@@ -35,6 +37,5 @@ class Ui_MrsPointPlot(object):
 
     def retranslateUi(self, MrsPointPlot):
         _translate = QtCore.QCoreApplication.translate
-        MrsPointPlot.setWindowTitle(_translate("MrsPointPlot", "PointPlot"))
+        MrsPointPlot.setWindowTitle(_translate("MrsPointPlot", "PointPlot - Beta version"))
         self.saveButton.setText(_translate("MrsPointPlot", "Save as png"))
-

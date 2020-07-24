@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'mrs_det_plot.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MrsDetPlot(object):
     def setupUi(self, MrsDetPlot):
@@ -564,7 +566,7 @@ class Ui_MrsDetPlot(object):
 
     def retranslateUi(self, MrsDetPlot):
         _translate = QtCore.QCoreApplication.translate
-        MrsDetPlot.setWindowTitle(_translate("MrsDetPlot", "mrs_det_plot"))
+        MrsDetPlot.setWindowTitle(_translate("MrsDetPlot", "mrs_det_plot - Beta version"))
         self.midButton.setText(_translate("MrsDetPlot", "Show \'.fits\' images"))
         self.frame3Label.setText(_translate("MrsDetPlot", "F3"))
         self.integration3Label.setText(_translate("MrsDetPlot", "I3"))
@@ -613,4 +615,3 @@ class Ui_MrsDetPlot(object):
         self.radioBColor4.setText(_translate("MrsDetPlot", "Heat"))
         self.radioBColor5.setText(_translate("MrsDetPlot", "Rainbow"))
         self.radioBColor2.setText(_translate("MrsDetPlot", "CoolWarm"))
-

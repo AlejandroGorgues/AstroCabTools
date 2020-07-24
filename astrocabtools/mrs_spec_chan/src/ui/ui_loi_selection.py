@@ -62,7 +62,7 @@ class Ui_MrsLoiList(object):
 
     def retranslateUi(self, MrsLoiList):
         _translate = QtCore.QCoreApplication.translate
-        MrsLoiList.setWindowTitle(_translate("MrsLoiList", "Line of interest selection"))
+        MrsLoiList.setWindowTitle(_translate("MrsLoiList", "Line of interest selection  - Beta version"))
         self.groupBox.setTitle(_translate("MrsLoiList", "Lines of Interest"))
         self.groupBox_2.setTitle(_translate("MrsLoiList", "Options"))
         self.acceptButton.setText(_translate("MrsLoiList", "Accept"))

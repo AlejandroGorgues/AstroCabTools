@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>mrs_det_plot</string>
+   <string>mrs_det_plot - Beta version</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">

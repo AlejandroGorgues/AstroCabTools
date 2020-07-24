@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'mrs_spec_chan.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MrsSpecChan(object):
     def setupUi(self, MrsSpecChan):
@@ -193,7 +195,7 @@ class Ui_MrsSpecChan(object):
 
     def retranslateUi(self, MrsSpecChan):
         _translate = QtCore.QCoreApplication.translate
-        MrsSpecChan.setWindowTitle(_translate("MrsSpecChan", "MrsSpecChan"))
+        MrsSpecChan.setWindowTitle(_translate("MrsSpecChan", "MrsSpecChan - Beta version"))
         self.bottomChanData.setTitle(_translate("MrsSpecChan", "Areas"))
         self.mrsCheckbox.setText(_translate("MrsSpecChan", "MRS"))
         self.nirSpecCheckbox.setText(_translate("MrsSpecChan", "NIRSpec"))
@@ -207,4 +209,3 @@ class Ui_MrsSpecChan(object):
         self.saveButton.setText(_translate("MrsSpecChan", "Save as png"))
         self.spectraData.setTitle(_translate("MrsSpecChan", "Data"))
         self.clearButton.setText(_translate("MrsSpecChan", "Clear all"))
-

@@ -25,4 +25,4 @@ class Ui_MrsImagesFits(object):
 
     def retranslateUi(self, MrsImagesFits):
         _translate = QtCore.QCoreApplication.translate
-        MrsImagesFits.setWindowTitle(_translate("MrsImagesFits", "images"))
+        MrsImagesFits.setWindowTitle(_translate("MrsImagesFits", "images - Beta version"))

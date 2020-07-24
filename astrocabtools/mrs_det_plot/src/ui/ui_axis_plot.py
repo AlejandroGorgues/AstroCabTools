@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'axisPlot.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MrsAxisPlot(object):
     def setupUi(self, MrsAxisPlot):
@@ -35,6 +37,5 @@ class Ui_MrsAxisPlot(object):
 
     def retranslateUi(self, MrsAxisPlot):
         _translate = QtCore.QCoreApplication.translate
-        MrsAxisPlot.setWindowTitle(_translate("MrsAxisPlot", "axisPlot"))
+        MrsAxisPlot.setWindowTitle(_translate("MrsAxisPlot", "axisPlot - Beta version"))
         self.saveButton.setText(_translate("MrsAxisPlot", "Save as png"))
-

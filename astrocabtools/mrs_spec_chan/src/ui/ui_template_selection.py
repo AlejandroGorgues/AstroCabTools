@@ -62,7 +62,7 @@ class Ui_MrsTmpltList(object):
 
     def retranslateUi(self, MrsTmpltList):
         _translate = QtCore.QCoreApplication.translate
-        MrsTmpltList.setWindowTitle(_translate("MrsTmpltList", "Template selection"))
+        MrsTmpltList.setWindowTitle(_translate("MrsTmpltList", "Template selection  - Beta version"))
         self.groupBox.setTitle(_translate("MrsTmpltList", "Spectra"))
         self.groupBox_2.setTitle(_translate("MrsTmpltList", "Options"))
         self.acceptButton.setText(_translate("MrsTmpltList", "Accept"))

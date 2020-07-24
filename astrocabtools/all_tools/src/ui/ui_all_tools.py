@@ -2,17 +2,20 @@
 
 # Form implementation generated from reading ui file 'all_tools.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_all_tools(object):
     def setupUi(self, all_tools):
         all_tools.setObjectName("all_tools")
-        all_tools.resize(706, 495)
-        all_tools.setMinimumSize(QtCore.QSize(700, 250))
+        all_tools.resize(1000, 300)
+        all_tools.setMinimumSize(QtCore.QSize(1000, 300))
+        all_tools.setMaximumSize(QtCore.QSize(2000, 300))
         self.centralwidget = QtWidgets.QWidget(all_tools)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -32,6 +35,7 @@ class Ui_all_tools(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
         self.label_2.setSizePolicy(sizePolicy)
+        self.label_2.setScaledContents(False)
         self.label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_2.setWordWrap(True)
         self.label_2.setObjectName("label_2")
@@ -88,6 +92,7 @@ class Ui_all_tools(object):
         self.label_5.setSizePolicy(sizePolicy)
         self.label_5.setMinimumSize(QtCore.QSize(0, 50))
         self.label_5.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
+        self.label_5.setWordWrap(True)
         self.label_5.setObjectName("label_5")
         self.gridLayout.addWidget(self.label_5, 3, 1, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
@@ -108,4 +113,3 @@ class Ui_all_tools(object):
         self.mrsSpecChanButton.setText(_translate("all_tools", "mrs_spec_chan"))
         self.label_4.setText(_translate("all_tools", "Tool that manipulate astronomic images based of frame and integration values."))
         self.label_5.setText(_translate("all_tools", "Tool that representate multiple gauss fitted models based on an spectrum."))
-

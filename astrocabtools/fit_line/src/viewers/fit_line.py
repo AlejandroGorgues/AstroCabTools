@@ -264,7 +264,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
                             self.gaussDataV.add_delimiter_line()
                             comps = result.eval_components()
 
-                            if isinstance(self.model, astrotools.fit_line.src.models.gaussModelCreation.gaussModel):
+                            if isinstance(self.model, astrocabtools.fit_line.src.models.gaussModelCreation.gaussModel):
 
                                 #Draw the plots
 
@@ -288,7 +288,6 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
                             self.modelSelectionComboBox.setEnabled(True)
                             self.models.append(self.model)
-                            #self.check_repeat_model_labels()
                             self.update_legend()
 
                 self.figure.canvas.draw()

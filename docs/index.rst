@@ -76,6 +76,11 @@ fit_line execution:
 
        $ fitLine
 
+cube_ans execution:
+
+.. code-block:: bash
+       $ cubeAns
+
 Beta Versions
 ========
 
@@ -93,6 +98,8 @@ Tutorials
 #. :ref:`fit_line_tutorial`
 
 #. :ref:`all_tools_tutorial`
+
+#. :ref:`cube_ans_tutorial`
 
 
 Authors
@@ -115,4 +122,5 @@ Table of Contents
    mrs_det_plot_tutorial
    fit_line_tutorial
    all_tools_tutorial
+   cube_ans_tutorial
    templates

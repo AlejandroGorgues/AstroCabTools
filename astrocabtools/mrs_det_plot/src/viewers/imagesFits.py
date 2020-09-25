@@ -18,8 +18,8 @@ import matplotlib.gridspec as gridspec
 from .canvas_interaction.panZoom import figure_pz
 import astrocabtools.mrs_det_plot.src.ui.ui_images_fits
 
-from ..utils.imgPlot import imgPlot
-from ..utils.globalStats import globalStats
+from ..models.imgPlot import imgPlot
+from ..models.globalStats import globalStats
 
 
 class MrsImagesFits(QDialog, astrocabtools.mrs_det_plot.src.ui.ui_images_fits.Ui_MrsImagesFits):

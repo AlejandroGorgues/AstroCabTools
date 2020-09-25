@@ -9,7 +9,7 @@ with open(path.join(absPath, 'README.md'), encoding='utf-8') as f:
 
 setup(
 	name='AstroCabTools',
-	version='0.9.7',
+	version='0.9.8',
 	author='Alejandro Gorgues',
 	description='Set of analysis tools of MRS data',
         long_description=long_description,
@@ -18,11 +18,13 @@ setup(
 		'src':'mrs_spec_chan',
 		'src':'mrs_det_plot',
 		'src':'fit_line',
+                'src':'cube_ans',
                 'src':'all_tools'},
 	packages=['astrocabtools/mrs_chan/src',
 		'astrocabtools/mrs_spec_chan/src',
 		'astrocabtools/mrs_det_plot/src',
 		'astrocabtools/fit_line/src',
+                'astrocabtools/cube_ans/src',
                 'astrocabtools/all_tools/src'],
 	include_package_data=True,
 	classifiers=[
@@ -40,6 +42,7 @@ setup(
 	],
 	entry_points={
 		'gui_scripts':[
+                        'cubeAns = astrocabtools.cube_ans.src.main:main',
 			'fitLine = astrocabtools.fit_line.src.main:main',
 			'detPlot = astrocabtools.mrs_det_plot.src.main:main',
 			'specChan = astrocabtools.mrs_spec_chan.src.main:main',

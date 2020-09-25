@@ -1,3 +1,1 @@
-from .fits import * # noqa
-from .globalStats import * # noqa
-from .imgPlot import * # noqa
+from .get_clicked_values import * # noqa

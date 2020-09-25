@@ -3,7 +3,6 @@ Object that allow to select the spectrum to be loaded
 and the redshift to be applied
 """
 import numpy as np
-import matplotlib.pyplot as plt
 
 import sys
 import glob
@@ -11,7 +10,7 @@ import traceback
 from os.path import expanduser
 
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, pyqtSlot,QIdentityProxyModel, QRegExp
+from PyQt5.QtCore import Qt, pyqtSlot,QRegExp
 from PyQt5 import QtGui
 from PyQt5 import uic
 
@@ -59,18 +58,7 @@ class MrsPltList(QDialog, astrocabtools.fit_line.src.ui.ui_spectrumSelection.Ui_
     @pyqtSlot()
     def update_redshift(self):
         """Modified redshift value wen line edit update"""
-        #try:
-
-         #   if self.redshiftLineEdit.text() != '':
-          #      self.redshift=float(self.redshiftLineEdit.text())
-
-           # if self.redshiftLineEdit.text() == '':
-            #    self.redshift= 0.0
-        #except Exception as e:
-         #   self.redshift_alert()
-        
         if self.redshiftLineEdit.text() != '':
-            #self.redshift=float(self.redshiftLineEdit.text())
             self.redshift = self.redshiftLineEdit.text()
         if self.redshiftLineEdit.text() == '':
             self.redshift= 0.0
@@ -99,7 +87,7 @@ class MrsPltList(QDialog, astrocabtools.fit_line.src.ui.ui_spectrumSelection.Ui_
         return self.spectrumPath, float(self.redshift), int(wColumn), int(fColumn), self.wUnits, self.fUnits, self.extension
 
     def redhisft_alert(self):
-        alert = QMessageBOx()
+        alert = QMessageBox()
         alert.setText("Error: Wrong redshift value")
         alert.setDetailedText(traceback.format_exc())
         alert.exec_()

@@ -2,9 +2,9 @@ import os
 import pytest
 
 import numpy as np
-from astrotools.fit_line.src.models.doubleGaussModelCreation import doubleGaussModel
-from astrotools.fit_line.src.io.ascii_load import apply_redshift_to_txt
-from astrotools.fit_line.src.io.fits_load import apply_redshift_to_fits
+from astrocabtools.fit_line.src.models.doubleGaussModelCreation import doubleGaussModel
+from astrocabtools.fit_line.src.io.ascii_load import apply_redshift_to_txt
+from astrocabtools.fit_line.src.io.fits_load import apply_redshift_to_fits
 
 
 DATA = os.path.join(os.path.dirname(__file__), 'templates')
@@ -15,22 +15,22 @@ def test_gaussCreation():
 
     rightX = 6.350721843125295
     rightY = 123310959411.76181
-    
+
     firstSigma1X = 6.273821491336555
     firstSigma1Y = 131855451815.09648
-   
+
     firstSigma2X = 6.3076806014524935
     firstSigma2Y = 132226951484.80669
-   
+
     firstTopX = 6.289029396727612
     firstTopY = 134976049040.66219
-    
+
     secondSigma1X = 6.247422863110571
     secondSigma1Y = 128957754391.3569
-   
+
     secondSigma2X = 6.270091250391579
     secondSigma2Y = 129366404028.03812
-   
+
     secondTopX = 6.255744169833979
     secondTopY = 129737903697.74832
 
@@ -58,31 +58,31 @@ def test_gaussCreation():
     assert result.params['b'].value == pytest.approx(-10444049034.724892)
     assert result.chisqr == pytest.approx(3.66407563374124e+19)
 
-    
+
     leftX = 95.39918218043015
     leftY = 29978.79744034294
 
     rightX = 96.86304414847658
     rightY = 30775.89023454421
-    
+
     firstSigma1X = 96.29779051725073
     firstSigma1Y = 32752.68036416336
-   
+
     firstSigma2X = 96.48620839432601
     firstSigma2Y = 32688.91294062726
-   
+
     firstTopX = 96.37025893151045
     firstTopY = 35526.56328798378
-    
+
     secondSigma1X = 95.50063796039376
     secondSigma1Y = 30425.16940509565
-   
+
     secondSigma2X = 96.00791686021182
     secondSigma2Y = 30393.2856933276
-   
+
     secondTopX = 95.76152425172876
     secondTopY = 30680.23909924006
-    
+
     wavelength, flux, z = apply_redshift_to_txt(os.path.join(DATA, 'M82_ISO.txt'), '3.2', 0, 1, "um", 'erg/s/cm2/um')
 
     model = doubleGaussModel()
@@ -96,7 +96,7 @@ def test_gaussCreation():
     model.add_data_points(secondTopX, secondTopY)
 
     result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values = model.draw_gauss_curve_fit('testFileTXT', wavelength, flux)
-    
+
     assert result.params['h1'].value  == pytest.approx(4936.849461706795)
     assert result.params['c1'].value == pytest.approx(96.35800032776956)
     assert result.params['sigma1'].value  == pytest.approx(0.06467727189983155)

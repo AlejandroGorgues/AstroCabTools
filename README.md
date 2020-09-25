@@ -15,6 +15,7 @@ Set of tools made in order to:
 + mrs_spec_chan.py - Visualization of relationship emitted wavelength and density flux associate (BETA version).
 + mrs_det_plot.py - Manipulation of astronomic images based of frame and integration values (BETA version).
 + fit_line.py - Representation of multiple gauss fitted models based on an spectrum.
++ cube_ans.py - Representation and analyisis of miri cubes
 + all_tools - Interface that allows to load each tool without using command line.
 
 ### Packages used
@@ -29,7 +30,7 @@ For each tool, this repo uses a number of libraries and packages on python:
 + [Lmfit](https://lmfit.github.io//lmfit-py/) - Non-Linear Least-Squares Minimization and Curve-Fitting for Python
 + [PyPuSub](https://github.com/schollii/pypubsub) - A Python publish-subcribe library
 
-### Requirements
+### Tested with
 + Python (tested for 3.7.0)
 + Matplotlib (tested for 3.1.2)
 + Numpy (tested for 1.81.1)
@@ -41,35 +42,61 @@ For each tool, this repo uses a number of libraries and packages on python:
 ## How to install and execute
 1. Open the terminal and write `pip install AstroCabTools`
 2. Once all the libraries had been updated and the package installed, to execute each program, the next commands need to be written on the terminal:
-  	- `bandChan` to execute mrs_chan.
-  	- `specChan` to execute mrs_spec_chan.
-  	- `detPlot` to execute mrs_det_plot.
-  	- `fitLine` to execute fit_line.
-	- `allTools` to execute all_tools.
+ - `bandChan` to execute mrs_chan.
+ - `specChan` to execute mrs_spec_chan.
+ - `detPlot` to execute mrs_det_plot.
+ - `fitLine` to execute fit_line.
+ - `cubeAns` to execute cube_ans.
+ - `allTools` to execute all_tools.
 
-### Development
+## Templates
+Templates for different tools can be downloaded in the next links and in the documentation.
+
+### Mrs_spec_chan templates
+
+The templates for this tool can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_mrs_spec_chan.zip).
+
+### Mrs_det_plot templates
+
+The templates for this tool can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_mrs_det_plot.zip).
+
+### Fit_line templates
+
+The templates for this tool can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_fit_line.zip).
+
+
+## Development
 
 ### To dos
 
 New:
+
++ cube_ans features:
+  + [ ] Miri cube representation
+  + [ ] Miri specturm along all slice representacion within an arrea
+  + [ ] Generation of csv and png files when an spectrum is saved
+
 + [ ] Online documentation
 
 Done:
 
 + mrs_chan features:
- + [x] Specific wavelength location inside mrsSpec channels
+  + [x] Specific wavelength location inside mrsSpec channels
+
 + mrs_spec_chan features:
- + [x] Representation and management of spectra on a range of wavelength values
+  + [x] Representation and management of spectra on a range of wavelength values
+
  + [x] Representation of specific observed wavelengths selected on the plot
  + [x] Representation of specific lines of interest from a list on the plot
  + [x] Management of different specification ranges where each plot is going to appear
 + mrs_det_plot features:
- + [x] Visualization of multiple .fits images
- + [x] Management of the scale, stretch and colour of all the images
- + [x] Visualization of values selected on an specified image along each axis
+  + [x] Visualization of multiple .fits images
+  + [x] Management of the scale, stretch and colour of all the images
+  + [x] Visualization of values selected on an specified image along each axis
+
 + fit_line features:
- + [x] Make gauss fitting model based on five points from an spectrum
- + [x] Allow to make more than one gauss fitting model
- + [x] Represent all gauss models
+  + [x] Make gauss fitting model based on five points from an spectrum
+  + [x] Allow to make more than one gauss fitting model
+  + [x] Represent all gauss models
 + all_tools features:
- + [x] Execute each one of the four programs independently
+  + [x] Execute each one of the four programs independently

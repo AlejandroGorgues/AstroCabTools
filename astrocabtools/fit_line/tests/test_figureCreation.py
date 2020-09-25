@@ -4,7 +4,7 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from astrotools.fit_line.src.utils.fitting_model_creation import calculate_slope, calculate_intercept
+from astrocabtools.fit_line.src.utils.fitting_model_creation import calculate_slope, calculate_intercept
 
 
 def test_slope():

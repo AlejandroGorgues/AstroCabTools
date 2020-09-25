@@ -32,6 +32,7 @@ from .canvas_interaction.panZoomFitLine import figure_pz
 
 from ..io.ascii_load import apply_redshift_to_txt
 from ..io.fits_load import apply_redshift_to_fits
+from ..io.spec_cube_load import apply_redshift_to_cube
 from ..models.gaussModelCreation import gaussModel
 from ..models.doubleGaussModelCreation import doubleGaussModel
 
@@ -39,7 +40,7 @@ __all__=["MrsFitLine"]
 
 class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLine):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, **kwargs):
         """Initializer
         :param Class parent: The parent that inherits the interface.
         """
@@ -68,26 +69,28 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         #Create the canvas to load the plot
         self.create_middle_plot()
 
-        self.loadPltButton.clicked.connect(self.select_plot)
+        self.actionLoad_Spectrum.triggered.connect(self.select_plot)
+        self.actionSave_as_png.triggered.connect(self.save_plot_image)
 
-        self.saveButton.clicked.connect(self.save_plot_image)
-
-        self.pointsGenerationButton.clicked.connect(self.manage_generation_points)
-
-        self.showPointsButton.clicked.connect(self.show_gauss_fit_data)
-
-        self.clearButton.clicked.connect(self.clear_all)
-        self.clearLastButton.clicked.connect(self.clear_last_fitted_model)
-        self.clearFittingButton.clicked.connect(self.clear_fitted_models)
         self.zoomFitButton.clicked.connect(self.zoom_fit)
-
         self.zoomButton.clicked.connect(self.activate_zoom)
         self.panButton.clicked.connect(self.activate_pan)
         self.clickNormalButton.clicked.connect(self.activate_click)
+        self.undoButton.clicked.connect(self.undo_action)
+
+        self.actionClear_all.triggered.connect(self.clear_all)
+        self.actionClear_last_fitted_model.triggered.connect(self.clear_last_fitted_model)
+        self.actionClear_fitted_models.triggered.connect(self.clear_fitted_models)
+        self.actionShow_fitted_data_parameters.triggered.connect(self.show_gauss_fit_data)
 
         self.modelSelectionComboBox.currentIndexChanged.connect(self.set_model)
 
-        self.undoButton.clicked.connect(self.undo_action)
+        self.pointsGenerationButton.clicked.connect(self.manage_generation_points)
+
+        if 'wValues' in kwargs:
+
+            self.load_spectrum_from_cube_ans(kwargs["wValues"], kwargs["fValues"], kwargs["wUnits"],
+                                             kwargs["fUnits"], kwargs["redshift"], kwargs["path"])
 
 
     def create_middle_plot(self):
@@ -96,6 +99,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         self.figure, self.figure.canvas = figure_pz()
         #Subscribe method to setStateUndo event
         pub.subscribe(self.change_state_undo_button,'setStateUndo')
+        pub.subscribe(self.draw_fitted_models, 'fittedModelShow')
 
         #To allow the user to move through the plot, it need to be focused (in this case when the user click on image)
         self.figure.canvas.setFocusPolicy(Qt.ClickFocus)
@@ -104,7 +108,6 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         layout.addWidget(self.figure.canvas)
 
         self.ax1 = self.figure.add_subplot(111)
-        self.click_factory()
 
         #Create rectangle selector
         self.create_rectangle(self.ax1)
@@ -130,13 +133,9 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
         self.ax1.grid(True)
 
-    def draw_plot(self, redshift, filename):
-        """ Draw the plot
-        :param float redshift: redshift value selected
-        :param str filename: Path of the spectrum
-        """
-        self.ax1.set_visible(True)
+    def draw_plot(self):
 
+        self.ax1.set_visible(True)
         #Clear all previous lines and markers that do not belong to the spectrum
         for i in range(len(self.ax1.lines)):
             line = self.ax1.lines.pop(i)
@@ -160,6 +159,17 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
         self.figure.canvas.draw()
 
+    def load_spectrum_from_cube_ans(self, wValues, fValues, wUnits, fUnits, z, path):
+
+        self.path = path
+
+        self.wavelength, self.flux, z = apply_redshift_to_cube(z, wValues, fValues, wUnits, fUnits)
+
+        #Print the plot
+        self.draw_plot_area()
+        self.draw_plot()
+        self.set_interface_state(True)
+
     def load_file(self, path, z, wColumn, fColumn, wUnits, fUnits, fileExt):
         """ Load the data from the path and transform the values
         :param string z: redshift value
@@ -180,7 +190,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
             #Print the plot
             self.draw_plot_area()
-            self.draw_plot(z, path)
+            self.draw_plot()
             self.set_interface_state(True)
 
 
@@ -198,7 +208,9 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         minW , maxW  = np.amin(wavelength), np.amax(wavelength)
         minF , maxF  = np.amin(flux), np.amax(flux)
 
-        self.ax1.set_xlim(minW, maxW)
+        #Set additional range on plot for better visualization
+
+        self.ax1.set_xlim(minW*0.9, maxW*1.1)
         self.ax1.set_ylim(minF, maxF)
 
         self.spectrum = self.ax1.plot(wavelength, flux, c='#4c72b0',label='Spectrum')
@@ -234,71 +246,54 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
     def show_gauss_fit_data(self):
         self.show_gauss_selection()
 
-    def click_factory(self):
-        """ Obtain data where the user clicked
-            :param Axis axis: the axis where the user clicked
-            :param int index: current axis selected
-        """
+    def draw_fitted_models(self, xdata, ydata):
 
-        #Return click funct to axis
-        def click_fun(event):
+        try:
+            if self.counterState == True:
+                self.indicationLabel.setText(self.model.add_data_points(xdata, ydata))
+                self.add_crosshair(xdata, ydata)
 
-            try:
-                if event.inaxes == self.ax1 and event.dblclick:
+                if self.model.counter == self.model.max_counter:
 
+                    self.counterState=False
+                    self.pointsGenerationButton.setText("Mark points")
+                    result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values = self.model.draw_gauss_curve_fit(self.path, self.wavelength, self.flux)
+                    self.gaussDataV.add_spectrum_values(result, wavelengthValues, fluxValues)
+                    self.gaussDataV.add_gauss_data(resultText)
+                    self.gaussDataV.add_delimiter_line()
+                    comps = result.eval_components()
 
-                    if self.counterState == True:
-                        xdata = event.xdata
-                        ydata = event.ydata
+                    if isinstance(self.model, astrocabtools.fit_line.src.models.gaussModelCreation.gaussModel):
 
-                        self.indicationLabel.setText(self.model.add_data_points(xdata, ydata))
-                        self.add_crosshair(xdata, ydata)
-
-                        if self.model.counter == self.model.max_counter:
-
-                            self.counterState=False
-                            self.pointsGenerationButton.setText("Mark points")
-                            result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values = self.model.draw_gauss_curve_fit(self.path, self.wavelength, self.flux)
-                            self.gaussDataV.add_spectrum_values(result, wavelengthValues, fluxValues)
-                            self.gaussDataV.add_gauss_data(resultText)
-                            self.gaussDataV.add_delimiter_line()
-                            comps = result.eval_components()
-
-                            if isinstance(self.model, astrocabtools.fit_line.src.models.gaussModelCreation.gaussModel):
-
-                                #Draw the plots
-
-                                self.model.lines = self.ax1.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
+                        #Draw the plots
+                        self.model.lines = self.ax1.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
+                        self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
 
 
-                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
+                        self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
+                        self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
 
-                            else:
-                                #Draw the plots
-                                self.model.lines = self.ax1.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'],'y--',label='Initial fit')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, initial_y2_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit,'r-',label='Best fit')[0]
+                    else:
+                        #Draw the plots
+                        self.model.lines = self.ax1.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'],'y--',label='Initial fit')[0]
+                        self.model.lines = self.ax1.plot(wavelengthValues, initial_y2_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
+                        self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit,'r-',label='Best fit')[0]
 
 
-                                self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function1'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function2'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
-                                self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'],'g--',label='Fitted line')[0]
+                        self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function1'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
+                        self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function2'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
+                        self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'],'g--',label='Fitted line')[0]
 
-                            self.modelSelectionComboBox.setEnabled(True)
-                            self.models.append(self.model)
-                            self.update_legend()
+                    self.modelSelectionComboBox.setEnabled(True)
+                    self.models.append(self.model)
+                    self.update_legend()
 
-                self.figure.canvas.draw()
-            except Exception as e:
-                self.generic_alert()
-                self.delete_previous_markers()
-                self.figure.canvas.draw()
-                self.modelSelectionComboBox.setEnabled(True)
-        #Obtain data on click event
-        self.figure.canvas.mpl_connect('button_press_event', lambda event: click_fun(
-            event))
+            self.figure.canvas.draw()
+        except Exception as e:
+            self.generic_alert()
+            self.delete_previous_markers()
+            self.figure.canvas.draw()
+            self.modelSelectionComboBox.setEnabled(True)
 
     def add_crosshair(self, xdata, ydata):
         """ Draw marker on specified point
@@ -328,17 +323,15 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         :param bool state: state that is going to be applied
         """
         self.pointsGenerationButton.setEnabled(state)
-        self.showPointsButton.setEnabled(state)
-        self.saveButton.setEnabled(state)
-        self.clearButton.setEnabled(state)
-        self.clearLastButton.setEnabled(state)
-        self.clearFittingButton.setEnabled(state)
         self.zoomButton.setEnabled(state)
         self.zoomFitButton.setEnabled(state)
         self.panButton.setEnabled(state)
         self.clickNormalButton.setEnabled(state)
         self.modelSelectionComboBox.setEnabled(state)
         self.modelSelectionLabel.setEnabled(state)
+
+        self.menuVisualization.setEnabled(state)
+        self.actionSave_as_png.setEnabled(state)
 
     @pyqtSlot()
     def save_plot_image(self):
@@ -549,7 +542,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
         alert = QMessageBox()
         alert.setText("Error: Filename name or extension not correct, \n in case \
-        of being the error in the extension, it must be blank or .txt ")
+        of being the error in the extension, it must be blank or .png ")
         alert.exec_()
 
     def error_reduction_alert(self):

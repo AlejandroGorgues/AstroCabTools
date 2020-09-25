@@ -158,7 +158,12 @@ class ZoomFitCommand(Command):
         Adjust axe limits to the main one
         """
         for ax in self._figure.axes:
-            ax.set_xlim(self._xLimits)
+
+            xLimits = list(self._xLimits)
+            xLimits[0] = xLimits[0]*0.9
+            xLimits[1] = xLimits[1]*1.1
+
+            ax.set_xlim(tuple(xLimits))
             ax.set_ylim(self._yLimits)
         canvas.draw()
 

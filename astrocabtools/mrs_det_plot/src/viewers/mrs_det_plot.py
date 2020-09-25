@@ -34,9 +34,10 @@ import astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot
 
 from .canvas_interaction.panZoom import figure_pz
 
-from ..utils.imgPlot import imgPlot
-from ..utils.globalStats import globalStats
-from ..utils.fits import fitsClass
+from ..utils.get_clicked_values import get_clicked_values
+from ..models.imgPlot import imgPlot
+from ..models.globalStats import globalStats
+from ..io.fits_image_load import get_fits_image_data
 
 __all__= ["MrsDetPlot"]
 
@@ -386,50 +387,6 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
         self.frameLineEditWidgets[index].blockSignals(False)
         self.integrationLineEditWidgets[index].blockSignals(False)
 
-    def init_fits_obj(self, hdul, index, filename):
-        """ Initialize fits object based on fits value from the file selected
-        :param int index: current axis selected
-        """
-        fitsObj = fitsClass(0, 0, -1, -1, 0, 0, 0, 0, '', 0, 0, '')
-
-
-        #Frames and integration could change positions, because of that
-        #I look into the first position to check the order
-        if hdul[1].header["CUNIT3"] == "groups":
-
-            fitsObj.maxFrame = int(hdul[1].header["NAXIS3"])
-            fitsObj.maxIntegration = int(hdul[1].header["NAXIS4"])
-
-        else:
-            fitsObj.maxFrame = int(hdul[1].header["NAXIS4"])
-            fitsObj.maxIntegration = int(hdul[1].header["NAXIS3"])
-
-        fitsObj.maxXAxis = int(hdul[1].header["NAXIS1"]) - 1
-        fitsObj.maxYAxis = int(hdul[1].header["NAXIS2"]) - 1
-
-        #Because the value of the x and y axis could not be 1,
-        #Which would correspond with the values from the image axis,
-        #The values are obtained to use it
-        fitsObj.shidXValue = float(hdul[1].header["CDELT1"])
-        fitsObj.shidYValue = float(hdul[1].header["CDELT2"])
-
-        #The value of the center could also not be the same, so it's also obtained
-        fitsObj.fitsXCenter = int(hdul[1].header["CRVAL1"])
-        fitsObj.fitsYCenter = int(hdul[1].header["CRVAL2"])
-
-        fitsObj.fitsZUnit = hdul[1].header["BUNIT"]
-
-        fitsObj.filename = filename
-
-        self.fitsObjList[index] = fitsObj
-
-        self.set_widgets_values(index)
-
-        if len(self.hduls) == 1:
-            self.set_interface_state(True)
-            self.imagesFits.crossed.connect(self.update_clicked_values)
-            self.imagesFits.changeBar.connect(self.create_colorbar)
-
     @pyqtSlot()
     def search_file(self, index):
         """ Search for the file that contains the fits image and draw it with the zoom, enable
@@ -443,13 +400,20 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
             if fileSearch.exec_():
                 filenames = fileSearch.selectedFiles()
 
-                hdul = fits.open(filenames[0])
+                hdul, fitsObj= get_fits_image_data(filenames[0])
                 self.hduls[index] = hdul
+                self.fitsObjList[index] = fitsObj
+
+                self.set_widgets_values(index)
+
+                if len(self.hduls) == 1:
+                    self.set_interface_state(True)
+                    self.imagesFits.crossed.connect(self.update_clicked_values)
+                    self.imagesFits.changeBar.connect(self.create_colorbar)
+
 
                 #Clear the pixel lines and the bottom line edits
                 self.reset_pixel_values(index)
-
-                self.init_fits_obj(hdul, index,filenames[0])
 
                 globalStats = self.imagesFits.get_global_stats()
                 norm = self.get_norm(index, globalStats)
@@ -555,40 +519,18 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
             :param int i: current axis selected
         """
         imgObj = self.imagesFits.get_image_obj_selected(index)
-        #Because the shiof the values corresponds to 1.0 each one
-        #And the center of the image is 0 on x,y,z, the values on pixels are the same
-        #However, as it's decided by the Fits file header, the y axis comes first instead of the x
-        #Instead of beeing a coord (x,y) it's (y,x)
+        fitsObj = self.fitsObjList[index]
+        hdul = self.hduls[index]
 
-        xdataRound = self.set_round_value(xdata)
-        ydataRound = self.set_round_value(ydata)
-
-        xValueTransformed = int(xdataRound-self.fitsObjList[index].fitsXCenter*self.fitsObjList[index].shidXValue)
-        yValueTransformed = int(ydataRound-self.fitsObjList[index].fitsYCenter*self.fitsObjList[index].shidYValue)
-
-        imgObj.xValues = self.hduls[index][1].data[self.fitsObjList[index].currIntegration,
-                                                self.fitsObjList[index].currFrame,
-                                                yValueTransformed,\
-                                                 0:self.fitsObjList[index].maxXAxis]
-        imgObj.yValues = self.hduls[index][1].data[self.fitsObjList[index].currIntegration,
-                                                self.fitsObjList[index].currFrame,
-                                                0:self.fitsObjList[index].maxYAxis,
-                                                xValueTransformed]
-
-
-        #Get z value along time
-        imgObj.zValues = self.hduls[index][1].data[:,:,
-        yValueTransformed,
-        xValueTransformed]
-
+        imgObj = get_clicked_values(xdata, ydata, imgObj, fitsObj)
         self.xWidgets[index].setText(str(xdata +1))
         self.yWidgets[index].setText(str(ydata +1))
-        self.zWidgets[index].setText(str(self.hduls[index][1].data[self.fitsObjList[index].currIntegration,
-                                                         self.fitsObjList[index].currFrame,
+        self.zWidgets[index].setText(str(hdul[1].data[fitsObj.currIntegration,
+                                                         fitsObj.currFrame,
                                                          yValueTransformed,
                                                          xValueTransformed]))
 
-        self.zUnitWidgets[index].setText(self.fitsObjList[index].fitsZUnit)
+        self.zUnitWidgets[index].setText(fitsObj.fitsZUnit)
         self.showButtonWidgets[index].setDisabled(False)
         self.showPointButtonWidgets[index].setDisabled(False)
 
@@ -624,7 +566,7 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
             stretch = LinearStretch()
 
         elif globalStats.stretch == "Log":
-            stretch = Loretch()
+            stretch = LogStretch()
 
         else:
             stretch = SqrtStretch()
@@ -741,7 +683,6 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
                               height="20%",  # height : 20%
                               loc=10)
 
-        #TODO
         cbar = fig.colorbar(mappable, cax=axCenter,
                             orientation="horizontal", label=self.fitsObjList[index].fitsZUnit)
 
@@ -785,7 +726,6 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
         """ Disable or enable the different widgets of the interface
         :param bool state: state that is going to be applied
         """
-
         self.minMaxRadioB.setChecked(state)
         self.radioBColor1.setChecked(state)
 
@@ -795,7 +735,7 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
 
     def values_alert(self, message):
         alert = QMessageBox()
-        alert.setText("Error: non-numeric characters")
+        alert.setText(message)
         alert.setDetailedText(traceback.format_exc(limit=1))
         alert.exec_()
 
@@ -805,12 +745,6 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
         alert.setText("Error: wrong file parameters")
         alert.setDetailedText(traceback.format_exc())
         alert.exec_()
-
-    def set_round_value(self, data):
-        if data %1 >= 0.5:
-            return math.ceil(data)
-        else:
-            return round(data)
 
     def closeEvent(self, event):
         self.imagesFits.close()

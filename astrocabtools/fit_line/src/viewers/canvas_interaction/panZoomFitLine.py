@@ -46,6 +46,7 @@ class MplInteraction(object):
         self.canvas = FigureCanvas(figure)
         self._cids_zoom = []
         self._cids_pan = []
+        self._cids = []
         self._cids_callback_zoom = {}
         self._cids_callback_pan = {}
         self._callback_rectangle = None
@@ -57,6 +58,10 @@ class MplInteraction(object):
         self._invokerZoom = UndoHistoryZoomInvoker(figure.canvas)
         self._invokerPan = UndoHistoryPanInvoker(figure.canvas)
 
+    def _add_connection(self, event_name, callback):
+
+        cid = self.canvas.mpl_connect(event_name, callback)
+        self._cids.append(cid)
 
     def create_rectangle_ax(self, ax):
         rectprops = dict(facecolor = None, edgecolor = 'black', alpha = 1,
@@ -168,6 +173,8 @@ class MplInteraction(object):
                 for cid in self._cids_zoom:
                     figure.canvas.mpl_disconnect(cid)
                 for cid in self._cids_pan:
+                    figure.canvas.mpl_disconnect(cid)
+                for cid in self._cids:
                     figure.canvas.mpl_disconnect(cid)
             self._fig_ref = None
 
@@ -325,8 +332,25 @@ class PanAndZoom(ZoomWithMouse):
                 self._invokerPan.command(panCommand)
                 self._event = event
 
+class SelecTest(PanAndZoom):
+    def __init__(self, figure=None):
+        """Initializer
+        :param Figure figure: The matplotlib figure to attach the behavior to.
+        :param float scale_factor: The scale factor to apply on wheel event.
+        """
+        super(SelecTest, self).__init__(figure)
+        self._add_connection('button_press_event', self._on_mouse_press_mark)
+
+    def _on_mouse_press_mark(self, event):
+        for ax in self.figure.axes:
+            if event.inaxes== ax and event.dblclick:
+                xdata = event.xdata
+                ydata = event.ydata
+                pub.sendMessage('fittedModelShow', xdata= xdata, ydata=ydata)
+
 def figure_pz(*args, **kwargs):
     """matplotlib.pyplot.figure with pan and zoom interaction"""
     fig = _plt.figure(*args, **kwargs)
-    fig.pan_zoom = PanAndZoom(fig)
+    #fig.pan_zoom = PanAndZoom(fig)
+    fig.pan_zoom = SelecTest(fig)
     return fig, fig.canvas

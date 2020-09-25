@@ -6,7 +6,7 @@ import numpy as np
 import astropy.units as u
 from astropy.constants import c
 
-from astrotools.fit_line.src.utils.units_conversion import spectrumConversion
+from astrocabtools.fit_line.src.utils.units_conversion import spectrumConversion
 
 
 def test_um():
@@ -63,7 +63,7 @@ def test_fluxWHz_to_flam():
     sc = spectrumConversion()
     flux = sc.transform_fUnits(5.48, 'W/m2/Hz', 2.48)
     value = flux.value
-    y = 2.671147e+17 
+    y = 2.671147e+17
 
     assert value == pytest.approx(y)
 
@@ -79,7 +79,7 @@ def test_fluxErgHz_to_flam():
     sc = spectrumConversion()
     flux = sc.transform_fUnits(5.48, 'erg/s/cm2/Hz', 2.48)
     value = flux.value
-    y = 267114768119146.75 
+    y = 267114768119146.75
 
     assert value == pytest.approx(y)
 

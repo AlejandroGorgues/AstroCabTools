@@ -1,11 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import lmfit
 
 import sys
-import re
-import traceback
-
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 

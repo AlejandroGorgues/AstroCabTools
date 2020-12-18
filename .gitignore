@@ -138,3 +138,7 @@ tempCodeRunnerFile.*
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+
+#Swap files
+*.swp
+*.swo

@@ -125,7 +125,7 @@ class MrsFitLineData(QDialog, astrocabtools.fit_line.src.ui.ui_gaussDataVisualiz
         except Exception as e:
             self.show_file_extension_alert()
 
-    def close_event(self, event):
+    def closeEvent(self, event):
         """
         Close other windows when dialog is closed
         """

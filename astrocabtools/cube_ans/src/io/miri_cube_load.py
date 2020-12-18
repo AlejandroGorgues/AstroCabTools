@@ -13,6 +13,9 @@ from astropy.io import fits
 
 from ..models.miri_cube_fits import miriCubeClass
 
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+
 __all__ = ['get_miri_cube_data']
 
 def get_miri_cube_data(path):
@@ -31,7 +34,7 @@ def get_miri_cube_data(path):
 
     #Because the value of the x and y axis could not be exactly 1,
     #which would correspond with the values from the image axis,
-    #the values that are going to increment ech axis
+    #the values that are going to increment each axis
     #are obtained from the next two parameters
     fitsObj.cubeARValue = float(hdul[1].header["CDELT1"])
     fitsObj.cubeDValue = float(hdul[1].header["CDELT2"])
@@ -53,4 +56,4 @@ def get_miri_cube_data(path):
     fitsObj.filename = path
 
     hdul.close()
-    return fitsObj
+    return fitsObj.cubeWavelengthUnit != 'um' or fitsObj.cubeFluxUnit[:3] != 'mJy',fitsObj

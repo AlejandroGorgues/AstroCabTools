@@ -49,4 +49,3 @@ class CubeList(QDialog, astrocabtools.cube_ans.src.ui.ui_cubeSelection.Ui_cubeSe
         """
         self.acceptButton.setEnabled(state)
         self.cancelButton.setEnabled(state)
-

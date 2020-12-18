@@ -522,13 +522,13 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
         fitsObj = self.fitsObjList[index]
         hdul = self.hduls[index]
 
-        imgObj = get_clicked_values(xdata, ydata, imgObj, fitsObj)
+        xVal, yVal, imgObj = get_clicked_values(xdata, ydata, fitsObj, imgObj, hdul)
         self.xWidgets[index].setText(str(xdata +1))
         self.yWidgets[index].setText(str(ydata +1))
         self.zWidgets[index].setText(str(hdul[1].data[fitsObj.currIntegration,
                                                          fitsObj.currFrame,
-                                                         yValueTransformed,
-                                                         xValueTransformed]))
+                                                         yVal,
+                                                         xVal]))
 
         self.zUnitWidgets[index].setText(fitsObj.fitsZUnit)
         self.showButtonWidgets[index].setDisabled(False)
@@ -726,6 +726,10 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
         """ Disable or enable the different widgets of the interface
         :param bool state: state that is going to be applied
         """
+        self.scaleGroupBox.setEnabled(state)
+        self.stretchGroupBox.setEnabled(state)
+        self.colourGroupBox.setEnabled(state)
+        self.centerButton.setEnabled(state)
         self.minMaxRadioB.setChecked(state)
         self.radioBColor1.setChecked(state)
 

@@ -18,7 +18,7 @@ class RectangleCoordinates(QDialog, astrocabtools.cube_ans.src.ui.ui_rectangleCo
     def __init__(self, parent=None):
         super(RectangleCoordinates, self).__init__(parent)
         self.setupUi(self)
-        pub.subscribe(self.set_coordinates, 'rectangleSelected')
+        pub.subscribe(self.set_coordinates, 'rectangleUpdateCoordinates')
 
     def set_coordinates(self, ix, iy, ex, ey):
         ixRound = self.set_round_value(ix)
@@ -121,3 +121,9 @@ class RectangleCoordinates(QDialog, astrocabtools.cube_ans.src.ui.ui_rectangleCo
             return int(math.ceil(data))
         else:
             return int(round(data))
+
+    def clear_data(self):
+        self.topYLineEdit.setText('')
+        self.rightXLineEdit.setText('')
+        self.leftXLineEdit.setText('')
+        self.bottomYLineEdit.setText('')

@@ -2,7 +2,7 @@ import numpy as np
 import weakref
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
-__all__ = ['PanCommand', 'ZoomCommand', 'ZoomFitCommand', 'UndoHistoryPanInvoker', 'UndoHistoryZoomInvoker']
+__all__ = ['PanCommand', 'ZoomCommand', 'ZoomResetCommand', 'UndoHistoryPanInvoker', 'UndoHistoryZoomInvoker']
 
 """
 Command class interface that contains the execute method
@@ -146,7 +146,7 @@ class ZoomCommand(Command):
 """
 Zoom fit class that inherits the command interface
 """
-class ZoomFitCommand(Command):
+class ZoomResetCommand(Command):
     def __init__(self, figure, xLimits, yLimits):
         self._figure = figure
         self._xLimits = xLimits
@@ -159,11 +159,7 @@ class ZoomFitCommand(Command):
         """
         for ax in self._figure.axes:
 
-            xLimits = list(self._xLimits)
-            xLimits[0] = xLimits[0]*0.9
-            xLimits[1] = xLimits[1]*1.1
-
-            ax.set_xlim(tuple(xLimits))
+            ax.set_xlim(self._xLimits)
             ax.set_ylim(self._yLimits)
         canvas.draw()
 

@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'fit_line.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_FitLine(object):
     def setupUi(self, FitLine):
@@ -54,7 +52,7 @@ class Ui_FitLine(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pointsGenerationButton.sizePolicy().hasHeightForWidth())
         self.pointsGenerationButton.setSizePolicy(sizePolicy)
-        self.pointsGenerationButton.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.pointsGenerationButton.setFocusPolicy(QtCore.Qt.NoFocus)
         self.pointsGenerationButton.setObjectName("pointsGenerationButton")
         self.horizontalLayout_2.addWidget(self.pointsGenerationButton)
         self.indicationLabel = QtWidgets.QLabel(self.centralwidget)
@@ -85,7 +83,7 @@ class Ui_FitLine(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.clickNormalButton.sizePolicy().hasHeightForWidth())
         self.clickNormalButton.setSizePolicy(sizePolicy)
-        self.clickNormalButton.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.clickNormalButton.setFocusPolicy(QtCore.Qt.NoFocus)
         self.clickNormalButton.setCheckable(True)
         self.clickNormalButton.setAutoExclusive(True)
         self.clickNormalButton.setObjectName("clickNormalButton")
@@ -97,7 +95,7 @@ class Ui_FitLine(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.zoomButton.sizePolicy().hasHeightForWidth())
         self.zoomButton.setSizePolicy(sizePolicy)
-        self.zoomButton.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.zoomButton.setFocusPolicy(QtCore.Qt.NoFocus)
         self.zoomButton.setCheckable(True)
         self.zoomButton.setAutoExclusive(True)
         self.zoomButton.setObjectName("zoomButton")
@@ -109,21 +107,21 @@ class Ui_FitLine(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.panButton.sizePolicy().hasHeightForWidth())
         self.panButton.setSizePolicy(sizePolicy)
-        self.panButton.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.panButton.setFocusPolicy(QtCore.Qt.NoFocus)
         self.panButton.setCheckable(True)
         self.panButton.setAutoExclusive(True)
         self.panButton.setObjectName("panButton")
         self.horizontalLayout_4.addWidget(self.panButton)
-        self.zoomFitButton = QtWidgets.QPushButton(self.centralwidget)
-        self.zoomFitButton.setEnabled(False)
+        self.zoomResetButton = QtWidgets.QPushButton(self.centralwidget)
+        self.zoomResetButton.setEnabled(False)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.zoomFitButton.sizePolicy().hasHeightForWidth())
-        self.zoomFitButton.setSizePolicy(sizePolicy)
-        self.zoomFitButton.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.zoomFitButton.setObjectName("zoomFitButton")
-        self.horizontalLayout_4.addWidget(self.zoomFitButton)
+        sizePolicy.setHeightForWidth(self.zoomResetButton.sizePolicy().hasHeightForWidth())
+        self.zoomResetButton.setSizePolicy(sizePolicy)
+        self.zoomResetButton.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.zoomResetButton.setObjectName("zoomResetButton")
+        self.horizontalLayout_4.addWidget(self.zoomResetButton)
         self.undoButton = QtWidgets.QPushButton(self.centralwidget)
         self.undoButton.setEnabled(False)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -131,7 +129,7 @@ class Ui_FitLine(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.undoButton.sizePolicy().hasHeightForWidth())
         self.undoButton.setSizePolicy(sizePolicy)
-        self.undoButton.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.undoButton.setFocusPolicy(QtCore.Qt.NoFocus)
         self.undoButton.setObjectName("undoButton")
         self.horizontalLayout_4.addWidget(self.undoButton)
         self.gridLayout.addLayout(self.horizontalLayout_4, 1, 0, 1, 1)
@@ -146,6 +144,7 @@ class Ui_FitLine(object):
         FitLine.setCentralWidget(self.centralwidget)
         self.menuBar = QtWidgets.QMenuBar(FitLine)
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 908, 21))
+        self.menuBar.setNativeMenuBar(False)
         self.menuBar.setObjectName("menuBar")
         self.menuFile = QtWidgets.QMenu(self.menuBar)
         self.menuFile.setObjectName("menuFile")
@@ -158,8 +157,8 @@ class Ui_FitLine(object):
         self.actionSave_as_png = QtWidgets.QAction(FitLine)
         self.actionSave_as_png.setEnabled(False)
         self.actionSave_as_png.setObjectName("actionSave_as_png")
-        self.actionClear_all = QtWidgets.QAction(FitLine)
-        self.actionClear_all.setObjectName("actionClear_all")
+        self.actionReset_window = QtWidgets.QAction(FitLine)
+        self.actionReset_window.setObjectName("actionReset_window")
         self.actionClear_last_fitted_model = QtWidgets.QAction(FitLine)
         self.actionClear_last_fitted_model.setObjectName("actionClear_last_fitted_model")
         self.actionClear_fitted_models = QtWidgets.QAction(FitLine)
@@ -168,9 +167,9 @@ class Ui_FitLine(object):
         self.actionShow_fitted_data_parameters.setObjectName("actionShow_fitted_data_parameters")
         self.menuFile.addAction(self.actionLoad_Spectrum)
         self.menuFile.addAction(self.actionSave_as_png)
-        self.menuVisualization.addAction(self.actionClear_all)
         self.menuVisualization.addAction(self.actionClear_last_fitted_model)
         self.menuVisualization.addAction(self.actionClear_fitted_models)
+        self.menuVisualization.addAction(self.actionReset_window)
         self.menuVisualization.addSeparator()
         self.menuVisualization.addAction(self.actionShow_fitted_data_parameters)
         self.menuBar.addAction(self.menuFile.menuAction())
@@ -189,13 +188,14 @@ class Ui_FitLine(object):
         self.clickNormalButton.setText(_translate("FitLine", "Click"))
         self.zoomButton.setText(_translate("FitLine", "Zoom"))
         self.panButton.setText(_translate("FitLine", "Pan"))
-        self.zoomFitButton.setText(_translate("FitLine", "Zoom fit"))
+        self.zoomResetButton.setText(_translate("FitLine", "Zoom reset"))
         self.undoButton.setText(_translate("FitLine", "Undo last zoom"))
         self.menuFile.setTitle(_translate("FitLine", "File"))
         self.menuVisualization.setTitle(_translate("FitLine", "Visualization"))
         self.actionLoad_Spectrum.setText(_translate("FitLine", "Load Spectrum"))
         self.actionSave_as_png.setText(_translate("FitLine", "Save as png"))
-        self.actionClear_all.setText(_translate("FitLine", "Clear all"))
+        self.actionReset_window.setText(_translate("FitLine", "Reset window"))
         self.actionClear_last_fitted_model.setText(_translate("FitLine", "Clear last fitted model"))
         self.actionClear_fitted_models.setText(_translate("FitLine", "Clear fitted models"))
         self.actionShow_fitted_data_parameters.setText(_translate("FitLine", "Show fitted data parameters"))
+

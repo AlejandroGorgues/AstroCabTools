@@ -95,7 +95,7 @@
            </sizepolicy>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
            <string>Mark points</string>
@@ -159,7 +159,7 @@
            </sizepolicy>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
            <string>Click</string>
@@ -184,7 +184,7 @@
            </sizepolicy>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
            <string>Zoom</string>
@@ -209,7 +209,7 @@
            </sizepolicy>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
            <string>Pan</string>
@@ -223,7 +223,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="zoomFitButton">
+         <widget class="QPushButton" name="zoomResetButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -234,10 +234,10 @@
            </sizepolicy>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
-           <string>Zoom fit</string>
+           <string>Zoom reset</string>
           </property>
          </widget>
         </item>
@@ -253,7 +253,7 @@
            </sizepolicy>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
            <string>Undo last zoom</string>
@@ -286,6 +286,9 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -300,9 +303,9 @@
     <property name="title">
      <string>Visualization</string>
     </property>
-    <addaction name="actionClear_all"/>
     <addaction name="actionClear_last_fitted_model"/>
     <addaction name="actionClear_fitted_models"/>
+    <addaction name="actionReset_window"/>
     <addaction name="separator"/>
     <addaction name="actionShow_fitted_data_parameters"/>
    </widget>
@@ -322,9 +325,9 @@
     <string>Save as png</string>
    </property>
   </action>
-  <action name="actionClear_all">
+  <action name="actionReset_window">
    <property name="text">
-    <string>Clear all</string>
+    <string>Reset window</string>
    </property>
   </action>
   <action name="actionClear_last_fitted_model">

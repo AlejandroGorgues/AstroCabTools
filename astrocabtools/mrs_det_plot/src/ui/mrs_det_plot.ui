@@ -6,21 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1096</width>
-    <height>600</height>
+    <width>1334</width>
+    <height>647</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>1096</width>
-    <height>600</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>1096</width>
-    <height>600</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>mrs_det_plot - Beta version</string>
@@ -40,6 +28,12 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
           <height>150</height>
          </size>
         </property>
@@ -934,7 +928,10 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QGroupBox" name="groupBox_4">
+         <widget class="QGroupBox" name="stretchGroupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="title">
            <string/>
           </property>
@@ -990,6 +987,9 @@
         </item>
         <item row="3" column="1">
          <widget class="QPushButton" name="centerButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1002,7 +1002,10 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QGroupBox" name="groupBox">
+         <widget class="QGroupBox" name="scaleGroupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -1035,7 +1038,10 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QGroupBox" name="groupBox_5">
+         <widget class="QGroupBox" name="colourGroupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="title">
            <string/>
           </property>

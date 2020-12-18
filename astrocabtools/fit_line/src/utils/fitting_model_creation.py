@@ -72,7 +72,7 @@ def line_fitting_function(x, a, b):
     return a + b * (x)
 
 def integrated_flux(h, sigma):
-    return h*sigma*math.sqrt(2*math.pi)
+    return h*abs(sigma)*math.sqrt(2*math.pi)
 
 def calculate_slope(xOrigin, yOrigin, xEnd, yEnd):
     return (yEnd - yOrigin) / (xEnd - xOrigin)

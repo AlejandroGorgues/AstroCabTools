@@ -18,7 +18,7 @@ class spectrumConversion():
     def transform_wUnits(self, wValues_without_units, wUnits):
         """
         Transform the values with it's corresponding units to microns
-        :param nparray wValues_without_units: array of wavelength values
+        :param np.ndarray wValues_without_units: array of wavelength values
         :param str wUnits: initial units of the wavelength values
         """
         wValues_with_units = 0
@@ -40,10 +40,11 @@ class spectrumConversion():
     def transform_fUnits(self, fValues_without_units, fUnits, wValues_with_units):
         """
         Transform the values with it's corresponding units to u.erg/(u.s*u.cm**2*u.micron)
-        :param nparray fValues_without_units: array of flux values
+        :param np.ndarray fValues_without_units: array of flux values
         :param str fUnits: initial units of the flux values
-        :param nparray wValues_with_units: array of wavelength values converted previously
+        :param np.ndarray wValues_with_units: array of wavelength values converted previously
         """
+
         fValues_with_units = 0
         fluxNormalized = u.erg/(u.s*u.cm**2*u.micron)
         FnuHertz = u.erg/(u.s*u.cm**2*u.Hz)

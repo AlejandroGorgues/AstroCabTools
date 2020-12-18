@@ -26,12 +26,14 @@ class SpectrumParametersSelection(QDialog, astrocabtools.cube_ans.src.ui.ui_spec
         self.fUnits = "erg/s/cm2/micron"
         self.spectrumPath = ''
         self.redshift = 0.0
+        self.spectrumType = "Aperture spectrum"
 
         self.redshiftLineEdit.setValidator(QtGui.QDoubleValidator())
         self.redshiftLineEdit.textChanged.connect(self.update_redshift)
 
-        self.wUnitsCombobox.currentIndexChanged.connect(self.set_left_units)
-        self.fUnitsCombobox.currentIndexChanged.connect(self.set_right_units)
+        self.wUnitsComboBox.currentIndexChanged.connect(self.set_left_units)
+        self.fUnitsComboBox.currentIndexChanged.connect(self.set_right_units)
+        self.spectrumComboBox.currentIndexChanged.connect(self.set_spectrum)
 
     def update_path(self, path):
         self.pathLabel.setText(path)
@@ -45,13 +47,23 @@ class SpectrumParametersSelection(QDialog, astrocabtools.cube_ans.src.ui.ui_spec
             self.redshift= 0.0
 
     def set_left_units(self, index):
-        self.wUnits = self.wUnitsCombobox.itemText(index)
+        self.wUnits = self.wUnitsComboBox.itemText(index)
 
     def set_right_units(self, index):
-        self.fUnits =self.fUnitsCombobox.itemText(index)
+        self.fUnits =self.fUnitsComboBox.itemText(index)
+
+    def set_spectrum(self, index):
+        self.spectrumType = self.spectrumComboBox.itemText(index)
 
     def get_data(self):
-        return self.redshift, self.wUnits, self.fUnits
+        return self.redshift, self.wUnits, self.fUnits, self.spectrumType
+
+    def clear_data(self):
+        self.pathLabel.setText('')
+        self.redshiftLineEdit.setText('')
+        self.spectrumComboBox.setCurrentIndex(0)
+        self.wUnitsComboBox.setCurrentIndex(0)
+        self.fUnitsComboBox.setCurrentIndex(0)
 
     def redhisft_alert(self):
         alert = QMessageBox()

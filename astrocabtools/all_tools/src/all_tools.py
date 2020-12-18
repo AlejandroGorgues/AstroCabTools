@@ -11,16 +11,12 @@ import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, pyqtSlot
 
-import mrs_chan
-import mrs_spec_chan
-import mrs_det_plot
-import fit_line
-
 import astrocabtools.all_tools.src.ui.ui_all_tools
 import astrocabtools.mrs_chan.src.viewers.mrs_chan as chan
 import astrocabtools.fit_line.src.viewers.fit_line as fitLine
 import astrocabtools.mrs_spec_chan.src.viewers.mrs_spec_chan as specChan
 import astrocabtools.mrs_det_plot.src.viewers.mrs_det_plot as detPlot
+import astrocabtools.cube_ans.src.viewers.cube_ans as cubeAns
 
 class AllTools(QMainWindow, astrocabtools.all_tools.src.ui.ui_all_tools.Ui_all_tools):
 
@@ -35,11 +31,13 @@ class AllTools(QMainWindow, astrocabtools.all_tools.src.ui.ui_all_tools.Ui_all_t
         self.mrsSpecChanButton.clicked.connect(self.load_mrs_spec_chan)
         self.mrsDetPlotButton.clicked.connect(self.load_mrs_det_plot)
         self.fitLineButton.clicked.connect(self.load_fit_line)
+        self.cubeAnsButton.clicked.connect(self.load_cube_ans)
 
         self.mrsChan = None
         self.mrsSpecChan = None
         self.mrsDetPlot = None
         self.fitLine = None
+        self.cubeAns = None
 
     @pyqtSlot()
     def load_mrs_chan(self):
@@ -61,6 +59,11 @@ class AllTools(QMainWindow, astrocabtools.all_tools.src.ui.ui_all_tools.Ui_all_t
         self.fitLine = fitLine.MrsFitLine()
         self.fitLine.show()
 
+    @pyqtSlot()
+    def load_cube_ans(self):
+        self.cubeAns = cubeAns.CubeAns()
+        self.cubeAns.show()
+
     def closeEvent(self, event):
         if isinstance(self.mrsChan, astrocabtools.mrs_chan.src.viewers.mrs_chan.MrsChanell):
             self.mrsChan.close()
@@ -70,6 +73,8 @@ class AllTools(QMainWindow, astrocabtools.all_tools.src.ui.ui_all_tools.Ui_all_t
             self.mrsDetPlot.close()
         if isinstance(self.fitLine, astrocabtools.fit_line.src.viewers.fit_line.MrsFitLine):
             self.fitLine.close()
+        if isinstance(self.cubeAns, astrocabtools.cube_ans.src.viewers.cube_ans.CubeAns):
+            self.cubeAns.close()
 
 def main():
     plt.style.use('seaborn')

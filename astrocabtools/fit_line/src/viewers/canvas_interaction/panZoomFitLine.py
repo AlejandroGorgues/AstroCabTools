@@ -31,7 +31,7 @@ from matplotlib.widgets import RectangleSelector
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from pubsub import pub
 
-from astrocabtools.fit_line.src.utils.command_pattern import UndoHistoryZoomInvoker, UndoHistoryPanInvoker, ZoomFitCommand, PanCommand, ZoomCommand
+from astrocabtools.fit_line.src.utils.command_pattern import UndoHistoryZoomInvoker, UndoHistoryPanInvoker, ZoomResetCommand, PanCommand, ZoomCommand
 
 __all__ = ["figure_pz"]
 
@@ -198,22 +198,22 @@ class MplInteraction(object):
             self._invokerZoom.clear_command_list()
             pub.sendMessage('setStateUndo', state = False)
 
-    def add_zoom_fit(self):
+    def add_zoom_reset(self):
         if self._invokerZoom.command_list_length() == 0:
             #Send the signal to change undo button state
             pub.sendMessage('setStateUndo', state = True)
 
-        zoomFitCommand = ZoomFitCommand(self.figure, self._xLimits, self._yLimits)
-        self._invokerZoom.command(zoomFitCommand)
+        zoomResetCommand = ZoomResetCommand(self.figure, self._xLimits, self._yLimits)
+        self._invokerZoom.command(zoomResetCommand)
         self._draw()
 
-    def _add_initial_zoom_fit(self):
+    def _add_initial_zoom_reset(self):
         if self._invokerZoom.command_list_length() == 0:
             #Send the signal to change undo button state
             pub.sendMessage('setStateUndo', state = True)
 
-            zoomFitCommand = ZoomFitCommand(self.figure, self._xLimits, self._yLimits)
-            self._invokerZoom.command(zoomFitCommand)
+            zoomResetCommand = ZoomResetCommand(self.figure, self._xLimits, self._yLimits)
+            self._invokerZoom.command(zoomResetCommand)
             self._draw()
 
 
@@ -261,7 +261,7 @@ class ZoomWithMouse(MplInteraction):
             pressed_button= None
             return
 
-        self._add_initial_zoom_fit()
+        self._add_initial_zoom_reset()
         #Create the command, and execute it
         zoomCommand = ZoomCommand(self._pressed_button, self._initial_x, self._initial_y, self._end_x, self._end_y, event, self.figure)
         self._invokerZoom.command(zoomCommand)

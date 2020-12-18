@@ -14,7 +14,7 @@ import traceback
 import io
 
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, pyqtSlot, QPoint, QEvent
+from PyQt5.QtCore import Qt, pyqtSlot, QPoint, QEvent, pyqtSignal
 from PyQt5.QtGui import QPalette
 from PyQt5 import QtGui
 from PyQt5 import uic
@@ -40,7 +40,7 @@ __all__=["MrsFitLine"]
 
 class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLine):
 
-    def __init__(self, parent=None, **kwargs):
+    def __init__(self, parent=None):
         """Initializer
         :param Class parent: The parent that inherits the interface.
         """
@@ -72,26 +72,22 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         self.actionLoad_Spectrum.triggered.connect(self.select_plot)
         self.actionSave_as_png.triggered.connect(self.save_plot_image)
 
-        self.zoomFitButton.clicked.connect(self.zoom_fit)
+        self.zoomResetButton.clicked.connect(self.zoom_reset)
         self.zoomButton.clicked.connect(self.activate_zoom)
         self.panButton.clicked.connect(self.activate_pan)
         self.clickNormalButton.clicked.connect(self.activate_click)
         self.undoButton.clicked.connect(self.undo_action)
 
-        self.actionClear_all.triggered.connect(self.clear_all)
+        self.actionReset_window.triggered.connect(self.reset_window)
         self.actionClear_last_fitted_model.triggered.connect(self.clear_last_fitted_model)
         self.actionClear_fitted_models.triggered.connect(self.clear_fitted_models)
         self.actionShow_fitted_data_parameters.triggered.connect(self.show_gauss_fit_data)
 
+
+
         self.modelSelectionComboBox.currentIndexChanged.connect(self.set_model)
 
         self.pointsGenerationButton.clicked.connect(self.manage_generation_points)
-
-        if 'wValues' in kwargs:
-
-            self.load_spectrum_from_cube_ans(kwargs["wValues"], kwargs["fValues"], kwargs["wUnits"],
-                                             kwargs["fUnits"], kwargs["redshift"], kwargs["path"])
-
 
     def create_middle_plot(self):
         """ Create the canvas to draw the plot"""
@@ -107,12 +103,12 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         layout = QVBoxLayout()
         layout.addWidget(self.figure.canvas)
 
-        self.ax1 = self.figure.add_subplot(111)
+        self.ax = self.figure.add_subplot(111)
 
         #Create rectangle selector
-        self.create_rectangle(self.ax1)
+        self.create_rectangle(self.ax)
 
-        self.ax1.set_visible(False)
+        self.ax.set_visible(False)
 
         self.middlePlot.setLayout(layout)
 
@@ -124,25 +120,25 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
     def draw_plot_area(self):
         """Create the axes"""
         # discards the old graph
-        self.ax1.clear()
+        self.ax.clear()
 
         #Set text and range of the axes
-        self.ax1.set_xlabel(r'$Wavelength(\mu m)$')
+        self.ax.set_xlabel(r'$Wavelength(\mu m)$')
 
-        self.ax1.set_ylabel(r'$f_\lambda ( \frac{erg}{s\enspace cm^2\>\mu m} )$')
+        self.ax.set_ylabel(r'$f_\lambda ( \frac{erg}{s\enspace cm^2\>\mu m} )$')
 
-        self.ax1.grid(True)
+        self.ax.grid(True)
 
     def draw_plot(self):
 
-        self.ax1.set_visible(True)
+        self.ax.set_visible(True)
         #Clear all previous lines and markers that do not belong to the spectrum
-        for i in range(len(self.ax1.lines)):
-            line = self.ax1.lines.pop(i)
+        for i in range(len(self.ax.lines)):
+            line = self.ax.lines.pop(i)
             del line
 
-        for i in range(len(self.ax1.collections)):
-            marker = self.ax1.collections.pop(i)
+        for i in range(len(self.ax.collections)):
+            marker = self.ax.collections.pop(i)
             del marker
 
         #Clear legend list
@@ -159,11 +155,23 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
         self.figure.canvas.draw()
 
-    def load_spectrum_from_cube_ans(self, wValues, fValues, wUnits, fUnits, z, path):
 
-        self.path = path
+    def load_spectrum_from_cube_ans(self, spectrum_data):
+        """ Load the data from the parameters passed from cube_ans and transform the
+        values to represent them
+        :param list wValues: wavelength values
+        :param list fValues: flux values
+        :param str wUnits: units of the wavelength values
+        :param str fUnits: units of the flux values
+        :param float z: redshift value
+        :param str path: path of the file
+        """
+        self.path = spectrum_data["path"]
 
-        self.wavelength, self.flux, z = apply_redshift_to_cube(z, wValues, fValues, wUnits, fUnits)
+        #Convert wValues and fValues to np.ndarray to be able to use numpy arithmetic operations
+        self.wavelength, self.flux, z = apply_redshift_to_cube(spectrum_data["redshift"],
+                                                               np.array(spectrum_data["wValues"]),np.array(spectrum_data["fValues"]),
+                                                               spectrum_data["wUnits"], spectrum_data["fUnits"])
 
         #Print the plot
         self.draw_plot_area()
@@ -199,24 +207,24 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
     def set_spectrum_ranges(self, wavelength, flux):
         """
-        :param np.array wavelength: array of wavelength values
-        :param np.array flux: array of flux values
+        :param np.ndarray wavelength: array of wavelength values
+        :param np.ndarray flux: array of flux values
         Get initial limits of the spectrum and set it them on the axe. This is
         because when a user change spectrum after zooming a previous spectrum,
         the zoom limits on axes does not change to adjust the full new spectrum
         """
-        minW , maxW  = np.amin(wavelength), np.amax(wavelength)
-        minF , maxF  = np.amin(flux), np.amax(flux)
+        #minW , maxW  = np.amin(wavelength), np.amax(wavelength)
+        #minF , maxF  = np.amin(flux), np.amax(flux)
 
         #Set additional range on plot for better visualization
 
-        self.ax1.set_xlim(minW*0.9, maxW*1.1)
-        self.ax1.set_ylim(minF, maxF)
+        #self.ax.set_xlim(minW*0.9, maxW*1.1)
+        #self.ax.set_ylim(minF, maxF)
 
-        self.spectrum = self.ax1.plot(wavelength, flux, c='#4c72b0',label='Spectrum')
+        self.spectrum = self.ax.plot(wavelength, flux, c='#4c72b0',label='Spectrum')
 
-        self.initialLimits["xlim"] = (minW, maxW)
-        self.initialLimits["ylim"] = (minF, maxF)
+        #self.initialLimits["xlim"] = (minW, maxW)
+        #self.initialLimits["ylim"] = (minF, maxF)
 
     def manage_generation_points(self):
         """If pointsGenerationButton is pressed, allow to draw the markers
@@ -266,23 +274,23 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
                     if isinstance(self.model, astrocabtools.fit_line.src.models.gaussModelCreation.gaussModel):
 
                         #Draw the plots
-                        self.model.lines = self.ax1.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
-                        self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, result.best_fit, 'r-',label='Best fit')[0]
 
 
-                        self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
-                        self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, comps['gauss_fitting_function'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, comps['line_fitting_function'], 'g--',label='Fitted line')[0]
 
                     else:
                         #Draw the plots
-                        self.model.lines = self.ax1.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'],'y--',label='Initial fit')[0]
-                        self.model.lines = self.ax1.plot(wavelengthValues, initial_y2_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
-                        self.model.lines = self.ax1.plot(wavelengthValues, result.best_fit,'r-',label='Best fit')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, initial_y1_values+ comps['line_fitting_function'],'y--',label='Initial fit')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, initial_y2_values+ comps['line_fitting_function'], 'y--',label='Initial fit')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, result.best_fit,'r-',label='Best fit')[0]
 
 
-                        self.model.lines =self.ax1.plot(wavelengthValues, comps['gauss_fitting_function1'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
-                        self.model.lines = self.ax1.plot(wavelengthValues, comps['gauss_fitting_function2'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
-                        self.model.lines = self.ax1.plot(wavelengthValues, comps['line_fitting_function'],'g--',label='Fitted line')[0]
+                        self.model.lines =self.ax.plot(wavelengthValues, comps['gauss_fitting_function1'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, comps['gauss_fitting_function2'] + comps['line_fitting_function'], 'k:',label='Fitted gaussian')[0]
+                        self.model.lines = self.ax.plot(wavelengthValues, comps['line_fitting_function'],'g--',label='Fitted line')[0]
 
                     self.modelSelectionComboBox.setEnabled(True)
                     self.models.append(self.model)
@@ -301,7 +309,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         :param float ydata: Y coordinate
         """
 
-        marker = self.ax1.scatter(xdata, ydata, marker='+', c= 'red')
+        marker = self.ax.scatter(xdata, ydata, marker='+', c= 'red')
         self.model.markers = marker
 
 
@@ -324,7 +332,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         """
         self.pointsGenerationButton.setEnabled(state)
         self.zoomButton.setEnabled(state)
-        self.zoomFitButton.setEnabled(state)
+        self.zoomResetButton.setEnabled(state)
         self.panButton.setEnabled(state)
         self.clickNormalButton.setEnabled(state)
         self.modelSelectionComboBox.setEnabled(state)
@@ -380,18 +388,18 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
             model = self.models.pop()
             for i in range(len(model.lines)):
                 line = model.lines[-1]
-                self.ax1.lines.remove(line)
+                self.ax.lines.remove(line)
                 model.del_line(line)
                 del line
 
 
             for i in range(len(model.markers)):
                 marker = model.markers[-1]
-                self.ax1.collections.remove(marker)
+                self.ax.collections.remove(marker)
                 model.del_marker(marker)
                 del marker
 
-            if len(self.ax1.lines) ==1:
+            if len(self.ax.lines) ==1:
                 self.update_legend()
                 self.currLabels.clear()
             self.figure.canvas.draw()
@@ -406,16 +414,16 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         for i in reversed(range(len(self.models))):
             model = self.models[i]
             for j in range(len(model.lines)):
-                line = next((line for line in self.ax1.lines if line in model.lines), None)
+                line = next((line for line in self.ax.lines if line in model.lines), None)
                 if line != None:
-                    self.ax1.lines.remove(line)
+                    self.ax.lines.remove(line)
                     model.del_line(line)
                     del line
 
             for j in reversed(range(len(model.markers))):
-                marker = next((marker for marker in self.ax1.collections if marker in model.markers), None)
+                marker = next((marker for marker in self.ax.collections if marker in model.markers), None)
                 if marker != None:
-                    self.ax1.collections.remove(marker)
+                    self.ax.collections.remove(marker)
                     model.del_marker(marker)
                     del marker
             self.models.remove(model)
@@ -429,14 +437,14 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
 
     @pyqtSlot()
-    def clear_all(self):
+    def reset_window(self):
 
         self.set_interface_state(False)
         self.counterState = False
         self.gaussDataV.delete_all()
         self.models.clear()
         self.currLabels.clear()
-        self.ax1.set_visible(False)
+        self.ax.set_visible(False)
         self.figure.canvas.draw()
 
     def set_model(self, index):
@@ -470,9 +478,9 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         self.figure.pan_zoom.connect_pan()
 
     @pyqtSlot()
-    def zoom_fit(self):
+    def zoom_reset(self):
         """Zoom to fit the original spectrum size """
-        self.figure.pan_zoom.add_zoom_fit()
+        self.figure.pan_zoom.add_zoom_reset()
 
     @pyqtSlot()
     def undo_action(self):
@@ -481,12 +489,12 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
     def delete_previous_markers(self):
         for i in range(self.model.counter -1):
 
-            marker = next((marker for marker in self.ax1.collections if marker is self.model.markers[len(self.model.markers)-1]), None)
-            self.ax1.collections.remove(marker)
+            marker = next((marker for marker in self.ax.collections if marker is self.model.markers[len(self.model.markers)-1]), None)
+            self.ax.collections.remove(marker)
             self.model.del_marker(marker)
             del marker
 
-    def close_event(self, event):
+    def closeEvent(self, event):
         """
         Close other windows when main window is closed
         """
@@ -512,16 +520,16 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
             self.figure.pan_zoom.clear_commands()
 
     def update_legend(self):
-        h, labels = self.ax1.get_legend_handles_labels()
+        h, labels = self.ax.get_legend_handles_labels()
         by_label = dict(zip(labels, h))
-        self.ax1.legend(by_label.values(), by_label.keys(), loc="upper right", frameon=True, framealpha = 1, facecolor = 'white')
+        self.ax.legend(by_label.values(), by_label.keys(), loc="upper right", frameon=True, framealpha = 1, facecolor = 'white')
 
     def update_pan_zoom_data(self):
         """
         When a new spectrum has been loaded, the limits need to be updated,
         and the zoom commands list cleared
         """
-        self.figure.pan_zoom.set_axes_limits(self.initialLimits["xlim"], self.initialLimits["ylim"])
+        self.figure.pan_zoom.set_axes_limits(self.ax.get_xlim(), self.ax.get_ylim())
         self.figure.pan_zoom.clear_commands()
 
     def show_file_alert(self):

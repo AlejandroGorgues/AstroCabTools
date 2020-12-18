@@ -141,10 +141,10 @@ class doubleGaussModel:
         #Obtain the flux values between the indexes obtained previously
         fluxValues = flux[index1[0][0]:(index2[0][0]+1)]
 
-        inital_y1_values = self._generate_initial_gauss_model(wavelengthValues, self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.,
+        initial_y1_values = self._generate_initial_gauss_model(wavelengthValues, self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.,
             self.__firsGaussFitPoints.topX, abs(self.__firsGaussFitPoints.sigma2X - self.__firsGaussFitPoints.sigma1X)/2.355)
 
-        inital_y2_values = self._generate_initial_gauss_model(wavelengthValues, self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.,
+        initial_y2_values = self._generate_initial_gauss_model(wavelengthValues, self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.,
             self.__secondGaussFitPoints.topX, abs(self.__secondGaussFitPoints.sigma2X - self.__secondGaussFitPoints.sigma1X)/2.355)
 
         guesses = Parameters()
@@ -156,6 +156,7 @@ class doubleGaussModel:
         guesses.add(name='h1', value = self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.)
         guesses.add(name='c1', value = self.__firsGaussFitPoints.topX)
         guesses.add(name='sigma1', value = abs(self.__firsGaussFitPoints.sigma2X-self.__firsGaussFitPoints.sigma1X)/2.355)
+        print(abs(self.__firsGaussFitPoints.sigma2X-self.__firsGaussFitPoints.sigma1X)/2.355)
 
         guesses.add(name='h2', value = self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.)
         guesses.add(name='c2', value = self.__secondGaussFitPoints.topX)
@@ -179,4 +180,4 @@ class doubleGaussModel:
                 resultText = resultText + "\n" + "Second guassian integrated flux : "+ " = " + str(integrated_flux(result.params['h2'].value, result.params['sigma2'].value))
             resultText = resultText + "\n" + resultParams
         resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
-        return result, resultText, wavelengthValues, fluxValues, inital_y1_values, inital_y2_values
+        return result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values

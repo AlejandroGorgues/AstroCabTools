@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="2" column="3">
-      <widget class="QComboBox" name="fUnitsCombobox">
+      <widget class="QComboBox" name="fUnitsComboBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -67,7 +67,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QComboBox" name="wUnitsCombobox">
+      <widget class="QComboBox" name="wUnitsComboBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -175,6 +175,32 @@
        <property name="text">
         <string/>
        </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Spectrum</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="spectrumComboBox">
+       <item>
+        <property name="text">
+         <string>Aperture spectrum</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Background spectrum</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Background subtracted spectrum</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>

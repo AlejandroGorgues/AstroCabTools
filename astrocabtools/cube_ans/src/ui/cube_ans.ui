@@ -17,24 +17,12 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>cube_ans Not Final version</string>
+   <string>cube_ans Beta version</string>
   </property>
   <widget class="QWidget" name="widget">
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="0" rowspan="2">
-       <widget class="QGroupBox" name="spaceCubePlot">
-        <property name="title">
-         <string/>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <layout class="QVBoxLayout" name="spaceCubeLayout_vbox"/>
-         </item>
-        </layout>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="sizePolicy">
@@ -59,22 +47,6 @@
         <property name="verticalSpacing">
          <number>1</number>
         </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Wavelengt Value</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="1">
          <widget class="QSpinBox" name="sliceSpinBox">
           <property name="enabled">
@@ -106,8 +78,8 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_3">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -115,45 +87,10 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Slice Value</string>
+           <string>Wavelengt Value</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="wavelengthLineEdit">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>100</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLabel" name="sliceMinimumValue">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string/>
           </property>
          </widget>
         </item>
@@ -189,6 +126,64 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="wavelengthLineEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Slice Value</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="sliceMinimumValue">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="4">
+         <widget class="QGroupBox" name="spaceCubePlot">
+          <property name="title">
+           <string/>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -204,6 +199,9 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -212,19 +210,26 @@
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="enabled">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionUnselect"/>
     <addaction name="actionRectangle"/>
+    <addaction name="actionEllipse"/>
     <addaction name="actionZoom"/>
     <addaction name="actionPan"/>
+    <addaction name="actionZoom_reset"/>
     <addaction name="separator"/>
     <addaction name="actionRectangle_coordinates"/>
-    <addaction name="actionCreation_of_Rectangle_parameterized"/>
+    <addaction name="actionCreation_Rectangle"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreation_Ellipse"/>
     <addaction name="separator"/>
     <addaction name="actionSpectrum_visualization"/>
+    <addaction name="separator"/>
+    <addaction name="actionBackground_subtraction"/>
    </widget>
    <widget class="QMenu" name="menuStyle">
     <property name="enabled">
@@ -353,7 +358,7 @@
     <string>Rectangle coordinates</string>
    </property>
   </action>
-  <action name="actionCreation_of_Rectangle_parameterized">
+  <action name="actionCreation_Rectangle">
    <property name="text">
     <string>Creation of Rectangle parameterized</string>
    </property>
@@ -361,6 +366,34 @@
   <action name="actionSpectrum_visualization">
    <property name="text">
     <string>Spectrum visualization</string>
+   </property>
+  </action>
+  <action name="actionEllipse">
+   <property name="text">
+    <string>Ellipse</string>
+   </property>
+  </action>
+  <action name="actionBackground_subtraction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Background subtraction</string>
+   </property>
+  </action>
+  <action name="actionUnselect">
+   <property name="text">
+    <string>Unselect current tool</string>
+   </property>
+  </action>
+  <action name="actionCreation_Ellipse">
+   <property name="text">
+    <string>Creation of Ellipse parameterized</string>
+   </property>
+  </action>
+  <action name="actionZoom_reset">
+   <property name="text">
+    <string>Zoom reset</string>
    </property>
   </action>
  </widget>

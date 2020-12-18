@@ -30,7 +30,7 @@ def get_clicked_values(xdata, ydata, fitsObj, imgObj, hdul):
     imgObj.zValues = hdul[1].data[:,:,yValueTransformed,\
                         xValueTransformed]
 
-    return imgObj
+    return xValueTransformed, yValueTransformed, imgObj
 
 def set_round_value(data):
     if data %1 >= 0.5:

@@ -23,7 +23,7 @@ with io.open(_version_path, 'r', encoding='latin1') as fp:
     try:
         _version_info = re.search(r"^__version__ = '"
                 r"(?P<major>\d+)"
-                r"\.(?P<minor>\d+)" 
+                r"\.(?P<minor>\d+)"
                 r"\.(?P<patch>\d+)"
                 r"(?P<tag>.*)?'$",
                 fp.read(), re.M).groupdict()
@@ -48,9 +48,9 @@ extensions = [
         'sphinx.ext.autosectionlabel',
         'sphinx.ext.todo',
         'sphinx.ext.githubpages',
-
+        'recommonmark'
 ]
-
+extensions = ['recommonmark']
 try:
     import sphinxcontrib.seplling #noqa
     extension.append('sphinxcontrib.spelling')
@@ -84,7 +84,7 @@ html_static_path = ['_static']
 version = '{major}.{minor}'.format(**_version_info)
 release = '{major}.{minor}.{patch}{tag}'.format(**_version_info)
 
-highlight_language = 'python3'
+highlight_language = 'bash'
 source_suffix = '.rst'
 
 master_doc = 'index'

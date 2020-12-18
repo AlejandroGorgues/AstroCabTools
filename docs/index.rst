@@ -8,13 +8,15 @@ Current version is |release|
 
 .. _GitHub: https://github.com/AlejandroGorgues/AstroCabTools
 
+==============
 Acknowledgment
-===============
+==============
 
 This work has been partially funded by the Ministerio de Ciencia e Innovación through its program “promoción de empleo joven e implantación de la Garantía Juvenil en I+D+i 2018, PEJ2018-002877-A”, the Comunidad de Madrid through the Atracción de Talento grant 2017-T1/TIC-5213, and he Spanish State Research Agency (AEI) Project MDM-2017-0737 Unidad de Excelencia “María de Maeztu”- Centro de Astrobiología (CSIC-INTA).
 
 .. image:: _static/LogoFinal.png
 
+============
 Key Features
 ============
 
@@ -23,7 +25,7 @@ Key Features
 * Developing of procedures to the JWST data combination and the joint analyisis of large volumes of data.
 * Simulation and study of observations made from the MIRI tool of the JWST with the MIRISim simulator.
 
-
+==============
 Libraries Used
 ==============
 * `PyQt <https://wiki.python.org/moin/PyQt>`_ - Binding of C++ GUI library.
@@ -33,9 +35,11 @@ Libraries Used
 * `Seaborn <https://seaborn.pydata.org/>`_ - Statistical data visualization.
 * `Lmfit <https://lmfit.github.io//lmfit-py/>`_ - Non-Linear Least-Squares Minimization and Curve-Fitting for python.
 * `PyPubSub <https://github.com/schollii/pypubsub/>`_ - Package that provides a publish-subscrive API.
+* `Photutils <https://photutils.readthedocs.io/en/stable/#>`_ - Package that provides tools for detecting and performing photometry of astronomical sources.
 
+==================
 Tools Installation
-====================
+==================
 
 The set of tools can be downloaded using the next pip command:
 
@@ -43,8 +47,9 @@ The set of tools can be downloaded using the next pip command:
 
        $ pip install AstroCabTools
 
+===============
 Tools execution
-=================
+===============
 
 all_tools execution:
 
@@ -76,16 +81,13 @@ fit_line execution:
 
        $ fitLine
 
-cube_ans execution:
-
-.. code-block:: bash
-       $ cubeAns
-
+=============
 Beta Versions
-========
+=============
 
 Currently mrs_chan, mrs_spec_chan and mrs_det_plot are tools in beta versions.
 
+=========
 Tutorials
 =========
 
@@ -99,11 +101,9 @@ Tutorials
 
 #. :ref:`all_tools_tutorial`
 
-#. :ref:`cube_ans_tutorial`
-
-
+=======
 Authors
-========
+=======
 
 The ``AstroCabTools`` package has been developed by the INTA Research and Development Group as part of the JWST/MIRI consortium.
 The main contributors to this software are:
@@ -111,6 +111,8 @@ The main contributors to this software are:
 Alejandro Gorgues Valenciano.
 Centro de Astrobiología (CSIC-INTA), Madrid, Spain
 
+
+=================
 Table of Contents
 =================
 .. toctree::
@@ -122,5 +124,4 @@ Table of Contents
    mrs_det_plot_tutorial
    fit_line_tutorial
    all_tools_tutorial
-   cube_ans_tutorial
    templates

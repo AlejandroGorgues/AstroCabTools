@@ -9,7 +9,7 @@ with open(path.join(absPath, 'README.md'), encoding='utf-8') as f:
 
 setup(
 	name='AstroCabTools',
-	version='0.9.8',
+	version='0.9.9',
 	author='Alejandro Gorgues',
 	description='Set of analysis tools of MRS data',
         long_description=long_description,
@@ -34,11 +34,12 @@ setup(
 	install_requires=[
 		'matplotlib>=3.1.3',
 		'astropy>=4.0',
-		'PyQt5>=5.14',
+		'PyQt5==5.14',
 		'numpy>=1.18.1',
 		'seaborn>=0.9.0',
 		'lmfit>=1.0.0',
                 'PyPubSub>=4.0.3',
+                'photutils>=1.0.1',
 	],
 	entry_points={
 		'gui_scripts':[

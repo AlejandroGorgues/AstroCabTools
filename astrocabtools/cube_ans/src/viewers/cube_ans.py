@@ -577,7 +577,6 @@ class CubeAns(QMainWindow,
 
         self.actionBackground_subtraction.setEnabled(False)
         self.set_widgets_values()
-        self.cubeSelection.clear_data()
         self.spectrumV.clear_data()
         self.rectCoord.clear_data()
         self.ellCreat.clear_data()
@@ -606,8 +605,8 @@ class CubeAns(QMainWindow,
 
     def closeEvent(self, event):
         self.spectrumV.close()
-        self.cubeSelection.close()
         self.rectCoord.close()
+        self.cubeSelection.close()
         self.rectCreat.close()
         self.ellCreat.close()
         self.backgSub.close()

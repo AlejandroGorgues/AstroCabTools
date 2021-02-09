@@ -161,7 +161,7 @@ class ZoomResetCommand(Command):
 
             ax.set_xlim(self._xLimits)
             ax.set_ylim(self._yLimits)
-        canvas.draw()
+        canvas.draw_idle()
 
 """
 Invoker class that contains all actions related to zoom commands

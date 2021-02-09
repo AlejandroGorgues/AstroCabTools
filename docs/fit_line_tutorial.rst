@@ -34,7 +34,7 @@ To execute and use the too, the next libraries need to be installed:
 Initial display
 ---------------
 
-After the tool is loaded, a window with a menu bar and  multiple buttons on the top of it, that will be explained later, will appear. Those options will interact with the spectrum that will appear on the canvas.
+After the tool is loaded, a window with a menu bar and multiple buttons on the top of it, will appear, which will interact with the spectrum on the canvas.
 
 --------------
 Data insertion
@@ -49,7 +49,7 @@ Once a file has been selected, several parameters can be modified (see :numref:`
 
 * The redshift that is going to be applied to both values after they have been transformed, if necessary
 * The columns where the values are. By default, the wavelength and flux column are located in column 0 and column 1 respectively.
-* The units both columns are in order to transform into 'erg/cm2/s/um' and 'uj'.
+* The units both columns are in order to transform into :math:`erg/cm2/s/um` and :math:`uj`.
 
 .. _figure2_fitLine:
 .. figure:: _static/proj4-in2.png
@@ -82,7 +82,7 @@ First of all the model that is going to be used to make the fitted models need t
 .. _figure4_fitLine:
 .. figure:: _static/proj4-re2.png
 
-Once the model has been selected, to create each gauss fitted model, the "mark points" button need to be pressed, after that, different parameters,up to eight, need to be obtained, to get the fitted model, these parameters will be updated after double clicking on a selected point for each one.
+Once the model has been selected, to create each gauss fitted model, the "mark points" button need to be pressed, after that, different parameters,up to eight, need to be obtained to get the fitted model, which will be updated for each point on double clicking.
 
 To know which parameter is going to get it's values, a label above the canvas will appear indicating it.
 
@@ -92,7 +92,7 @@ If the model that is being made is not the right one, or if a new model wants to
 Gauss fitted model results
 --------------------------
 
-After all five or egith points have been selected, different figures will appear on the canvas:
+After all five or eight points have been selected, different figures will appear on the canvas:
 
 * Initial fit figure(s): Models where for each X value, the Y values are the result of applying the initial parameters values to it on each gaussian model.
 * Best fit figure: The resulting gaussian fitted model from the function specified.
@@ -108,9 +108,9 @@ Erase options
 
 At the 'Visualization' button at the menu bar, several options appear to  allow to perform different erase options (see :numref:`figure7_fitLine`):
 
-* Pressing the "Clear all" will delete all the models and spectrum figure, which disable all the buttons except for the one that load the spectrum.
 * Pressing the "Clear fitted models" will delete only the modelas and all it's data.
 * Pressing the "Clear last model" will delete only the last model and it's figures that have been made
+* Pressing the "Reset window" will delete all the models and spectrum figure, which disable all the buttons except for the one that load the spectrum.
 
 .. _figure7_fitLine:
 .. figure:: _static/proj4-re4.png
@@ -122,7 +122,7 @@ Gauss fitted model data
 After the spectrum figure has been drawn on the canvas, the 'Show fitted data parameters' option at the 'Visualization' button at the menu bar will be avaliable, however once clicked, it will show an empty list, with a button at the bottom of the new window. Once at least one fitted model has been made, several parameters will appear in the list, as it can be see in :numref:`figure8_fitLine`:
 
 * The gaussian and line fitted function with it's selected parámeters.
-* The flux density value in (PONER DATO) for each gaussian fitted model.
+* The flux density value in erg/scm²um for each gaussian fitted model.
 * Each parameter selected that have been used to created the fitted model.
 * THe chi-squared value.
 
@@ -131,13 +131,13 @@ After the spectrum figure has been drawn on the canvas, the 'Show fitted data pa
 
 For each model that hass been created, it's parameters and fitted functions will appear on the new window.
 
-Additionally, all the data can be saved on a txt with a capture of the current state of the spectrum representation as well as the residual comparsion representation of each model clicking the "Save data" button at the bottom of it.
+Additionally, all the data can be saved on a text file with a capture of the current state of the spectrum representation as well as the residual comparsion representation of each model clicking the "Save data" button at the bottom of it.
 
 --------------
 Show residuals
 --------------
 
-For each fitted model, the residuals can be seen after double clicking in the model from the data list, which will made to appear a new window with two plots. Both plots will be represented along the X axis range of values selected in the model. THe first plot will show the spectrum along with the fitted model, and the second will show the residuales derivate from the spectrum and the fitted model values (see :numref:`figure9_fitLine`).
+For each fitted model, the residuals can be seen after double clicking in the model from the data list, which will made to appear a new window with two plots. Both plots will be represented along the X axis range of values selected in the model. The first plot will show the spectrum along with the fitted model, and the second will show the residuals derivate from the spectrum and the fitted model values (see :numref:`figure9_fitLine`).
 
 .. _figure9_fitLine:
 .. figure:: _static/proj4-re6.png

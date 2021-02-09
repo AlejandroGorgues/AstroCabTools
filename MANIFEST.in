@@ -6,6 +6,7 @@ recursive-include astrocabtools/mrs_chan/src *
 recursive-include astrocabtools/mrs_spec_chan/src *
 recursive-include astrocabtools/mrs_det_plot/src *
 recursive-include astrocabtools/all_tools/src *
+recursive-include astrocabtools/cube_ans/src *
 recursive-include docs *
 recursive-include astrocabtools *
 

@@ -205,7 +205,7 @@ class MplInteraction(object):
 
         zoomResetCommand = ZoomResetCommand(self.figure, self._xLimits, self._yLimits)
         self._invokerZoom.command(zoomResetCommand)
-        self._draw()
+        self._draw_idle()
 
     def _add_initial_zoom_reset(self):
         if self._invokerZoom.command_list_length() == 0:
@@ -214,7 +214,7 @@ class MplInteraction(object):
 
             zoomResetCommand = ZoomResetCommand(self.figure, self._xLimits, self._yLimits)
             self._invokerZoom.command(zoomResetCommand)
-            self._draw()
+            self._draw_idle()
 
 
     def clear_commands(self):
@@ -222,6 +222,10 @@ class MplInteraction(object):
         Delete all commands
         """
         self._invokerZoom.clear_command_list()
+
+    def _draw_idle(self):
+        """Update altered figure, but not automatically re-drawn"""
+        self.canvas.draw_idle()
 
     def _draw(self):
         """Conveninent method to redraw the figure"""

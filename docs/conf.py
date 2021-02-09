@@ -48,6 +48,7 @@ extensions = [
         'sphinx.ext.autosectionlabel',
         'sphinx.ext.todo',
         'sphinx.ext.githubpages',
+        'sphinx.ext.mathbase',
         'recommonmark'
 ]
 extensions = ['recommonmark']

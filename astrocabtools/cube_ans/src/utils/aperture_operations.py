@@ -3,7 +3,7 @@ import math
 
 from photutils import aperture_photometry, CircularAnnulus
 
-__all__=["background_subtraction", "rect_background_subtraction"]
+__all__=["background_subtraction"]
 
 def background_subtraction(centerX, centerY, r_in, r_out, aperture, cubeObj, spectrumValues):
     """Get the total flux values subtracting the aperture position of the rings

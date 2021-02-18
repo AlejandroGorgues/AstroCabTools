@@ -10,7 +10,7 @@ from PyQt5 import QtGui
 
 from pubsub import pub
 
-from ..utils.aperture_operations import background_subtraction, rect_background_subtraction
+from ..utils.aperture_operations import background_subtraction
 
 import astrocabtools.cube_ans.src.ui.ui_backgroundSubtraction
 
@@ -22,11 +22,6 @@ class BackgroundSubtraction(QDialog, astrocabtools.cube_ans.src.ui.ui_background
     outerWedgeSelected = pyqtSignal(float, float, float, name='outerEmit')
     valuesSubstracted = pyqtSignal(list, list, name='backgroundParameters')
 
-
-    rectSelected = pyqtSignal(float, float, float, float, name='rectEmit')
-
-
-
     def __init__(self, parent=None):
         super(BackgroundSubtraction, self).__init__(parent)
         self.setupUi(self)
@@ -35,30 +30,6 @@ class BackgroundSubtraction(QDialog, astrocabtools.cube_ans.src.ui.ui_background
         self.outerRadiusLineEdit.setValidator(QtGui.QDoubleValidator())
 
         self.applyButton.clicked.connect(self.apply_background_subs)
-
-        self.hRect.setValidator(QtGui.QDoubleValidator())
-        self.hRect.setValidator(QtGui.QDoubleValidator())
-
-        self.rectXCenter.setValidator(QtGui.QDoubleValidator())
-        self.rectYCenter.setValidator(QtGui.QDoubleValidator())
-
-        self.recPushButton.clicked.connect(self.apply_rectAux_background_subs)
-
-
-    @pyqtSlot()
-    def apply_rectAux_background_subs(self):
-        widthValue = self.wRect.text()
-        heightValue = self.hRect.text()
-
-        xCenter = self.rectXCenter.text()
-        yCenter = self.rectYCenter.text()
-
-        self.rectSelected.emit(abs(float(xCenter) - float(widthValue)/2),
-                                       abs(float(yCenter) - float(heightValue)/2),
-                                            float(heightValue),float(widthValue))
-
-        self.fValues_sub, self.bkg_sum = rect_background_subtraction(xCenter, yCenter, float(heightValue), float(widthValue), self.aperture, self.cubeObj, self.spectrumValues)
-        self.valuesSubstracted.emit(self.fValues_sub, self.bkg_sum)
 
     @pyqtSlot()
     def apply_background_subs(self):
@@ -81,7 +52,6 @@ class BackgroundSubtraction(QDialog, astrocabtools.cube_ans.src.ui.ui_background
                     self.fValues_sub, self.bkg_sum = background_subtraction(self.xCenter, self.yCenter, float(innerValue),
                                                 float(outerValue), self.aperture, self.cubeObj, self.spectrumValues)
                     self.valuesSubstracted.emit(self.fValues_sub, self.bkg_sum)
-
                 except Exception as e:
                     self.generic_alert("Error")
         else:

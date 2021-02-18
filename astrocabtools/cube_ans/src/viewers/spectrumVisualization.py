@@ -142,7 +142,7 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
 
         self.delete_duplicated_lines()
         self.ax.plot(self.wValues, bkg_sum, 'r-', gid="sum", label="Sum background")
-        self.ax.plot(self.wValues, fValues_sub, 'g-', gid="subtr", label="Backgrond subtraction spectrum")
+        self.ax.plot(self.wValues, fValues_sub, 'g-', gid="subtr", label="Backgrond subtracted spectrum")
         self.update_legend()
 
         self.spectrumFigure.canvas.draw()

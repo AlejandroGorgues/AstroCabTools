@@ -22,7 +22,7 @@ def transform_xy_rectangle(centerX, centerY,width, height, cubeObj):
     pixelArea = (cubeObj.cubeARValue * 3600.) * (cubeObj.cubeDValue * 3600.)
     aperture = RectangularAperture([centerX, centerY], width, height)
     for i in range(cubeObj.maxSlice):
-        phot_table = aperture_photometry(cubeObj.data_cube[i], aperture, method='center')
+        phot_table = aperture_photometry(cubeObj.data_cube[i], aperture, method='subpixel')
         fValues.append(phot_table['aperture_sum'][0]*pixelArea)
 
     wValues = [((w+1) - cubeObj.cubeZCPix)*cubeObj.cubeWValue + cubeObj.cubeZCRVal for w in range(len(fValues))]

@@ -41,9 +41,9 @@ def get_miri_cube_data(path):
     fitsObj.cubeWValue = float(hdul[1].header["CDELT3"])
 
     #The value of the center could also not be the same, so it's also obtained
-    fitsObj.cubeXCRVal = int(hdul[1].header["CRVAL1"])
-    fitsObj.cubeYCRVal = int(hdul[1].header["CRVAL2"])
-    fitsObj.cubeZCRVal = int(hdul[1].header["CRVAL3"])
+    fitsObj.cubeXCRVal = float(hdul[1].header["CRVAL1"])
+    fitsObj.cubeYCRVal = float(hdul[1].header["CRVAL2"])
+    fitsObj.cubeZCRVal = float(hdul[1].header["CRVAL3"])
 
     fitsObj.cubeWavelengthUnit = hdul[1].header["CUNIT3"]
     fitsObj.cubeFluxUnit = hdul[1].header["BUNIT"]

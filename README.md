@@ -72,6 +72,9 @@ The templates for this tool can be downloaded from this [link](https://cab.inta-
 
 The templates for this tool can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_fit_line.zip).
 
+### Cube_ans templates
+
+The templates for this tool can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_cube_ans.zip).
 
 ## Development
 

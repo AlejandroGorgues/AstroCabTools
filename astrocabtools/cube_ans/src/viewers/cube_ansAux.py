@@ -21,7 +21,7 @@ from PyQt5 import QtGui
 from PyQt5 import uic
 
 from matplotlib import widgets
-from matplotlib.patches import Wedge, Rectangle
+from matplotlib.patches import Wedge
 
 from pubsub import pub
 
@@ -94,9 +94,6 @@ class CubeAns(QMainWindow,
 
         self.backgSub.innerWedgeSelected.connect(self.draw_inner_wedge)
         self.backgSub.outerWedgeSelected.connect(self.draw_outer_wedge)
-        self.backgSub.valuesSubstracted.connect(self.update_background_spectrum)
-
-        self.backgSub.rectSelected.connect(self.draw_rect)
         self.backgSub.valuesSubstracted.connect(self.update_background_spectrum)
 
         pub.subscribe(self.select_area_rectangle, 'rectangleSelected')
@@ -442,13 +439,29 @@ class CubeAns(QMainWindow,
         self.cubeFigure.pan_zoom.redraw_rectangle_with_interaction()
         self.cubeFigure.pan_zoom.redraw_ellipse_with_interaction()
 
-    @pyqtSlot(float,float,float,float, name='recEmit')
-    def draw_rect(self, centerX, centerY, height, width):
+    @pyqtSlot(int)
+    def get_cube(self, int):
+        try:
+            if int == QDialog.Accepted:
+                self.path = self.cubeSelection.get_data()
+                self.cubeSelection.reset_widget()
+                self.load_file(self.path)
+            self.cubeFigure.canvas.draw()
+        except Exception as e:
+            self.show_file_alert()
 
-        self.update_rect_aux("rec", centerX = centerX, centerY = centerY, height = height, width = width)
-        self.cubeFigure.canvas.draw()
-        self.cubeFigure.pan_zoom.redraw_rectangle_with_interaction()
-        self.cubeFigure.pan_zoom.redraw_ellipse_with_interaction()
+    def create_axes(self):
+        """Create the layout that will show the slice selected of a cube"""
+        self.cubeFigure, self.cubeFigure.cavas = figure_pz()
+        self.cubeFigure.constrained_layout = True
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.cubeFigure.canvas)
+
+        self.ax = self.cubeFigure.add_subplot(111)
+        self.ax.set_visible(False)
+        self.cubeFigure.pan_zoom.create_rectangle_ax(self.ax)
+        self.cubeFigure.pan_zoom.create_ellipse_ax(self.ax)
 
     @pyqtSlot(int)
     def get_cube(self, int):
@@ -463,7 +476,31 @@ class CubeAns(QMainWindow,
 
     def create_axes(self):
         """Create the layout that will show the slice selected of a cube"""
-        self.cubeFigure, self.cubeFigure.canvas = figure_pz()
+        self.cubeFigure, self.cubeFigure.cavas = figure_pz()
+        self.cubeFigure.constrained_layout = True
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.cubeFigure.canvas)
+
+        self.ax = self.cubeFigure.add_subplot(111)
+        self.ax.set_visible(False)
+        self.cubeFigure.pan_zoom.create_rectangle_ax(self.ax)
+        self.cubeFigure.pan_zoom.create_ellipse_ax(self.ax)
+
+    @pyqtSlot(int)
+    def get_cube(self, int):
+        try:
+            if int == QDialog.Accepted:
+                self.path = self.cubeSelection.get_data()
+                self.cubeSelection.reset_widget()
+                self.load_file(self.path)
+            self.cubeFigure.canvas.draw()
+        except Exception as e:
+            self.show_file_alert()
+
+    def create_axes(self):
+        """Create the layout that will show the slice selected of a cube"""
+        self.cubeFigure, self.cubeFigure.cavas = figure_pz()
         self.cubeFigure.constrained_layout = True
 
         layout = QVBoxLayout()
@@ -478,23 +515,22 @@ class CubeAns(QMainWindow,
 
     def draw_cube(self):
 
-        xlabel = "AR (" + str((self.cubeObj.maxXAxis +1 - self.cubeObj.cubeXCPix)*self.cubeObj.cubeARValue + self.cubeObj.cubeXCRVal) + ")"
-        ylabel = "DEC (" + str ((self.cubeObj.maxYAxis +1 - self.cubeObj.cubeYCPix)*self.cubeObj.cubeDValue + self.cubeObj.cubeYCRVal) + ")"
+        #xlabel = "AR (" + str((self.cubeObj.maxXAxis +1 - self.cubeObj.cubeXCPix)*self.cubeObj.cubeARValue + self.cubeObj.cubeXCRVal) + ")"
+        #ylabel = "DEC (" + str ((self.cubeObj.maxYAxis +1 - self.cubeObj.cubeYCPix)*self.cubeObj.cubeDValue + self.cubeObj.cubeYCRVal) + ")"
 
         self.ax.set_visible(True)
         self.ax.clear()
-
-        self.ax.set_xlabel(xlabel)
-        self.ax.set_ylabel(ylabel)
+        self.ax.grid(False)
+        self.ax.set_title("{}".format(self.cubeObj.filename))
 
         im = self.ax.imshow(self.cubeObj.data_cube[self.cubeObj.currSlice])
 
         im.set_cmap(plt.get_cmap((self.globalStats.color)))
         norm = self.get_norm(self.globalStats.stretch, self.globalStats.scale)
+
         im.set_norm(norm)
-        self.ax.grid(False)
-        self.ax.set_title("{}".format(self.cubeObj.filename))
         self.cubeFigure.pan_zoom.set_initial_limits(self.ax.get_xlim(), self.ax.get_ylim())
+
         self.cubeFigure.canvas.draw()
 
     def draw_rectangle_coordinates(self,left_bottom, right_top):
@@ -528,27 +564,6 @@ class CubeAns(QMainWindow,
                 wedge= Wedge((centerX, centerY),
                     radius, 0, 360, width=0.2, gid=typeWedge)
                 self.ax.add_patch(wedge)
-
-    def update_rect_aux(self, typeRect, redraw = False,  rect_list = [], centerX = None, centerY = None, height= None, width = None):
-        #Enter if the image changed because of the wavelength
-        if redraw == True and len(rect_list) != 0:
-            for rect in rect_list:
-                self.ax.add_patch(rect)
-            self.cubeFigure.canvas.draw()
-
-        #Enter if a wedge need to be drawn or change radius
-        elif redraw == False and centerX != None:
-            rect = next((patch for patch in enumerate(self.ax.patches) if patch[1].get_gid() == typeRect), None)
-
-            if rect is not None:
-                if self.ax.patches[rect[0]].get_width != width and self.ax.patches[rect[0]].get_height != height:
-                    self.ax.patches[rect[0]].set_width(width)
-                    self.ax.patches[rect[0]].set_height(height)
-            else:
-                rect= Rectangle((centerX, centerY),
-                    width, height, lw=0.5, color='red', fill = False, gid=typeRect)
-                self.ax.add_patch(rect)
-
 
     def load_file(self, path):
         self.path = path

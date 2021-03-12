@@ -61,6 +61,18 @@ def gauss_fitting_function2(x, h2, c2, sigma2):
     """
     return h2 * math.e ** ((x-c2)**2/(-2*sigma2**2))
 
+#This functionality is not implemented yet
+def lorentzian_fitting_function(x, h, c, sigma):
+    """
+    :param ndarray x: wavelength values
+    :param float h: height of the lorentz
+    :param float c: mean of the lorentz
+    :param float sigma: FWHM of the lorentz
+    :return: fitted model
+    Function that create the lorentzian fitted model
+    """
+    return (2*sigma*h/math.pi)*(sigma/(x-c)**2 + sigma**2)
+
 def line_fitting_function(x, a, b):
     """
     :param ndarray x: wavelength values
@@ -70,6 +82,18 @@ def line_fitting_function(x, a, b):
     Function that create a line fitted model
     """
     return a + b * (x)
+#This functionality is not implemented yet
+def quadratic_fitting_function(x, a, b, c):
+    """
+    :param ndarray x: wavelength values
+    :param float a: intercept
+    :param float b: coefficient of symmetry
+    :param float c: coefficient of degree of the curvature
+    :return: fitted model
+    Function that create a quadratic fitted model
+    """
+    return a + b * (x) + c*(x**2)
+
 
 def integrated_flux(h, sigma):
     return h*abs(sigma)*math.sqrt(2*math.pi)

@@ -17,9 +17,8 @@ def transform_xy_rectangle(centerX, centerY,width, height, cubeObj):
     """
     fValues = []
 
-    #Because it gets all the flux on a pixel, it needs to get the area of it rather
-    #than one value.
-    pixelArea = (cubeObj.cubeARValue * 3600.) * (cubeObj.cubeDValue * 3600.)
+    #Because it gets all the flux on a pixel, it needs to get the area of it rather than one value.
+    pixelArea = (cubeObj.cubeRAValue * 3600.) * (cubeObj.cubeDValue * 3600.)
     aperture = RectangularAperture([centerX, centerY], width, height)
     for i in range(cubeObj.maxSlice):
         phot_table = aperture_photometry(cubeObj.data_cube[i], aperture, method='subpixel')

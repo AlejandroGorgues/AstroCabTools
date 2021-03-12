@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>cube_ans Beta version</string>
+   <string>cube_ans</string>
   </property>
   <widget class="QWidget" name="widget">
    <layout class="QGridLayout" name="gridLayout_2">

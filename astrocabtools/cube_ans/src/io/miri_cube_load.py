@@ -36,7 +36,7 @@ def get_miri_cube_data(path):
     #which would correspond with the values from the image axis,
     #the values that are going to increment each axis
     #are obtained from the next two parameters
-    fitsObj.cubeARValue = float(hdul[1].header["CDELT1"])
+    fitsObj.cubeRAValue = float(hdul[1].header["CDELT1"])
     fitsObj.cubeDValue = float(hdul[1].header["CDELT2"])
     fitsObj.cubeWValue = float(hdul[1].header["CDELT3"])
 

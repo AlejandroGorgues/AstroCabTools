@@ -156,7 +156,6 @@ class doubleGaussModel:
         guesses.add(name='h1', value = self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.)
         guesses.add(name='c1', value = self.__firsGaussFitPoints.topX)
         guesses.add(name='sigma1', value = abs(self.__firsGaussFitPoints.sigma2X-self.__firsGaussFitPoints.sigma1X)/2.355)
-        print(abs(self.__firsGaussFitPoints.sigma2X-self.__firsGaussFitPoints.sigma1X)/2.355)
 
         guesses.add(name='h2', value = self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.)
         guesses.add(name='c2', value = self.__secondGaussFitPoints.topX)

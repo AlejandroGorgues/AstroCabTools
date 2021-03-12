@@ -21,7 +21,7 @@ def background_subtraction(centerX, centerY, r_in, r_out, aperture, cubeObj, spe
     fValues_sub = []
     bkg_sum = []
     annulus_aperture = CircularAnnulus([centerX, centerY], r_in=r_in,r_out=r_out)
-    pixelArea = (cubeObj.cubeARValue * 3600.) * (cubeObj.cubeDValue * 3600.)
+    pixelArea = (cubeObj.cubeRAValue * 3600.) * (cubeObj.cubeDValue * 3600.)
 
     for i in range(cubeObj.maxSlice):
         phot_table = aperture_photometry(cubeObj.data_cube[i], annulus_aperture)

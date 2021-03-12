@@ -15,7 +15,7 @@ import io
 
 from astropy.visualization import (MinMaxInterval, ZScaleInterval, SqrtStretch, LinearStretch, LogStretch, ImageNormalize)
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QMessageBox, QMainWindow
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QMessageBox, QMainWindow, QSizePolicy
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QEvent
 from PyQt5 import QtGui
 from PyQt5 import uic
@@ -31,8 +31,11 @@ from matplotlib.figure import Figure
 from ..utils.rectangle_xy_transformations import transform_xy_rectangle
 from ..utils.ellipse_xy_transformations import transform_xy_ellipse
 from ..utils.basic_transformations import slice_to_wavelength, wavelength_to_slice
+
 from ..io.miri_cube_load import get_miri_cube_data
+
 from .canvas_interaction.cubeAnsCanvas.panZoom import figure_pz
+
 from ..models.globalStats import global_stats
 
 
@@ -55,7 +58,7 @@ class CubeAns(QMainWindow,
 
         self.setupUi(self)
 
-        plt.style.use('seaborn')
+        #plt.style.use('seaborn-white')
         self.globalStats = global_stats('MinMax', 'Linear', 'gray')
 
         self.actionOpen.triggered.connect(self.fileOrders)
@@ -117,6 +120,10 @@ class CubeAns(QMainWindow,
         self.wavelengthLineEdit.returnPressed.connect(lambda:self.update_from_lineEdit())
 
     def set_widgets_values(self):
+        """
+        Set all widgets values and text to initial values and text when a new cube
+        is loaded
+        """
 
         self.sliceSpinBox.blockSignals(True)
         self.sliceSlider.blockSignals(True)
@@ -133,6 +140,12 @@ class CubeAns(QMainWindow,
 
         self.sliceSlider.blockSignals(False)
         self.sliceSpinBox.blockSignals(False)
+
+        """
+        Set slider value to be 1 because the minimum value for a cube could be
+        a common value for another
+        """
+        self.sliceSlider.setValue(1)
 
     def update_from_spinBox(self):
         """Update the slider and the wavelength line edit from the spinBox value"""
@@ -452,86 +465,63 @@ class CubeAns(QMainWindow,
 
     def create_axes(self):
         """Create the layout that will show the slice selected of a cube"""
-        self.cubeFigure, self.cubeFigure.cavas = figure_pz()
+        self.cubeFigure = figure_pz()
         self.cubeFigure.constrained_layout = True
 
         layout = QVBoxLayout()
         layout.addWidget(self.cubeFigure.canvas)
 
-        self.ax = self.cubeFigure.add_subplot(111)
+        self.ax = self.cubeFigure.add_subplot()
         self.ax.set_visible(False)
-        self.cubeFigure.pan_zoom.create_rectangle_ax(self.ax)
-        self.cubeFigure.pan_zoom.create_ellipse_ax(self.ax)
+        self.ax.set_gid("main_axis")
 
-    @pyqtSlot(int)
-    def get_cube(self, int):
-        try:
-            if int == QDialog.Accepted:
-                self.path = self.cubeSelection.get_data()
-                self.cubeSelection.reset_widget()
-                self.load_file(self.path)
-            self.cubeFigure.canvas.draw()
-        except Exception as e:
-            self.show_file_alert()
+        self.ax_twinx = self.ax.twinx()
+        self.ax_twiny = self.ax.twiny()
 
-    def create_axes(self):
-        """Create the layout that will show the slice selected of a cube"""
-        self.cubeFigure, self.cubeFigure.cavas = figure_pz()
-        self.cubeFigure.constrained_layout = True
+        self.ax_twinx.set_visible(False)
+        self.ax_twiny.set_visible(False)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.cubeFigure.canvas)
+        self.ax_twinx.set_gid("twinx_axis")
+        self.ax_twiny.set_gid("twiny_axis")
 
-        self.ax = self.cubeFigure.add_subplot(111)
-        self.ax.set_visible(False)
-        self.cubeFigure.pan_zoom.create_rectangle_ax(self.ax)
-        self.cubeFigure.pan_zoom.create_ellipse_ax(self.ax)
+        #Set self.ax to the front to be able to use the figures on it
+        self.ax.set_zorder(self.ax_twiny.get_zorder() + 1)
 
-    @pyqtSlot(int)
-    def get_cube(self, int):
-        try:
-            if int == QDialog.Accepted:
-                self.path = self.cubeSelection.get_data()
-                self.cubeSelection.reset_widget()
-                self.load_file(self.path)
-            self.cubeFigure.canvas.draw()
-        except Exception as e:
-            self.show_file_alert()
-
-    def create_axes(self):
-        """Create the layout that will show the slice selected of a cube"""
-        self.cubeFigure, self.cubeFigure.cavas = figure_pz()
-        self.cubeFigure.constrained_layout = True
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.cubeFigure.canvas)
-
-        self.ax = self.cubeFigure.add_subplot(111)
-        self.ax.set_visible(False)
         self.cubeFigure.pan_zoom.create_rectangle_ax(self.ax)
         self.cubeFigure.pan_zoom.create_ellipse_ax(self.ax)
 
         self.spaceCubePlot.setLayout(layout)
 
     def draw_cube(self):
-
-        #xlabel = "AR (" + str((self.cubeObj.maxXAxis +1 - self.cubeObj.cubeXCPix)*self.cubeObj.cubeARValue + self.cubeObj.cubeXCRVal) + ")"
-        #ylabel = "DEC (" + str ((self.cubeObj.maxYAxis +1 - self.cubeObj.cubeYCPix)*self.cubeObj.cubeDValue + self.cubeObj.cubeYCRVal) + ")"
+        self.ax.images.clear()
 
         self.ax.set_visible(True)
-        self.ax.clear()
         self.ax.grid(False)
+
+        self.ax_twiny.set_visible(True)
+        self.ax_twinx.set_visible(True)
+
         self.ax.set_title("{}".format(self.cubeObj.filename))
+        self.ax.set_xlabel("DEC (pixel)")
+        self.ax.set_ylabel("RA (pixel)")
 
-        im = self.ax.imshow(self.cubeObj.data_cube[self.cubeObj.currSlice])
+        self.ax_twiny.set_xlabel(r'$arcsec$')
+        self.ax_twinx.set_ylabel(r'$arcsec$')
 
+        im = self.ax.imshow(self.cubeObj.data_cube[self.cubeObj.currSlice], aspect='auto')
         im.set_cmap(plt.get_cmap((self.globalStats.color)))
         norm = self.get_norm(self.globalStats.stretch, self.globalStats.scale)
-
         im.set_norm(norm)
-        self.cubeFigure.pan_zoom.set_initial_limits(self.ax.get_xlim(), self.ax.get_ylim())
+
+        #self.cubeFigure.pan_zoom.set_initial_limits(self.ax.get_xlim(), self.ax.get_ylim())
+        self.cubeFigure.pan_zoom.set_initial_limits(self.cubeObj.maxXAxis, self.cubeObj.maxYAxis, self.cubeObj.cubeXCPix, self.cubeObj.cubeYCPix, self.cubeObj.cubeRAValue, self.cubeObj.cubeDValue, self.cubeObj.cubeXCRVal, self.cubeObj.cubeYCRVal)
+        self.ax_twiny.set_xlim((self.ax.get_xlim()[0]- self.cubeObj.cubeXCPix)*self.cubeObj.cubeRAValue*3600 + self.cubeObj.cubeXCRVal*3600, (self.ax.get_xlim()[1]- self.cubeObj.cubeXCPix)*self.cubeObj.cubeRAValue*3600 + self.cubeObj.cubeXCRVal*3600)
+        self.ax_twinx.set_ylim((self.ax.get_ylim()[0]- self.cubeObj.cubeYCPix)*self.cubeObj.cubeDValue*3600 + self.cubeObj.cubeYCRVal*3600, (self.ax.get_ylim()[1]- self.cubeObj.cubeYCPix)*self.cubeObj.cubeDValue*3600 + self.cubeObj.cubeYCRVal*3600)
+
+        self.cubeFigure.pan_zoom.zoom_reset()
 
         self.cubeFigure.canvas.draw()
+
 
     def draw_rectangle_coordinates(self,left_bottom, right_top):
         self.cubeFigure.pan_zoom.update_rectangle(left_bottom[0], left_bottom[1], right_top[0], right_top[1])

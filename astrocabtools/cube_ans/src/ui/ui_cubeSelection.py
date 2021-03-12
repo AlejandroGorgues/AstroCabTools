@@ -42,7 +42,7 @@ class Ui_cubeSelection(object):
         self.label_2.setObjectName("label_2")
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
         self.cancelButton = QtWidgets.QPushButton(cubeSelection)
-        self.cancelButton.setEnabled(False)
+        self.cancelButton.setEnabled(True)
         self.cancelButton.setFocusPolicy(QtCore.Qt.NoFocus)
         self.cancelButton.setObjectName("cancelButton")
         self.gridLayout.addWidget(self.cancelButton, 2, 0, 1, 2)

@@ -113,6 +113,7 @@ class PanOnClick(ZoomOnWheel):
         y_axes = set()
         for ax in self.figure.axes:
             #Simmilar to event.inaxis = axis
+            x_axes, y_axes = self._axes_to_update(event)
             if ax.contains(event)[0]:
                 x_axes.add(ax)
                 y_axes.add(ax)

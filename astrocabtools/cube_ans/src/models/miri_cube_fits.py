@@ -5,12 +5,12 @@ __all__=['miriCubeClass']
 
 class miriCubeClass:
 
-    def __init__(self, currSlice, maxSlice, cubeARValue,
+    def __init__(self, currSlice, maxSlice, cubeRAValue,
                  cubeDValue, cubeWValue,cubeXCRVal, cubeYCRVal, cubeZCRVal, cubeWavelengthUnit, cubeFluxUnit, maxXAxis, maxYAxis, cubeXCPix, cubeYCPix, cubeZCPix, data_cube, filename):
 
         self.__currSlice = currSlice
         self.__maxSlice = maxSlice
-        self.__cubeARValue = cubeARValue
+        self.__cubeRAValue = cubeRAValue
         self.__cubeDValue = cubeDValue
         self.__cubeWValue = cubeWValue
         self.__cubeXCRVal = cubeXCRVal
@@ -36,8 +36,8 @@ class miriCubeClass:
             return self.__maxSlice
 
         @property
-        def cubeARValue(self):
-            return self.__cubeARValue
+        def cubeRAValue(self):
+            return self.__cubeRAValue
 
         @property
         def cubeDValue(self):
@@ -103,9 +103,9 @@ class miriCubeClass:
         def maxSlice(self, maxSlice):
             self.__maxSlice = maxSlice
 
-        @cubeARValue.setter
-        def cubeARValue(self, cubeARValue):
-            self.__cubeARValue = cubeARValue
+        @cubeRAValue.setter
+        def cubeRAValue(self, cubeRAValue):
+            self.__cubeRAValue = cubeRAValue
 
         @cubeDValue.setter
         def cubeDValue(self, cubeDValue):

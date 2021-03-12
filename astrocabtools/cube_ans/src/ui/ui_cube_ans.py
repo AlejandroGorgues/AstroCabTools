@@ -206,7 +206,7 @@ class Ui_cube_ans(object):
 
     def retranslateUi(self, cube_ans):
         _translate = QtCore.QCoreApplication.translate
-        cube_ans.setWindowTitle(_translate("cube_ans", "cube_ans Beta version"))
+        cube_ans.setWindowTitle(_translate("cube_ans", "cube_ans"))
         self.label.setText(_translate("cube_ans", "Slice"))
         self.label_3.setText(_translate("cube_ans", "Wavelengt Value"))
         self.label_2.setText(_translate("cube_ans", "Slice Value"))

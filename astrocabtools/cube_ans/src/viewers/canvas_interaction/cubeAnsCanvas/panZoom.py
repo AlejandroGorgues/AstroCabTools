@@ -37,4 +37,5 @@ def figure_pz(*args, **kwargs):
     """matplotlib.pyplot.figure with pan and zoom interaction"""
     fig = _plt.figure(*args, **kwargs)
     fig.pan_zoom = EllipseInteractions(fig)
-    return fig, fig.canvas
+    #return fig, fig.canvas
+    return fig

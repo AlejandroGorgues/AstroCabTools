@@ -211,13 +211,13 @@ class MplInteraction(object):
 
     def connect_rectangle(self):
         for event_name, callback in self._cids_callback_rectangle.items():
-            cid = self.canvas.mpl_connect(event_name, callback)
+            cid = self.figure.canvas.mpl_connect(event_name, callback)
             self._cids_rectangle.append(cid)
         self._enable_rectangle()
 
     def connect_ellipse(self):
         for event_name, callback in self._cids_callback_ellipse.items():
-            cid = self.canvas.mpl_connect(event_name, callback)
+            cid = self.figure.canvas.mpl_connect(event_name, callback)
             self._cids_ellipse.append(cid)
         self._enable_ellipse()
 
@@ -226,7 +226,7 @@ class MplInteraction(object):
         Assign all callback zoom events to the mpl
         """
         for event_name, callback in self._cids_callback_zoom.items():
-            cid = self.canvas.mpl_connect(event_name, callback)
+            cid = self.figure.canvas.mpl_connect(event_name, callback)
             self._cids_zoom.append(cid)
 
     def connect_pan(self):
@@ -234,7 +234,7 @@ class MplInteraction(object):
         Assign all callback pan events to the mpl
         """
         for event_name, callback in self._cids_callback_pan.items():
-            cid = self.canvas.mpl_connect(event_name, callback)
+            cid = self.figure.canvas.mpl_connect(event_name, callback)
             self._cids_pan.append(cid)
 
     @property
@@ -253,8 +253,13 @@ class MplInteraction(object):
 
         for ax in self.figure.axes:
             if ax.contains(event)[0]:
-                x_axes.add(ax)
-                y_axes.add(ax)
+                shared_x_axes = set(ax.get_shared_x_axes().get_siblings(ax))
+                if x_axes.isdisjoint(shared_x_axes):
+                    x_axes.add(ax)
+
+                shared_y_axes = set(ax.get_shared_y_axes().get_siblings(ax))
+                if y_axes.isdisjoint(shared_y_axes):
+                    y_axes.add(ax)
 
         return x_axes, y_axes
 
@@ -425,14 +430,27 @@ class MplInteraction(object):
     def get_rectangle_data(self):
         return self._rectangle_selector._rect_bbox, self._rectangle_selector.center
 
-    def set_initial_limits(self, xlim, ylim):
-        self.initial_xlim = xlim
-        self.initial_ylim = ylim
+    def set_initial_limits(self, xlim, ylim, cubeXCPix, cubeYCPix, cubeRAValue, cubeDValue, cubeXCRVal, cubeYCRVal):
+        """
+        Matplotlib cannot display the pixel of the image given integer numbers,
+        because of that, the range of the pixel representation  is  (x.5 to x+1.5)
+        and instead of starting in 0, it starts in -0.5
+        """
+
+        self.initial_xlim = (-0.5, xlim+0.5)
+        self.initial_ylim = (ylim+0.5, -0.5)
+        self.twin_initial_xlim = ((self.initial_xlim[0]- cubeXCPix)*cubeRAValue*3600 + cubeXCRVal*3600, (self.initial_xlim[1]- cubeXCPix)*cubeRAValue*3600 + cubeXCRVal*3600)
+        self.twin_initial_ylim = ((self.initial_ylim[0]- cubeYCPix)*cubeDValue*3600 + cubeYCRVal*3600, (self.initial_ylim[1]- cubeYCPix)*cubeDValue*3600 + cubeYCRVal*3600)
 
     def zoom_reset(self):
         for ax in self.figure.axes:
-            ax.set_xlim(self.initial_xlim)
-            ax.set_ylim(self.initial_ylim)
+            if ax.get_gid() == 'main_axis':
+                ax.set_xlim(self.initial_xlim)
+                ax.set_ylim(self.initial_ylim)
+            elif ax.get_gid() == 'twinx_axis':
+                ax.set_ylim(self.twin_initial_ylim)
+            elif ax.get_gid() == 'twiny_axis':
+                ax.set_xlim(self.twin_initial_xlim)
 
         self._draw()
 
@@ -445,4 +463,4 @@ class MplInteraction(object):
 
     def _draw(self):
         """Conveninent method to redraw the figure"""
-        self.canvas.draw()
+        self.figure.canvas.draw()

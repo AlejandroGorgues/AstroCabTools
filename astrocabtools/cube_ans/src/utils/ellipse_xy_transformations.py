@@ -16,7 +16,7 @@ def transform_xy_ellipse(centerX, centerY, aAxis, bAxis, cubeObj):
     fValues = []
     #Because it gets all the flux on a pixel, it needs to get the area of it rather
     #the sum of it
-    pixelArea = (cubeObj.cubeARValue * 3600.) * (cubeObj.cubeDValue * 3600.)
+    pixelArea = (cubeObj.cubeRAValue * 3600.) * (cubeObj.cubeDValue * 3600.)
 
     position = [(centerX, centerY)]
     aperture = EllipticalAperture(position,aAxis/2, bAxis/2)

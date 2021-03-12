@@ -127,7 +127,6 @@ class gaussModel:
         guesses.add(name='h', value = self.__gaussFitPoints.topY - (self.__gaussFitPoints.leftY + self.__gaussFitPoints.rightY)/2.)
         guesses.add(name='c', value = self.__gaussFitPoints.topX)
         guesses.add(name='sigma', value = abs(self.__gaussFitPoints.sigma2X-self.__gaussFitPoints.sigma1X)/2.355)
-        print(abs(self.__gaussFitPoints.sigma2X-self.__gaussFitPoints.sigma1X)/2.355)
         #Obtain the model
         result = curve_fitting(wavelengthValues, fluxValues, guesses)
         #Update table of results parameters

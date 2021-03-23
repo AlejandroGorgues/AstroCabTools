@@ -8,19 +8,8 @@ from astropy.modeling import models, fitting
 from lmfit import Model
 
 
-__all__ = ['curve_fitting', 'double_curve_fitting', 'calculate_slope', 'integrated_flux', 'calculate_intercept', 'gauss_fitting_function','gauss_fitting_function1', 'gauss_fitting_function2', 'line_fitting_function']
+__all__ = ['calculate_slope', 'integrated_flux', 'calculate_intercept', 'gauss_fitting_function','lorentzian_fitting_function', 'line_fitting_function', 'quadratic_fitting_function']
 
-def curve_fitting(wavelength, flux, guesses):
-    gmodel = Model(gauss_fitting_function ) + Model(line_fitting_function)
-    params = gmodel.make_params(h=guesses['h'], c=guesses['c'],sigma=guesses['sigma'], a=guesses['a'], b=guesses['b'])
-    result = gmodel.fit(flux, params, x=wavelength)
-    return result
-
-def double_curve_fitting(wavelength, flux, guesses):
-    gmodel = Model(gauss_fitting_function1) + Model(gauss_fitting_function2) + Model(line_fitting_function)
-    params = gmodel.make_params(h1=guesses['h1'], c1=guesses['c1'],sigma1=guesses['sigma1'], h2=guesses['h2'], c2=guesses['c2'],sigma2=guesses['sigma2'],a=guesses['a'], b=guesses['b'])
-    result = gmodel.fit(flux, params, x=wavelength)
-    return result
 
 def gauss_fitting_function(x, h, c, sigma):
     """
@@ -33,34 +22,6 @@ def gauss_fitting_function(x, h, c, sigma):
     """
     return h * math.e ** ((x-c)**2/(-2*sigma**2))
 
-def gauss_fitting_function1(x, h1, c1, sigma1):
-    """
-    :param ndarray x: wavelength values
-    :param float h1: height of the guassian
-    :param float c1: mean of the gaussian
-    :param float sigma1: FWHM of the gaussian
-    :return: fitted model
-    Function that create the first gaussian fitted model
-    from the two gaussian fitted model, which is the same as the first
-    one, but it allows to differenciate the variable names that will be
-    represented on the data visualization
-    """
-    return h1 * math.e ** ((x-c1)**2/(-2*sigma1**2))
-
-def gauss_fitting_function2(x, h2, c2, sigma2):
-    """
-    :param ndarray x: wavelength values
-    :param float h2: height of the guassian
-    :param float c2: mean of the gaussian
-    :param float sigma2: FWHM of the gaussian
-    :return: fitted model
-    Function that create the second gaussian fitted model
-    from the two gaussian fitted model, which is the same as the first
-    one, but it allows to differenciate the variable names that will be
-    represented on the data visualization
-    """
-    return h2 * math.e ** ((x-c2)**2/(-2*sigma2**2))
-
 #This functionality is not implemented yet
 def lorentzian_fitting_function(x, h, c, sigma):
     """
@@ -71,7 +32,7 @@ def lorentzian_fitting_function(x, h, c, sigma):
     :return: fitted model
     Function that create the lorentzian fitted model
     """
-    return (2*sigma*h/math.pi)*(sigma/(x-c)**2 + sigma**2)
+    return (h/math.pi)*(sigma/((x-c)**2 + sigma**2))
 
 def line_fitting_function(x, a, b):
     """
@@ -83,20 +44,23 @@ def line_fitting_function(x, a, b):
     """
     return a + b * (x)
 #This functionality is not implemented yet
-def quadratic_fitting_function(x, a, b, c):
+def quadratic_fitting_function(x, a, b, c2):
     """
     :param ndarray x: wavelength values
     :param float a: intercept
     :param float b: coefficient of symmetry
-    :param float c: coefficient of degree of the curvature
+    :param float c2: coefficient of degree of the curvature
     :return: fitted model
     Function that create a quadratic fitted model
     """
-    return a + b * (x) + c*(x**2)
+    return a + b * (x) + c2*(x**2)
 
 
-def integrated_flux(h, sigma):
-    return h*abs(sigma)*math.sqrt(2*math.pi)
+def integrated_flux(h, sigma, typeInt):
+    if typeInt == 'gauss':
+        return h*abs(sigma)*math.sqrt(2*math.pi)
+    elif typeInt == 'lorentz':
+        return h*math.pi*sigma
 
 def calculate_slope(xOrigin, yOrigin, xEnd, yEnd):
     return (yEnd - yOrigin) / (xEnd - xOrigin)

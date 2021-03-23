@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>gaussDataVisualization</class>
- <widget class="QDialog" name="gaussDataVisualization">
+ <class>modelDataVisualization</class>
+ <widget class="QDialog" name="modelDataVisualization">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -30,7 +30,7 @@
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QListWidget" name="gaussListWidget"/>
+      <widget class="QListWidget" name="modelListWidget"/>
      </item>
     </layout>
    </item>

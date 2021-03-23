@@ -1,9 +1,9 @@
 """
 Class that contains coordinates for each model
 """
-__all__ = ['pointsData']
+__all__ = ['lorentzPointsData']
 
-class pointsData:
+class lorentzPointsData:
 
     def __init__(self, leftX, rightX, topX, sigma1X, sigma2X, leftY, rightY, topY, sigma1Y,sigma2Y):
         self.__leftX = leftX
@@ -96,3 +96,7 @@ class pointsData:
     @sigma2Y.setter
     def sigma2Y(self, sigma2Y):
         self.__sigma2Y = sigma2Y
+
+
+    def asdict(self, prefix=''):
+        return {'left': (self.__leftX, self.__leftY), 'right':(self.__rightX, self.__rightY),prefix+'sigma1': (self.__sigma1X, self.__sigma1Y), prefix+'sigma2': (self.__sigma2X, self.__sigma2Y),prefix+"top":(self.__topX, self.__topY)}

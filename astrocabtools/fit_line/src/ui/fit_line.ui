@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>908</width>
+    <width>907</width>
     <height>830</height>
    </rect>
   </property>
@@ -71,10 +71,25 @@
             <string>Two gaussians</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Lorentz</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Lorentz + Gauss</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>No line</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="continuumSelectionLabel">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -85,7 +100,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Choose continium to use</string>
+           <string>Choose continuum to use</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -93,7 +108,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="continiumSelectionComboBox">
+         <widget class="QComboBox" name="continuumSelectionComboBox">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -105,7 +120,12 @@
           </property>
           <item>
            <property name="text">
-            <string>Line Continium</string>
+            <string>Line Continuum</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Quadratic Continuum</string>
            </property>
           </item>
          </widget>
@@ -115,21 +135,21 @@
       <item row="3" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QPushButton" name="pointsGenerationButton">
+         <widget class="QToolButton" name="markPointsToolButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
           <property name="text">
            <string>Mark points</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <property name="toolButtonStyle">
+           <enum>Qt::ToolButtonTextOnly</enum>
           </property>
          </widget>
         </item>
@@ -313,7 +333,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>908</width>
+     <width>907</width>
      <height>21</height>
     </rect>
    </property>

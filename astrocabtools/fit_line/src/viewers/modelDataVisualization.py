@@ -13,29 +13,29 @@ from PyQt5.QtCore import Qt, pyqtSlot, QSize, pyqtSignal
 from PyQt5 import uic
 
 
-import astrocabtools.fit_line.src.viewers.gaussDataCreatedListWidget as gausslw
+import astrocabtools.fit_line.src.viewers.modelDataCreatedListWidget as modellw
 import astrocabtools.fit_line.src.viewers.residualsVisualization as ressV
-import astrocabtools.fit_line.src.ui.ui_gaussDataVisualization
+import astrocabtools.fit_line.src.ui.ui_modelDataVisualization
 
 
-class MrsFitLineData(QDialog, astrocabtools.fit_line.src.ui.ui_gaussDataVisualization.Ui_gaussDataVisualization):
+class MrsFitLineData(QDialog, astrocabtools.fit_line.src.ui.ui_modelDataVisualization.Ui_modelDataVisualization):
     savePlot = pyqtSignal(str)
 
     def __init__(self, parent=None ):
         super(MrsFitLineData, self).__init__(parent)
         self.setupUi(self)
 
-        self.gaussDataCreated = []
+        self.modelDataCreated = []
 
         self.residualsV = ressV.MrsResidualsV()
 
         self.saveButton.clicked.connect(self.save_data)
-        self.gaussListWidget.itemDoubleClicked.connect(self.show_residuals)
+        self.modelListWidget.itemDoubleClicked.connect(self.show_residuals)
 
     def add_spectrum_values(self, result, wValues, fValues):
         self.residualsV.set_residuals(result, wValues, fValues)
 
-    def add_gauss_data(self, data):
+    def add_model_data(self, data):
         """
         Add model data to the list widget
         :param str data: data obtained from the model
@@ -43,41 +43,41 @@ class MrsFitLineData(QDialog, astrocabtools.fit_line.src.ui.ui_gaussDataVisualiz
 
 
         it = QListWidgetItem()
-        self.gaussListWidget.addItem(it)
-        widget = gausslw.gaussListwidget(text = data)
-        self.gaussListWidget.setItemWidget(it, widget)
+        self.modelListWidget.addItem(it)
+        widget = modellw.modelListwidget(text = data)
+        self.modelListWidget.setItemWidget(it, widget)
         it.setSizeHint(widget.sizeHint())
 
-        self.gaussDataCreated.append(data)
+        self.modelDataCreated.append(data)
         self.saveButton.setEnabled(True)
 
 
     def add_delimiter_line(self):
         it = QListWidgetItem()
 
-        self.gaussListWidget.addItem(it)
+        self.modelListWidget.addItem(it)
         widget = QFrame()
         widget.setFrameShape(QFrame.HLine)
         it.setSizeHint(widget.sizeHint())
         it.setFlags(Qt.NoItemFlags)
-        self.gaussListWidget.setItemWidget(it, widget)
+        self.modelListWidget.setItemWidget(it, widget)
 
-        self.gaussDataCreated.append("----------------------------------------------------")
+        self.modelDataCreated.append("----------------------------------------------------")
 
-    def delete_gauss_data(self):
+    def delete_model_data(self):
         """
         Delete last model created
         """
         for i in range(2):
-            item = self.gaussListWidget.takeItem(self.gaussListWidget.count()-1)
+            item = self.modelListWidget.takeItem(self.modelListWidget.count()-1)
             del item
         self.residualsV.delete_last_residuals()
-        if self.gaussListWidget.count() == 0:
+        if self.modelListWidget.count() == 0:
             self.saveButton.setEnabled(False)
 
     def delete_all(self):
-        self.gaussListWidget.clear()
-        self.gaussDataCreated.clear()
+        self.modelListWidget.clear()
+        self.modelDataCreated.clear()
         self.residualsV.delete_all_residuals()
         self.saveButton.setEnabled(False)
 
@@ -91,7 +91,7 @@ class MrsFitLineData(QDialog, astrocabtools.fit_line.src.ui.ui_gaussDataVisualiz
         set the row of the item selected to get the residuals
         """
 
-        self.residualsV.set_residuals_index(int(self.gaussListWidget.indexFromItem(item).row()/2))
+        self.residualsV.set_residuals_index(int(self.modelListWidget.indexFromItem(item).row()/2))
         item.setSelected(False)
         self.residualsV.show()
         self.residualsV.open()
@@ -116,7 +116,7 @@ class MrsFitLineData(QDialog, astrocabtools.fit_line.src.ui.ui_gaussDataVisualiz
                 file_fitted = file + "_ajuste"
                 final_file_name = file_fitted + ".txt"
                 with open(final_file_name, 'w+') as dataFile:
-                    for data in self.gaussDataCreated:
+                    for data in self.modelDataCreated:
                         dataFile.write(data + '\n')
                 #Emit signal to main window to save current figure as png
 

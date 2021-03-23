@@ -5,36 +5,38 @@ model
 import numpy as np
 import pandas as pd
 
-from lmfit import Parameters
+from lmfit import Parameters, Model
 
 import sys
 import traceback
 import io
 
+from collections import deque
 
-from .pointsData import pointsData
-from  astrocabtools.fit_line.src.utils.fitting_model_creation import calculate_intercept, calculate_slope, integrated_flux, double_curve_fitting, gauss_fitting_function
+from .gaussPointsData import gaussPointsData
+from .linePointsData import linePointsData
+from .quadraticPointsData import quadraticPointsData
+
+from  astrocabtools.fit_line.src.utils.fitting_model_creation import calculate_intercept, calculate_slope, integrated_flux, gauss_fitting_function, lorentzian_fitting_function, line_fitting_function, quadratic_fitting_function
 
 __all__ = ['doubleGaussModel']
 
 class doubleGaussModel:
 
-    def __init__(self, parent=None):
+    def __init__(self,textLines, typeCont,  parent=None):
         super().__init__()
-        self.__firsGaussFitPoints = pointsData(leftX=0.0,rightX=0.0,topX=0.0,sigma1X=0.0,sigma2X=0.0, leftY=0.0,rightY=0.0,topY=0.0,sigma1Y=0.0,sigma2Y=0.0)
-        self.__secondGaussFitPoints = pointsData(leftX=0.0,rightX=0.0,topX=0.0,sigma1X=0.0,sigma2X=0.0, leftY=0.0,rightY=0.0,topY=0.0,sigma1Y=0.0,sigma2Y=0.0)
-        self.__maxCounter = 9
-        self.__counter = 1
+        if typeCont == 'line':
+            self.__continuumFitPoints = linePointsData(leftX=0.0,rightX=0.0,leftY=0.0,rightY=0.0)
+        elif typeCont == 'quadratic':
+            self.__continuumFitPoints = linePointsData(leftX=0.0,rightX=0.0,leftY=0.0,rightY=0.0, c2=0.0)
+        self.__firstGaussFitPoints = gaussPointsData(leftX=0.0,rightX=0.0,topX=0.0,sigma1X=0.0,sigma2X=0.0,leftY=0.0,rightY=0.0,topY=0.0,sigma1Y=0.0,sigma2Y=0.0)
+        self.__secondGaussFitPoints = gaussPointsData(leftX=0.0,rightX=0.0,topX=0.0,sigma1X=0.0,sigma2X=0.0,leftY=0.0,rightY=0.0,topY=0.0,sigma1Y=0.0,sigma2Y=0.0)
+        self.__gaussDict = {}
+        self.__gaussDeque = deque()
         self.__lines = []
         self.__markers = []
-
-    @property
-    def max_counter(self):
-        return self.__maxCounter
-
-    @property
-    def counter(self):
-        return self.__counter
+        self.__textLines = textLines
+        self.__typeCont = typeCont
 
     @property
     def lines(self):
@@ -58,70 +60,26 @@ class doubleGaussModel:
     def del_line(self, line):
         self.__lines.remove(line)
 
+    def init_data_points(self):
+        continuumFitDict = self.__continuumFitPoints.asdict()
+        gaussFitDict1 = self.__firstGaussFitPoints.asdict(prefix='p1_')
+        gaussFitDict2 = self.__secondGaussFitPoints.asdict('p2_')
+
+
+        gaussFitDict1.update(gaussFitDict2)
+        self.__gaussDict = gaussFitDict1.update(continuumFitDict) or gaussFitDict1
+
+        self.__textLines = iter(self.__textLines)
+
     def add_data_points(self, xdata, ydata):
         """ Update specific coordinate values based on order value of counter
         :param float xdata: X coordinate
         :param float ydata: Y coordinate
         """
 
-        if self.__counter==1:
-            self.__firsGaussFitPoints.leftX = xdata
-            self.__firsGaussFitPoints.leftY = ydata
+        self.__gaussDeque.append((xdata, ydata))
 
-            self.__secondGaussFitPoints.leftX = xdata
-            self.__secondGaussFitPoints.leftY = ydata
-            self.__counter+= 1
-            return "Mark second continium"
-
-        elif self.__counter==2:
-
-            self.__firsGaussFitPoints.rightX = xdata
-            self.__firsGaussFitPoints.rightY = ydata
-
-            self.__secondGaussFitPoints.rightX = xdata
-            self.__secondGaussFitPoints.rightY = ydata
-            self.__counter+= 1
-            return "Mark first sigma from first gaussian"
-
-        elif self.__counter==3:
-            self.__firsGaussFitPoints.sigma1X = xdata
-            self.__firsGaussFitPoints.sigma1Y = ydata
-            self.__counter+= 1
-            return "Mark second sigma from first gaussian"
-
-        elif self.__counter==4:
-            self.__firsGaussFitPoints.sigma2X = xdata
-            self.__firsGaussFitPoints.sigma2Y = ydata
-            self.__counter+= 1
-            return "Mark top (center and height) from first gaussian"
-
-        elif self.__counter==5:
-
-            self.__firsGaussFitPoints.topX = xdata
-            self.__firsGaussFitPoints.topY = ydata
-            self.__counter+= 1
-            return "Mark first sigma from second gaussian"
-
-        elif self.__counter==6:
-
-            self.__secondGaussFitPoints.sigma1X = xdata
-            self.__secondGaussFitPoints.sigma1Y = ydata
-            self.__counter+= 1
-            return "Mark second sigma from second gaussian"
-
-        elif self.__counter==7:
-
-            self.__secondGaussFitPoints.sigma2X = xdata
-            self.__secondGaussFitPoints.sigma2Y = ydata
-            self.__counter+= 1
-            return "Mark top (center and height) from second gaussian"
-
-        else:
-
-            self.__secondGaussFitPoints.topX = xdata
-            self.__secondGaussFitPoints.topY = ydata
-            self.__counter+= 1
-            return ""
+        return self.__textLines
 
     def _generate_initial_gauss_model(self,wavelengthValues, h, c, sigma):
         y_values = []
@@ -129,11 +87,15 @@ class doubleGaussModel:
             y_values.append(gauss_fitting_function(x, h, c, sigma))
         return y_values
 
-    def draw_gauss_curve_fit(self, path, wavelength, flux):
+    def draw_model_fit(self, path, wavelength, flux):
         """ Generate the gauss model, draw the model results based on x value range
         and update the table that shows the results parameters"""
+        if self.__typeCont == 'quadratic':
+            self.__gaussDeque.append(1)
+        for i, key in enumerate(self.__gaussDict.keys()):
+            self.__gaussDict[key] = self.__gaussDeque[i]
         #Obtain the wavelength values on given range
-        wavelengthValues = wavelength[(wavelength >= self.__firsGaussFitPoints.leftX) & (wavelength <= self.__firsGaussFitPoints.rightX)]
+        wavelengthValues = wavelength[(wavelength >= self.__gaussDict['left'][0]) & (wavelength <= self.__gaussDict['right'][0])]
         #Obtain de indexes from the initial wavelength array
         #based on the min a max values of the slice made previously
         index1 = np.where(wavelength == np.amin(wavelengthValues))
@@ -141,42 +103,97 @@ class doubleGaussModel:
         #Obtain the flux values between the indexes obtained previously
         fluxValues = flux[index1[0][0]:(index2[0][0]+1)]
 
-        initial_y1_values = self._generate_initial_gauss_model(wavelengthValues, self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.,
-            self.__firsGaussFitPoints.topX, abs(self.__firsGaussFitPoints.sigma2X - self.__firsGaussFitPoints.sigma1X)/2.355)
+        gauss1 = Model(gauss_fitting_function, prefix='p1_', name= 'model1')
+        gauss2 = Model(gauss_fitting_function, prefix='p2_', name= 'model2')
 
-        initial_y2_values = self._generate_initial_gauss_model(wavelengthValues, self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.,
-            self.__secondGaussFitPoints.topX, abs(self.__secondGaussFitPoints.sigma2X - self.__secondGaussFitPoints.sigma1X)/2.355)
+        #Check type of continuum used
+        if self.__typeCont == 'line':
+            line = Model(line_fitting_function, name= 'continuum_fitting_function')
 
-        guesses = Parameters()
-        guesses.add(name='a', value = calculate_intercept(calculate_slope(self.__firsGaussFitPoints.leftX,
-            self.__firsGaussFitPoints.leftY,self.__firsGaussFitPoints.rightX,self.__firsGaussFitPoints.rightY), self.__firsGaussFitPoints.leftX, self.__firsGaussFitPoints.leftY))
-        guesses.add(name='b', value = calculate_slope(self.__firsGaussFitPoints.leftX,
-            self.__firsGaussFitPoints.leftY,self.__firsGaussFitPoints.rightX,self.__firsGaussFitPoints.rightY))
+            gauss_model = gauss1 + gauss2 + line
 
-        guesses.add(name='h1', value = self.__firsGaussFitPoints.topY - (self.__firsGaussFitPoints.leftY + self.__firsGaussFitPoints.rightY)/2.)
-        guesses.add(name='c1', value = self.__firsGaussFitPoints.topX)
-        guesses.add(name='sigma1', value = abs(self.__firsGaussFitPoints.sigma2X-self.__firsGaussFitPoints.sigma1X)/2.355)
+            slope = calculate_slope(self.__gaussDict['left'][0], self.__gaussDict['left'][1],self.__gaussDict['right'][0], self.__gaussDict['right'][1])
 
-        guesses.add(name='h2', value = self.__secondGaussFitPoints.topY - (self.__secondGaussFitPoints.leftY + self.__secondGaussFitPoints.rightY)/2.)
-        guesses.add(name='c2', value = self.__secondGaussFitPoints.topX)
-        guesses.add(name='sigma2', value = abs(self.__secondGaussFitPoints.sigma2X-self.__secondGaussFitPoints.sigma1X)/2.355)
-        #Obtain the model
-        result = double_curve_fitting(wavelengthValues, fluxValues, guesses)
-        #Update table of results parameters
-        resultText = "Path: {}".format(path)
-        resultText = resultText + "\n" + \
-            "First gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h1'].value), str(result.params['c1'].value), str(result.params['sigma1'].value))
-        resultText = resultText + "\n" + \
-            "Second gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['h2'].value), str(result.params['c2'].value), str(result.params['sigma2'].value))
-        resultText = resultText + "\n" + "Line model: {} + {} * x".format(str(result.params['a'].value), str(result.params['b'].value))
-        resultText = resultText + "\n" + "First guassian integrated flux : "+ " = " + str(integrated_flux(result.params['h1'].value, result.params['sigma1'].value))
+            params = gauss_model.make_params(p1_h = self.__gaussDict['p1_top'][1] - (self.__gaussDict['left'][1] + self.__gaussDict['right'][1])/2.,
+                                             p1_c = self.__gaussDict['p1_top'][0],
+                                             p1_sigma=abs(self.__gaussDict['p1_sigma2'][0]-self.__gaussDict['p1_sigma1'][0])/2.355,
+                                             p2_h=self.__gaussDict['p2_top'][1] - (self.__gaussDict['left'][1] + self.__gaussDict['right'][1])/2.,
+                                             p2_c=self.__gaussDict['p2_top'][0],
+                                             p2_sigma=abs(self.__gaussDict['p2_sigma2'][0]-self.__gaussDict['p2_sigma1'][0])/2.355,
+                                             a=calculate_intercept(slope, self.__gaussDict['left'][0], self.__gaussDict['left'][1]),
+                                             b=slope)
 
 
-        gaussFitResultList = [key + " = " + str(result.params[key].value) for key in result.params]
+            init = gauss_model.eval(params, x=wavelengthValues)
+            result = gauss_model.fit(fluxValues, params, x=wavelengthValues)
 
-        for resultParams in gaussFitResultList:
-            if resultParams.startswith('h2'):
-                resultText = resultText + "\n" + "Second guassian integrated flux : "+ " = " + str(integrated_flux(result.params['h2'].value, result.params['sigma2'].value))
-            resultText = resultText + "\n" + resultParams
-        resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
-        return result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values
+            #Obtain the initial values of the gaussian model to be drawn
+            initial_y1_values = self._generate_initial_gauss_model(wavelengthValues, self.__gaussDict['p1_top'][1] - (self.__gaussDict['left'][1] + self.__gaussDict['p1_top'][0])/2., self.__gaussDict['p1_top'][0], abs(self.__gaussDict['p1_sigma2'][0] - self.__gaussDict['p1_sigma1'][0])/2.355)
+
+            initial_y2_values = self._generate_initial_gauss_model(wavelengthValues, self.__gaussDict['p2_top'][1] - (self.__gaussDict['left'][1] + self.__gaussDict['p2_top'][0])/2., self.__gaussDict['p2_top'][0], abs(self.__gaussDict['p2_sigma2'][0] - self.__gaussDict['p2_sigma1'][0])/2.355)
+
+
+            #Update table of results parameters
+            resultText = "Path: {}".format(path)
+            resultText = resultText + "\n" + \
+                "First gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['p1_h'].value), str(result.params['p1_c'].value), str(result.params['p1_sigma'].value))
+            resultText = resultText + "\n" + \
+                "Second gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['p2_sigma'].value), str(result.params['p2_sigma'].value), str(result.params['p2_sigma'].value))
+            resultText = resultText + "\n" + "Line model: {} + {} * x".format(str(result.params['a'].value), str(result.params['b'].value))
+            resultText = resultText + "\n" + "First guassian integrated flux : "+ " = " + str(integrated_flux(result.params['p1_sigma'].value, result.params['p1_sigma'].value, 'gauss'))
+
+
+            gaussFitResultList = [key + " = " + str(result.params[key].value) for key in result.params]
+
+            for resultParams in gaussFitResultList:
+                if resultParams.startswith('p2_h'):
+                    resultText = resultText + "\n" + "Second guassian integrated flux : "+ " = " + str(integrated_flux(result.params['p2_h'].value, result.params['p2_sigma'].value, 'gauss'))
+                resultText = resultText + "\n" + resultParams
+            resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
+            return result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values
+
+        elif self.__typeCont == 'quadratic':
+            quadratic = Model(quadratic_fitting_function, name = 'continuum_fitting_function')
+
+            gauss_model = gauss1 + gauss2 + quadratic
+
+            slope = calculate_slope(self.__gaussDict['left'][0], self.__gaussDict['left'][1],self.__gaussDict['right'][0], self.__gaussDict['right'][1])
+
+            params = gauss_model.make_params(p1_h = self.__gaussDict['p1_top'][1] - (self.__gaussDict['left'][1] + self.__gaussDict['right'][1])/2.,
+                                             p1_c = self.__gaussDict['p1_top'][0],
+                                             p1_sigma=abs(self.__gaussDict['p1_sigma2'][0]-self.__gaussDict['p1_sigma1'][0])/2.355,
+                                             p2_h=self.__gaussDict['p2_top'][1] - (self.__gaussDict['left'][1] + self.__gaussDict['right'][1])/2.,
+                                             p2_c=self.__gaussDict['p2_top'][0],
+                                             p2_sigma=abs(self.__gaussDict['p2_sigma2'][0]-self.__gaussDict['p2_sigma1'][0])/2.355,
+                                             a=calculate_intercept(slope, self.__gaussDict['left'][0], self.__gaussDict['left'][1]),
+                                             b=slope,
+                                             c2=1)
+
+
+            init = gauss_model.eval(params, x=wavelengthValues)
+            result = gauss_model.fit(fluxValues, params, x=wavelengthValues)
+
+            #Obtain the initial values of the gaussian model to be drawn
+            initial_y1_values = self._generate_initial_gauss_model(wavelengthValues, self.__gaussDict['p1_top'][1] - (self.__gaussDict['left'][1] + self.__gaussDict['p1_top'][0])/2., self.__gaussDict['p1_top'][0], abs(self.__gaussDict['p1_sigma2'][0] - self.__gaussDict['p1_sigma1'][0])/2.355)
+
+            initial_y2_values = self._generate_initial_gauss_model(wavelengthValues, self.__gaussDict['p2_top'][1] - (self.__gaussDict['left'][1] + self.__gaussDict['p2_top'][0])/2., self.__gaussDict['p2_top'][0], abs(self.__gaussDict['p2_sigma2'][0] - self.__gaussDict['p2_sigma1'][0])/2.355)
+
+
+            #Update table of results parameters
+            resultText = "Path: {}".format(path)
+            resultText = resultText + "\n" + \
+                "First gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['p1_h'].value), str(result.params['p1_c'].value), str(result.params['p1_sigma'].value))
+            resultText = resultText + "\n" + \
+                "Second gauss model: {} * e ** ((x-{})**2/(-2*{}**2))".format(str(result.params['p2_sigma'].value), str(result.params['p2_sigma'].value), str(result.params['p2_sigma'].value))
+            resultText = resultText + "\n" + "Quadratic model: {} + {} * x + {}*x**2".format(str(result.params['a'].value), str(result.params['b'].value), str(results.params['c2'].value))
+            resultText = resultText + "\n" + "First gaussian integrated flux : "+ " = " + str(integrated_flux(result.params['p1_sigma'].value, result.params['p1_sigma'].value, 'gauss'))
+
+
+            gaussFitResultList = [key + " = " + str(result.params[key].value) for key in result.params]
+
+            for resultParams in gaussFitResultList:
+                if resultParams.startswith('p2_h'):
+                    resultText = resultText + "\n" + "Second gaussian integrated flux : "+ " = " + str(integrated_flux(result.params['p2_h'].value, result.params['p2_sigma'].value, 'gauss'))
+                resultText = resultText + "\n" + resultParams
+            resultText = resultText + "\n" + "Chi-square" + " = " + str(result.chisqr)
+            return result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values

@@ -51,9 +51,9 @@ def obtain_sub_band(value, channell):
                   return ['3A', '3B'], [11.47, 13.25], [13.67, 15.80]
           elif 13.67 < value <= 15.80:
               if value < 15.30:
-                  return ['3A'], [13.67], [15.80]
+                  return ['3B'], [13.67], [15.80]
               else:
-                  return ['3A', '3B'], [13.67, 15.30], [15.80, 18.24]
+                  return ['3B', '3C'], [13.67, 15.30], [15.80, 18.24]
           else:
               return ['3C'], [15.30], [18.24]
 

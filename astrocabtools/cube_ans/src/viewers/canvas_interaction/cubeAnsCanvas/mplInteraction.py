@@ -268,7 +268,7 @@ class MplInteraction(object):
                          linewidth = 5, linestyle= '-')
 
         self._rectangle_selector = RectangleSelector(ax, self._callback_rectangle,
-                                    drawtype= 'box', useblit= True, rectprops= rectprops,
+                                    drawtype= 'box', useblit= False, rectprops= rectprops,
                                     button= [1,3], minspanx = 5, minspany=5,
                                     spancoords='pixels', interactive=True)
 
@@ -279,7 +279,7 @@ class MplInteraction(object):
                          linewidth = 5, linestyle= '-')
 
         self._ellipse_selector = EllipseSelector(ax, self._callback_ellipse,
-                                    drawtype= 'box', useblit= True, rectprops= elliprops,
+                                    drawtype= 'box', useblit= False, rectprops= elliprops,
                                     button= [1,3], minspanx = 5, minspany=5,
                                         spancoords='pixels', interactive=True)
 
@@ -352,7 +352,6 @@ class MplInteraction(object):
         :param int bAxis: short axis value
         """
         self.connect_ellipse()
-        self.figure.canvas.clearFocus()
 
         xmax = centerX + aAxis/2
         xmin = centerX - aAxis/2
@@ -365,6 +364,7 @@ class MplInteraction(object):
         self.ellipseStats.aAxis = aAxis
         self.ellipseStats.bAxis = bAxis
 
+        pub.sendMessage('ellipseUpdateCoordinates', cx = centerX, cy =centerY, aAxis = aAxis, bAxis= bAxis)
         pub.sendMessage('ellipseSelected')
 
     def redraw_ellipse_without_interaction(self):
@@ -437,8 +437,10 @@ class MplInteraction(object):
         and instead of starting in 0, it starts in -0.5
         """
 
-        self.initial_xlim = (-0.5, xlim+0.5)
-        self.initial_ylim = (ylim+0.5, -0.5)
+        #self.initial_xlim = (1.0, xlim+1.0)
+        #self.initial_ylim = (1.0, ylim+1.0)
+        self.initial_xlim = xlim
+        self.initial_ylim = ylim
         self.twin_initial_xlim = ((self.initial_xlim[0]- cubeXCPix)*cubeRAValue*3600 + cubeXCRVal*3600, (self.initial_xlim[1]- cubeXCPix)*cubeRAValue*3600 + cubeXCRVal*3600)
         self.twin_initial_ylim = ((self.initial_ylim[0]- cubeYCPix)*cubeDValue*3600 + cubeYCRVal*3600, (self.initial_ylim[1]- cubeYCPix)*cubeDValue*3600 + cubeYCRVal*3600)
 

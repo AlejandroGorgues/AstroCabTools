@@ -5,6 +5,7 @@ __all__=["slice_to_wavelength", "wavelength_to_slice"]
 
 def slice_to_wavelength(cube_slice, cPix, cWValue, cCRVal):
 
+    #print(round(((cube_slice+1) - cPix)*cWValue + cCRVal, 5))
     return round(((cube_slice+1) - cPix)*cWValue + cCRVal, 5)
 
 def wavelength_to_slice(wavelength, cPix, cWValue, cCRVal):

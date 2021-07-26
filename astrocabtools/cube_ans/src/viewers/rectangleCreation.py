@@ -52,8 +52,10 @@ class RectangleCreation(QDialog, astrocabtools.cube_ans.src.ui.ui_rectangleCreat
                 x_center_value = float(x_center)
                 y_center_value = float(y_center)
 
-                left_bottom = (x_center_value - (width_value-1)/2, y_center_value - (height_value-1)/2)
-                right_top = (x_center_value + (width_value-1)/2, y_center_value + (height_value-1)/2)
+                #left_bottom = (x_center_value - (width_value-1)/2, y_center_value - (height_value-1)/2)
+                #right_top = (x_center_value + (width_value-1)/2, y_center_value + (height_value-1)/2)
+                left_bottom = (x_center_value - width_value/2, y_center_value - height_value/2)
+                right_top = (x_center_value + width_value/2, y_center_value + height_value/2)
                 pub.sendMessage('rectangleCreation', left_bottom = left_bottom, right_top = right_top)
 
             else:
@@ -83,7 +85,8 @@ class RectangleCreation(QDialog, astrocabtools.cube_ans.src.ui.ui_rectangleCreat
                 y_bottom_value = float(y_bottom)
 
                 left_bottom = (x_bottom_value, y_bottom_value)
-                right_top = (x_bottom_value + (width_value-1), y_bottom_value + (height_value-1))
+                #right_top = (x_bottom_value + (width_value-1), y_bottom_value + (height_value-1))
+                right_top = (x_bottom_value + width_value, y_bottom_value + height_value)
 
                 pub.sendMessage('rectangleCreation', left_bottom = left_bottom, right_top = right_top)
 

@@ -168,6 +168,8 @@ class Ui_cube_ans(object):
         self.actionCreation_Ellipse.setObjectName("actionCreation_Ellipse")
         self.actionZoom_reset = QtWidgets.QAction(cube_ans)
         self.actionZoom_reset.setObjectName("actionZoom_reset")
+        self.actionEllipse_coordinates = QtWidgets.QAction(cube_ans)
+        self.actionEllipse_coordinates.setObjectName("actionEllipse_coordinates")
         self.menuFile.addAction(self.actionOpen)
         self.menuTools.addAction(self.actionUnselect)
         self.menuTools.addAction(self.actionRectangle)
@@ -179,6 +181,7 @@ class Ui_cube_ans(object):
         self.menuTools.addAction(self.actionRectangle_coordinates)
         self.menuTools.addAction(self.actionCreation_Rectangle)
         self.menuTools.addSeparator()
+        self.menuTools.addAction(self.actionEllipse_coordinates)
         self.menuTools.addAction(self.actionCreation_Ellipse)
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionSpectrum_visualization)
@@ -238,4 +241,5 @@ class Ui_cube_ans(object):
         self.actionUnselect.setText(_translate("cube_ans", "Unselect current tool"))
         self.actionCreation_Ellipse.setText(_translate("cube_ans", "Creation of Ellipse parameterized"))
         self.actionZoom_reset.setText(_translate("cube_ans", "Zoom reset"))
+        self.actionEllipse_coordinates.setText(_translate("cube_ans", "Ellipse coordinates"))
 

@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>sub_viz</class>
+ <widget class="QMainWindow" name="sub_viz">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1100</width>
+    <height>800</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>sub_viz</string>
+  </property>
+  <widget class="QWidget" name="widget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <property name="verticalSpacing">
+         <number>1</number>
+        </property>
+        <item row="0" column="2">
+         <widget class="QLabel" name="sliceMaximumValue">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="3">
+         <widget class="QGroupBox" name="spaceCubePlot">
+          <property name="title">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="sliceMinimumValue">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1100</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSavespng"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <widget class="QMenu" name="menuShow_figure">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Show figure</string>
+     </property>
+     <addaction name="actionDrawRectangle"/>
+     <addaction name="actionDrawEllipse"/>
+    </widget>
+    <addaction name="actionSet_current_wavelength"/>
+    <addaction name="actionRectangle"/>
+    <addaction name="actionEllipse"/>
+    <addaction name="actionInteractiveOp"/>
+    <addaction name="actionManage_style"/>
+    <addaction name="separator"/>
+    <addaction name="actionRectangle_coordinates"/>
+    <addaction name="actionCreation_Rectangle"/>
+    <addaction name="separator"/>
+    <addaction name="actionEllipse_coordinates"/>
+    <addaction name="actionCreation_Ellipse"/>
+    <addaction name="separator"/>
+    <addaction name="actionSpectrum_visualization"/>
+    <addaction name="separator"/>
+    <addaction name="actionBackground_subtraction"/>
+    <addaction name="menuShow_figure"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuTools"/>
+  </widget>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionRectangle">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Rectangle</string>
+   </property>
+  </action>
+  <action name="actionZoom">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Zoom</string>
+   </property>
+  </action>
+  <action name="actionPan">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pan</string>
+   </property>
+  </action>
+  <action name="actionMinMax_Interval">
+   <property name="text">
+    <string>MinMax Interval</string>
+   </property>
+  </action>
+  <action name="actionZScale_Interval">
+   <property name="text">
+    <string>ZScale Interval</string>
+   </property>
+  </action>
+  <action name="actionSqrt">
+   <property name="text">
+    <string>Sqrt</string>
+   </property>
+  </action>
+  <action name="actionLog">
+   <property name="text">
+    <string>Log</string>
+   </property>
+  </action>
+  <action name="actionLinear">
+   <property name="text">
+    <string>Linear</string>
+   </property>
+  </action>
+  <action name="actionGray">
+   <property name="text">
+    <string>Gray</string>
+   </property>
+  </action>
+  <action name="actionAccent">
+   <property name="text">
+    <string>Accent</string>
+   </property>
+  </action>
+  <action name="actionHeat">
+   <property name="text">
+    <string>Heat</string>
+   </property>
+  </action>
+  <action name="actionRainbow">
+   <property name="text">
+    <string>Rainbow</string>
+   </property>
+  </action>
+  <action name="actionCoolWarm">
+   <property name="text">
+    <string>CoolWarm</string>
+   </property>
+  </action>
+  <action name="actionRectangle_coordinates">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Rectangle coordinates</string>
+   </property>
+  </action>
+  <action name="actionCreation_Rectangle">
+   <property name="text">
+    <string>Creation of Rectangle parameterized</string>
+   </property>
+  </action>
+  <action name="actionSpectrum_visualization">
+   <property name="text">
+    <string>Spectrum visualization</string>
+   </property>
+  </action>
+  <action name="actionEllipse">
+   <property name="text">
+    <string>Ellipse</string>
+   </property>
+  </action>
+  <action name="actionBackground_subtraction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Background subtraction</string>
+   </property>
+  </action>
+  <action name="actionUnselect">
+   <property name="text">
+    <string>Unselect current tool</string>
+   </property>
+  </action>
+  <action name="actionCreation_Ellipse">
+   <property name="text">
+    <string>Creation of Ellipse parameterized</string>
+   </property>
+  </action>
+  <action name="actionInteractiveOp">
+   <property name="text">
+    <string>Interactive operations (zoom and pan)</string>
+   </property>
+  </action>
+  <action name="actionApply_style">
+   <property name="text">
+    <string>Apply style </string>
+   </property>
+  </action>
+  <action name="actionManage_style">
+   <property name="text">
+    <string>Manage style</string>
+   </property>
+  </action>
+  <action name="actionSet_current_wavelength">
+   <property name="text">
+    <string>Set current wavelength</string>
+   </property>
+  </action>
+  <action name="actionDrawRectangle">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Rectangle</string>
+   </property>
+  </action>
+  <action name="actionDrawEllipse">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Ellipse</string>
+   </property>
+  </action>
+  <action name="actionSavespng">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Saves as png</string>
+   </property>
+  </action>
+  <action name="actionEllipse_coordinates">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Ellipse coordinates</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -260,7 +260,7 @@ class MplInteraction(object):
 
             ax.set_ylim((self._spectrum_initial_ylim[0],\
                          self._spectrum_initial_ylim[1]))
-        self._draw_idle()
+        self._draw()
 
     def clear_elements_axes(self):
         self._rectangle_interactions = None
@@ -286,10 +286,6 @@ class MplInteraction(object):
                 y_axes.add(ax)
 
         return x_axes, y_axes
-
-    def _draw_idle(self):
-        """Upate the altered figured, but not automatically re-drawn"""
-        self.canvas.draw_idle()
 
     def _draw(self):
         """Conveninent method to redraw the figure"""

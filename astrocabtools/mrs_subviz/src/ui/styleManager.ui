@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>styleManager</class>
+ <widget class="QDialog" name="styleManager">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>105</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>styleManager</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Subband selected</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <layout class="QFormLayout" name="formLayout_3">
+       <property name="rowWrapPolicy">
+        <enum>QFormLayout::WrapAllRows</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="stretchLabel">
+         <property name="text">
+          <string>Stretch</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="stretchComboBox">
+         <item>
+          <property name="text">
+           <string>Linear</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Sqrt</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Log</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <layout class="QFormLayout" name="formLayout">
+       <property name="rowWrapPolicy">
+        <enum>QFormLayout::WrapAllRows</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="colorLabel">
+         <property name="text">
+          <string>Color</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="colorComboBox">
+         <item>
+          <property name="text">
+           <string>Gray</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Accent</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Heat</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Rainbow</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CoolWarm</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="1">
+      <layout class="QFormLayout" name="formLayout_4">
+       <property name="rowWrapPolicy">
+        <enum>QFormLayout::WrapAllRows</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="scaleLabel">
+         <property name="text">
+          <string>Scale</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="scaleComboBox">
+         <item>
+          <property name="text">
+           <string>MinMax</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ZScale</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="subbandComboBox">
+       <item>
+        <property name="text">
+         <string>Select subband</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1B</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1C</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2B</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2C</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3B</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3C</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4B</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4C</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QCheckBox" name="allSubbandsCheckBox">
+       <property name="text">
+        <string>Select all subbands</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

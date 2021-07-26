@@ -77,7 +77,7 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
         self.figureData["type"] = typeFigure
 
         if self.figureData["type"] == "rectangle":
-            self.rangeSelect.get_rectangle_data(centerX = self.figureData["data"][1][0], centerY = self.figureData["data"][1][1],
+            self.rangeSelect.get_rectangle_data(x0 = self.figureData["data"][0][0], y0 = self.figureData["data"][0][1],
                                             width = self.figureData["data"][0][2], height  = self.figureData["data"][0][3])
         else:
             self.rangeSelect.get_ellipse_data(centerX = self.figureData["data"][1][0], centerY = self.figureData["data"][1][1],
@@ -115,7 +115,7 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
 
         if line is None:
 
-            self.draw_plot_axes(r'$Wavelength(\mu m)$', r'$mJy$')
+            self.draw_plot_axes()
 
             self.ax.set_visible(True)
 
@@ -126,11 +126,12 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
             self.set_interface_state(True)
 
         else:
-            line.set_data(wValues, fValues)
+            line.remove()
+            del line
+            self.ax.plot(wValues, fValues, 'b-', gid="aperture", label="Aperture spectrum")
 
 
         self.spectrumFigure.pan_zoom.set_rectangle_yAxis_limits(self.ax.get_ylim()[0], self.ax.get_ylim()[1])
-        #self.spectrumFigure.pan_zoom.set_initial_limits((min(wValues)*0.9, max(wValues)*1.1), (min(fValues)*0.9, max(fValues)*1.1))
         self.spectrumFigure.pan_zoom.set_initial_limits(self.ax.get_xlim(), self.ax.get_ylim())
 
         self.spectrumFigure.set_tight_layout(True)
@@ -182,8 +183,12 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
         self.rangeSelect.draw_image(iw, ew, data)
 
         if self.figureData["type"] == "rectangle":
-            self.rangeSelect.get_rectangle_data(centerX = self.figureData["data"][1][0], centerY = self.figureData["data"][1][1],
-                                            width = self.figureData["data"][0][2], height  = self.figureData["data"][0][3])
+            #Because the yaxis goes from min value to max value insted of max to min,
+            #the y0 value must be the sum of the width + the lower y value, and the
+            #height be negative to be able to draw the rectangle
+
+            self.rangeSelect.get_rectangle_data(x0 = self.figureData["data"][0][0], y0 = self.figureData["data"][0][1]+ self.figureData["data"][0][3],
+                                            width = self.figureData["data"][0][2], height  = -1*self.figureData["data"][0][3])
         else:
             self.rangeSelect.get_ellipse_data(centerX = self.figureData["data"][1][0], centerY = self.figureData["data"][1][1],
                                             aAxis = self.figureData["data"][0][2], bAxis = self.figureData["data"][0][3])
@@ -207,7 +212,7 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
                     spectrum_structure = {"wValues" : self.wValues,
                             "wUnits" : wUnits,
                             "fValues" : self.spectra_dict[spectrumType],
-                            "fUnits": "mJy",
+                            "fUnits": fUnits,
                             "redshift": redshift,
                             "path": self.path}
                     #Check if fitLine is already loaded to prevent to create a new one
@@ -231,13 +236,13 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
             if "Background spectrum" in self.spectra_dict:
 
                 spectra_txt_dict["Wavelength("+self.wUnits+")"]= self.wValues
-                spectra_txt_dict["Flux(mJy)"]= self.spectra_dict["Aperture spectrum"]
-                spectra_txt_dict["Background(mJy)"]=self.spectra_dict["Background spectrum"]
+                spectra_txt_dict["Flux("+self.fUnits+")"]= self.spectra_dict["Aperture spectrum"]
+                spectra_txt_dict["Background("+self.fUnits+")"]=self.spectra_dict["Background spectrum"]
                 spectra_txt_dict["Background subtracted spectrum(mJy)"]=self.spectra_dict["Background subtracted spectrum"]
             else:
 
                 spectra_txt_dict["Wavelength("+self.wUnits+")"]= self.wValues
-                spectra_txt_dict["Flux(mJy)"]=self.spectra_dict["Aperture spectrum"]
+                spectra_txt_dict["Flux("+self.fUnits+")"]=self.spectra_dict["Aperture spectrum"]
 
             df_spectra = pd.DataFrame(data=spectra_txt_dict)
 
@@ -245,8 +250,9 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
 
             self.spectrumFigure.savefig(name[0], dpi = 600, bbox_inches="tight")
 
-            np.savetxt(path_file_txt, df_spectra.values, delimiter="     ", \
-                       header=' '.join(df_spectra.columns.values.tolist()))
+            df_spectra.to_csv(path_file_txt, sep=' ', index=False)
+            #np.savetxt(path_file_txt, df_spectra.values, delimiter="     ", \
+            #           header='             '.join(df_spectra.columns.values.tolist()), comments='')
         except Exception as e:
             self.show_file_extension_alert()
 
@@ -292,14 +298,14 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
 
         return min_yValue, max_yValue
 
-    def draw_plot_axes(self, wUnits, fUnits):
+    def draw_plot_axes(self):
 
         #Discard the old graph
         self.ax.clear()
 
         #Set text and range of the axes
-        self.ax.set_xlabel(wUnits)
-        self.ax.set_ylabel(fUnits)
+        self.ax.set_xlabel(r'$Wavelength(\mu m)$')
+        self.ax.set_ylabel(r'$mJy$')
 
         self.ax.grid(True)
 

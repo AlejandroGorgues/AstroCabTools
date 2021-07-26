@@ -28,6 +28,8 @@ class WavelengthRangeSelection(QDialog, astrocabtools.cube_ans.src.ui.ui_wavelen
 
         self.create_spectrum_range_plot()
 
+        self.zoomResetButton.clicked.connect(self.zoom_reset)
+
     def create_spectrum_range_plot(self):
 
         self.imageRangeFigure, self.imageRangeFigure.canvas = figure_pz()
@@ -38,10 +40,10 @@ class WavelengthRangeSelection(QDialog, astrocabtools.cube_ans.src.ui.ui_wavelen
 
         self.waveSelect_vbox.addWidget(self.imageRangeFigure.canvas)
 
-    def get_rectangle_data(self, centerX, centerY, width, height):
+    def get_rectangle_data(self, x0, y0, width, height):
         self.imageRangeFigure.pan_zoom.hide_ellipse()
         self.imageRangeFigure.pan_zoom.show_rectangle()
-        self.imageRangeFigure.pan_zoom.draw_rectangle(centerX, centerY, width, height)
+        self.imageRangeFigure.pan_zoom.draw_rectangle(x0, y0, width, height)
 
     def get_ellipse_data(self, centerX, centerY, aAxis, bAxis):
         self.imageRangeFigure.pan_zoom.hide_rectangle()
@@ -64,9 +66,13 @@ class WavelengthRangeSelection(QDialog, astrocabtools.cube_ans.src.ui.ui_wavelen
         #Set color map of the image to be gray for better visualization of the image
         plt.set_cmap(plt.get_cmap(("gray")))
 
-        self.ax.imshow(data)
+        self.ax.imshow(data, origin='lower', aspect='auto', extent=[1, data.shape[0]+1, 1, data.shape[1]+1])
 
-        self.imageRangeFigure.canvas.draw()
+        self.imageRangeFigure.pan_zoom.set_initial_limits(data.shape[0], data.shape[1])
+        self.imageRangeFigure.pan_zoom.zoom_reset()
+
+    def zoom_reset(self):
+        self.imageRangeFigure.pan_zoom.zoom_reset()
 
     def clear_data(self):
         self.ax.set_visible(False)

@@ -140,26 +140,26 @@ class MplInteraction(object):
             self._ellipse.set_visible(True)
 
 
-    def draw_rectangle(self, centerX, centerY, width, height):
+    def draw_rectangle(self, x0, y0, width, height):
         for ax in self.figure.axes:
             patch = next((patch for patch in ax.patches if patch == self._rectangle), None)
 
             #If patch exist in the ax, just edit the parameters
             if patch is not None:
-                self._rectangle.set_xy([abs(width/2 - centerX), abs(height/2 - centerY)])
+                self._rectangle.set_xy([x0, y0])
                 self._rectangle.set_width(width)
                 self._rectangle.set_height(height)
 
             #If patch does not exist in ax but self._rectangle is not None, edit and add the patch
             elif patch is None and self._rectangle is not None:
-                self._rectangle.set_xy([abs(width/2 - centerX), abs(height/2 - centerY)])
+                self._rectangle.set_xy([x0, y0])
                 self._rectangle.set_width(width)
                 self._rectangle.set_height(height)
                 ax.add_patch(self._rectangle)
 
             #If patch does not exist in ax and self._rectangle is None, create it and add it
             else:
-                self._rectangle = Rectangle([abs(width/2 - centerX), abs(height/2 - centerY)],
+                self._rectangle = Rectangle([x0, y0],
                                             width=width, height=height, edgecolor = "red",
                                             linewidth= 3, fill = False, alpha = 0.3)
                 ax.add_patch(self._rectangle)
@@ -197,6 +197,26 @@ class MplInteraction(object):
     def hide_ellipse(self):
         if self._ellipse is not None:
             self._ellipse.set_visible(False)
+
+    def set_initial_limits(self, xlim, ylim):
+        """ Set initial limits of the representation to use it when the zoom reset button is
+        pushed
+        :param tuple xlim: limit values on x axis
+        :param tuple ylim: limit values on y axis
+        """
+        self._cube_initial_xlim = (1, xlim+1)
+        self._cube_initial_ylim = (ylim+1, 1)
+
+    def zoom_reset(self):
+
+        for ax in self.figure.axes:
+            ax.set_xlim((self._cube_initial_xlim[0], \
+                         self._cube_initial_xlim[1]))
+
+            ax.set_ylim((self._cube_initial_ylim[0],\
+                         self._cube_initial_ylim[1]))
+
+        self._draw()
 
     @property
     def figure(self):

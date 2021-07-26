@@ -26,6 +26,9 @@ class Ui_wavelengthRangeSelection(object):
         self.waveSelect_vbox = QtWidgets.QVBoxLayout()
         self.waveSelect_vbox.setObjectName("waveSelect_vbox")
         self.verticalLayout_3.addLayout(self.waveSelect_vbox)
+        self.zoomResetButton = QtWidgets.QPushButton(self.groupBox)
+        self.zoomResetButton.setObjectName("zoomResetButton")
+        self.verticalLayout_3.addWidget(self.zoomResetButton)
         self.gridLayout.addWidget(self.groupBox, 1, 0, 1, 1)
         self.rangeLabel = QtWidgets.QLabel(wavelengthRangeSelection)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
@@ -45,4 +48,5 @@ class Ui_wavelengthRangeSelection(object):
     def retranslateUi(self, wavelengthRangeSelection):
         _translate = QtCore.QCoreApplication.translate
         wavelengthRangeSelection.setWindowTitle(_translate("wavelengthRangeSelection", "wavelegthRangeSelection"))
+        self.zoomResetButton.setText(_translate("wavelengthRangeSelection", "Zoom Reset"))
 

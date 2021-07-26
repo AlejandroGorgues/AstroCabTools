@@ -225,6 +225,7 @@
     <addaction name="actionRectangle_coordinates"/>
     <addaction name="actionCreation_Rectangle"/>
     <addaction name="separator"/>
+    <addaction name="actionEllipse_coordinates"/>
     <addaction name="actionCreation_Ellipse"/>
     <addaction name="separator"/>
     <addaction name="actionSpectrum_visualization"/>
@@ -394,6 +395,11 @@
   <action name="actionZoom_reset">
    <property name="text">
     <string>Zoom reset</string>
+   </property>
+  </action>
+  <action name="actionEllipse_coordinates">
+   <property name="text">
+    <string>Ellipse coordinates</string>
    </property>
   </action>
  </widget>

@@ -16,10 +16,10 @@ from PyQt5 import uic
 
 import astrocabtools.fit_line.src.ui.ui_spectrumSelection
 
-class MrsPltList(QDialog, astrocabtools.fit_line.src.ui.ui_spectrumSelection.Ui_spectrumSelection):
+class SpectrumSelection(QDialog, astrocabtools.fit_line.src.ui.ui_spectrumSelection.Ui_spectrumSelection):
 
     def __init__(self, parent=None ):
-        super(MrsPltList, self).__init__(parent)
+        super(SpectrumSelection, self).__init__(parent)
         self.setupUi(self)
         self.extension = "*.txt"
         self.wUnits = "um"

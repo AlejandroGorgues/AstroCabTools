@@ -83,6 +83,21 @@
           </item>
           <item>
            <property name="text">
+            <string>Voigt</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PseudoVoigt</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Moffat</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>No line</string>
            </property>
           </item>
@@ -126,6 +141,16 @@
           <item>
            <property name="text">
             <string>Quadratic Continuum</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Exponential</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Power Law</string>
            </property>
           </item>
          </widget>
@@ -394,6 +419,11 @@
   <action name="actionShow_fitted_data_parameters">
    <property name="text">
     <string>Show fitted data parameters</string>
+   </property>
+  </action>
+  <action name="actionSave_fitted_data_from_model">
+   <property name="text">
+    <string>Save fitted data from model</string>
    </property>
   </action>
  </widget>

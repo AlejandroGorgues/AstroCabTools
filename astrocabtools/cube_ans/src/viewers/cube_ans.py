@@ -7,6 +7,8 @@ Main class that generate the interface of the cube_ans tool
 import numpy as np
 import matplotlib.pyplot as plt
 
+import copy
+
 import pandas as pd
 
 import sys
@@ -22,6 +24,7 @@ from PyQt5 import uic
 
 from matplotlib import widgets
 from matplotlib.patches import Wedge
+from matplotlib.ticker import FormatStrFormatter
 
 from pubsub import pub
 
@@ -33,6 +36,8 @@ from ..utils.ellipse_xy_transformations import transform_xy_ellipse
 from ..utils.basic_transformations import slice_to_wavelength, wavelength_to_slice
 
 from ..io.miri_cube_load import get_miri_cube_data
+from ..io.muse_cube_load import get_muse_cube_data
+from ..io.megara_cube_load import get_megara_cube_data
 
 from .canvas_interaction.cubeAnsCanvas.panZoom import figure_pz
 
@@ -44,6 +49,7 @@ import astrocabtools.cube_ans.src.viewers.spectrumVisualization as spectrumV
 import astrocabtools.cube_ans.src.viewers.rectangleCoordinates as rectCoord
 import astrocabtools.cube_ans.src.viewers.rectangleCreation as rectCreat
 import astrocabtools.cube_ans.src.viewers.ellipseCreation as ellCreat
+import astrocabtools.cube_ans.src.viewers.ellipseCoordinates as ellCoord
 import astrocabtools.cube_ans.src.viewers.backgroundSubtraction as backgSub
 import astrocabtools.cube_ans.src.ui.ui_cube_ans
 
@@ -58,8 +64,7 @@ class CubeAns(QMainWindow,
 
         self.setupUi(self)
 
-        #plt.style.use('seaborn-white')
-        self.globalStats = global_stats('MinMax', 'Linear', 'gray')
+        self.globalStats = global_stats('MinMax', 'Linear', 'gray', 0)
 
         self.actionOpen.triggered.connect(self.fileOrders)
         self.actionRectangle.triggered.connect(self.rectangleOrders)
@@ -72,6 +77,7 @@ class CubeAns(QMainWindow,
         self.actionRectangle_coordinates.triggered.connect(self.rectCoordOrders)
         self.actionCreation_Rectangle.triggered.connect(self.rectCreatOrders)
 
+        self.actionEllipse_coordinates.triggered.connect(self.ellCoordOrders)
         self.actionCreation_Ellipse.triggered.connect(self.ellCreatOrders)
 
         self.actionSpectrum_visualization.triggered.connect(self.spectrumVisOrders)
@@ -93,10 +99,10 @@ class CubeAns(QMainWindow,
         self.rectCoord = rectCoord.RectangleCoordinates()
         self.rectCreat = rectCreat.RectangleCreation()
         self.ellCreat = ellCreat.EllipseCreation()
+        self.ellCoord = ellCoord.EllipseCoordinates()
         self.backgSub = backgSub.BackgroundSubtraction()
 
-        self.backgSub.innerWedgeSelected.connect(self.draw_inner_wedge)
-        self.backgSub.outerWedgeSelected.connect(self.draw_outer_wedge)
+        self.backgSub.wedgesSelected.connect(self.draw_wedges)
         self.backgSub.valuesSubstracted.connect(self.update_background_spectrum)
 
         pub.subscribe(self.select_area_rectangle, 'rectangleSelected')
@@ -111,13 +117,11 @@ class CubeAns(QMainWindow,
 
     def initialize_slice_widgets(self):
         #If text change, update slider and viceversa
-        self.sliceSpinBox.valueChanged.connect(
-            lambda: self.update_from_spinBox())
+        self.sliceSpinBox.valueChanged.connect(self.update_from_spinBox)
 
-        self.sliceSlider.valueChanged.connect(
-            lambda: self.update_from_slider())
+        self.sliceSlider.valueChanged.connect(self.update_from_slider)
 
-        self.wavelengthLineEdit.returnPressed.connect(lambda:self.update_from_lineEdit())
+        self.wavelengthLineEdit.returnPressed.connect(self.update_from_lineEdit)
 
     def set_widgets_values(self):
         """
@@ -127,16 +131,16 @@ class CubeAns(QMainWindow,
 
         self.sliceSpinBox.blockSignals(True)
         self.sliceSlider.blockSignals(True)
-        self.sliceMaximumValue.setText(str(slice_to_wavelength(self.cubeObj.maxSlice, self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)))
-        self.sliceMinimumValue.setText(str(slice_to_wavelength(1, self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)))
+        self.sliceMaximumValue.setText(str(slice_to_wavelength(self.cubeModel.data.shape[0], self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)))
+        self.sliceMinimumValue.setText(str(slice_to_wavelength(1, self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)))
 
         self.sliceSpinBox.setMinimum(1)
-        self.sliceSpinBox.setMaximum(self.cubeObj.maxSlice)
+        self.sliceSpinBox.setMaximum(self.cubeModel.data.shape[0])
 
         self.sliceSlider.setMinimum(1)
-        self.sliceSlider.setMaximum(self.cubeObj.maxSlice)
+        self.sliceSlider.setMaximum(self.cubeModel.data.shape[0])
 
-        self.wavelengthLineEdit.setText(str(slice_to_wavelength(1, self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)))
+        self.wavelengthLineEdit.setText(str(slice_to_wavelength(1, self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)))
 
         self.sliceSlider.blockSignals(False)
         self.sliceSpinBox.blockSignals(False)
@@ -151,7 +155,7 @@ class CubeAns(QMainWindow,
         """Update the slider and the wavelength line edit from the spinBox value"""
         slice_value = self.sliceSpinBox.value()
         self.sliceSlider.setValue(slice_value)
-        self.wavelengthLineEdit.setText(str(slice_to_wavelength(slice_value, self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)))
+        self.wavelengthLineEdit.setText(str(slice_to_wavelength(slice_value, self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)))
 
     def update_from_slider(self):
         """Update slice spin box and wavelength line edit from slice slider value"""
@@ -163,9 +167,9 @@ class CubeAns(QMainWindow,
 
         #Because a subtraction had been made to the slice to make the slider use
         #the correct values previously, the slice to be converted cannot be 0
-        wavelength_value = slice_to_wavelength(slice_value+1, self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)
+        wavelength_value = slice_to_wavelength(slice_value+1, self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)
 
-        self.cubeObj.currSlice = slice_value
+        self.globalStats.currSlice = slice_value
         self.sliceSpinBox.blockSignals(True)
 
         #To prevent the slice value to get an slice value of 0, the current slice will
@@ -174,10 +178,7 @@ class CubeAns(QMainWindow,
         self.sliceSpinBox.blockSignals(False)
 
         self.wavelengthLineEdit.setText(str(wavelength_value))
-        wedges_list = self.ax.patches.copy()
         self.draw_cube()
-        #Draw the wedges because the image has changed
-        self.update_wedges("both", redraw=True, wedges_list = wedges_list)
 
         #To prevent the access when there is no spectrum made, it checks if it has been
         #created
@@ -189,7 +190,7 @@ class CubeAns(QMainWindow,
         self.cubeFigure.pan_zoom.redraw_ellipse_with_interaction()
 
     def update_from_lineEdit(self):
-        slice_value = wavelength_to_slice(float(self.wavelengthLineEdit.text()), self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)
+        slice_value = wavelength_to_slice(float(self.wavelengthLineEdit.text()), self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)
         self.sliceSlider.setValue(slice_value)
         self.sliceSpinBox.setValue(slice_value)
 
@@ -256,6 +257,10 @@ class CubeAns(QMainWindow,
     def ellCreatOrders(self):
         self.ellCreat.show()
         self.ellCreat.open()
+
+    def ellCoordOrders(self):
+        self.ellCoord.show()
+        self.ellCoord.open()
 
     def spectrumVisOrders(self):
         self.spectrumV.show()
@@ -325,7 +330,7 @@ class CubeAns(QMainWindow,
         else:
             stretch = SqrtStretch()
 
-        minV, maxV = scale.get_limits(self.cubeObj.data_cube[self.cubeObj.currSlice])
+        minV, maxV = scale.get_limits(self.cubeModel.data[self.globalStats.currSlice])
 
         norm = ImageNormalize(vmin=minV, vmax=maxV, stretch=stretch)
 
@@ -336,19 +341,19 @@ class CubeAns(QMainWindow,
         :param int iw: left x wavelength value
         :param int ew: right x wavelength value
         """
-        iw_slice = wavelength_to_slice(iw, self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)
-        ew_slice = wavelength_to_slice(ew, self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)
+        iw_slice = wavelength_to_slice(iw, self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)
+        ew_slice = wavelength_to_slice(ew, self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)
 
         #If the range rectangle is created outside the spectrum, show a warning
         #Otherwise, check if the initial wavelength is below the slice 0 and assign it
         #Otherwise, execute the program
-        if (iw_slice < 0 or iw_slice > self.cubeObj.maxSlice) and (ew_slice < 0 or ew_slice > self.cubeObj.maxSlice):
+        if (iw_slice < 0 or iw_slice > self.cubeModel.data.shape[0]) and (ew_slice < 0 or ew_slice > self.cubeModel.data.shape[0]):
             self.max_range_warning()
         else:
             if iw_slice < 0:
                 iw_slice = 0
-            test = get_miri_cube_data(self.path)[1]
-            data = test.data_cube[iw_slice:ew_slice]
+            #cubeModel = get_miri_cube_data(self.globalStats.path)[1]
+            data = self.cubeModel.data[iw_slice:ew_slice]
             data_converted = np.sum(data, axis=0)
             self.spectrumV.show_range_data(str(round(iw,5)), str(round(ew,5)), data_converted)
 
@@ -365,20 +370,20 @@ class CubeAns(QMainWindow,
             #Get flux and wavelength values from the aperture
             rectangleData = self.cubeFigure.pan_zoom.get_rectangle_data()
             fValues, wValues, aperture = transform_xy_rectangle(centerX=rectangleData[1][0], centerY= rectangleData[1][1],
-                                                                width = rectangleData[0][2], height= rectangleData[0][3], cubeObj = self.cubeObj)
+                                                                width = rectangleData[0][2], height= rectangleData[0][3], cubeModel = self.cubeModel)
 
             #Draw the spectrum
-            self.spectrumV.draw_spectrum(self.path, fValues, wValues, self.cubeObj.cubeWavelengthUnit, self.cubeObj.cubeFluxUnit)
+            self.spectrumV.draw_spectrum(self.globalStats.path, fValues, wValues, self.cubeModel.meta.wcsinfo.cunit3[:3], self.cubeModel.meta.bunit_data)
 
             #Set the position of the circle that follows the current slice
-            wavelength_value = slice_to_wavelength(self.sliceSlider.value(), self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)
+            wavelength_value = slice_to_wavelength(self.sliceSlider.value(), self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)
             self.spectrumV.update_wavelength_line(wavelength_value)
 
             #Set the coordinates of the rectangle figure to be drawn in the range dialog
             self.spectrumV.set_figure_coordinates(rectangleData, "rectangle")
 
             #Set the parameters the background operation will use
-            self.backgSub.update_center_data(self.cubeFigure.pan_zoom.get_rectangle_data(), self.cubeObj, aperture, fValues)
+            self.backgSub.update_center_data(rectangleData, self.cubeModel, aperture, fValues)
             self.actionBackground_subtraction.setEnabled(True)
 
         except Exception as e:
@@ -398,20 +403,20 @@ class CubeAns(QMainWindow,
             #Get flux and wavelength values from the aperture
             ellipseData = self.cubeFigure.pan_zoom.get_ellipse_data()
             fValues, wValues, aperture = transform_xy_ellipse(centerX = ellipseData[1][0], centerY = ellipseData[1][1],
-                                                              aAxis = ellipseData[0][2], bAxis = ellipseData[0][3], cubeObj = self.cubeObj)
+                                                              aAxis = ellipseData[0][2], bAxis = ellipseData[0][3], cubeModel = self.cubeModel)
 
             #Draw the spectrum
-            self.spectrumV.draw_spectrum(self.path, fValues, wValues, self.cubeObj.cubeWavelengthUnit, self.cubeObj.cubeFluxUnit)
+            self.spectrumV.draw_spectrum(self.globalStats.path, fValues, wValues, self.cubeModel.meta.wcsinfo.cunit3[:3], self.cubeModel.meta.bunit_data)
 
             #Set the position of the circle that follows the current slice
-            wavelength_value = slice_to_wavelength(self.sliceSlider.value(), self.cubeObj.cubeZCPix, self.cubeObj.cubeWValue, self.cubeObj.cubeZCRVal)
+            wavelength_value = slice_to_wavelength(self.sliceSlider.value(), self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)
             self.spectrumV.update_wavelength_line(wavelength_value)
 
             #Set the coordinates of the rectangle figure to be drawn in the range dialog
             self.spectrumV.set_figure_coordinates(ellipseData, "ellipse")
 
             #Set the parameters the background operation will use
-            self.backgSub.update_center_data(ellipseData, self.cubeObj, aperture, fValues)
+            self.backgSub.update_center_data(ellipseData, self.cubeModel, aperture, fValues)
             self.actionBackground_subtraction.setEnabled(True)
 
         except Exception as e:
@@ -424,41 +429,29 @@ class CubeAns(QMainWindow,
             self.spectrumV.open()
         self.spectrumV.draw_background(fValues_subs, bkg_sum)
 
-    @pyqtSlot(float,float,float, name='innerEmit')
-    def draw_inner_wedge(self, centerX, centerY, radius):
-        """
-        Draw the ring based on center, radius and range in degrees
-        that covers the ring, which in this case goes from 0º to 360º
-        :param float centerX:
-        :param float centerY:
-        :param float radius:
-        """
-        self.update_wedges("first_wedge", centerX = centerX, centerY = centerY, radius = radius)
-        self.cubeFigure.canvas.draw()
-        self.cubeFigure.pan_zoom.redraw_rectangle_with_interaction()
-        self.cubeFigure.pan_zoom.redraw_ellipse_with_interaction()
+    @pyqtSlot(float, float, float, float, name='wedgesEmit')
+    def draw_wedges(self, centerX, centerY, innerRadius, outerRadius):
 
-    @pyqtSlot(float,float,float, name='outerEmit')
-    def draw_outer_wedge(self, centerX, centerY, radius):
         """
-        Draw the ring based on center, radius and range in degrees
-        that covers the ring, which in this case goes from 0º to 360º
+        Draw the rings based on center, radius and range in degrees
+        that covers each one, which in this case goes from 0º to 360º
         :param float centerX:
         :param float centerY:
-        :param float radius:
+        :param float innerRadius:
+        :param float outerRadius:
         """
-        self.update_wedges("second_wedge", centerX = centerX, centerY = centerY, radius = radius)
+
+        self.update_wedges("first_wedge", centerX = centerX, centerY = centerY, radius = innerRadius)
+        self.update_wedges("second_wedge", centerX = centerX, centerY = centerY, radius = outerRadius)
         self.cubeFigure.canvas.draw()
-        self.cubeFigure.pan_zoom.redraw_rectangle_with_interaction()
-        self.cubeFigure.pan_zoom.redraw_ellipse_with_interaction()
 
     @pyqtSlot(int)
     def get_cube(self, int):
         try:
             if int == QDialog.Accepted:
-                self.path = self.cubeSelection.get_data()
+                self.globalStats.path, cubeModel = self.cubeSelection.get_data()
                 self.cubeSelection.reset_widget()
-                self.load_file(self.path)
+                self.load_file(self.globalStats.path, cubeModel)
             self.cubeFigure.canvas.draw()
         except Exception as e:
             self.show_file_alert()
@@ -491,37 +484,37 @@ class CubeAns(QMainWindow,
         self.cubeFigure.pan_zoom.create_ellipse_ax(self.ax)
 
         self.spaceCubePlot.setLayout(layout)
+        self.ax.grid(False)
 
     def draw_cube(self):
         self.ax.images.clear()
 
-        self.ax.set_visible(True)
-        self.ax.grid(False)
+        #self.ax.grid(False)
 
-        self.ax_twiny.set_visible(True)
-        self.ax_twinx.set_visible(True)
+        if not self.ax.get_visible():
+            self.ax.set_visible(True)
+            self.ax_twiny.set_visible(True)
+            self.ax_twinx.set_visible(True)
 
-        self.ax.set_title("{}".format(self.cubeObj.filename))
-        self.ax.set_xlabel("DEC (pixel)")
-        self.ax.set_ylabel("RA (pixel)")
+            self.ax.set_title("{}".format(self.globalStats.path))
+            self.ax.set_xlabel("pixel - 1")
+            self.ax.set_ylabel("pixel - 1")
 
-        self.ax_twiny.set_xlabel(r'$arcsec$')
-        self.ax_twinx.set_ylabel(r'$arcsec$')
+            self.ax_twiny.set_xlabel(r'$arcsec$')
+            self.ax_twinx.set_ylabel(r'$arcsec$')
 
-        im = self.ax.imshow(self.cubeObj.data_cube[self.cubeObj.currSlice], aspect='auto')
+        im = self.ax.imshow(self.cubeModel.data[self.globalStats.currSlice], origin='lower', aspect='auto')
         im.set_cmap(plt.get_cmap((self.globalStats.color)))
         norm = self.get_norm(self.globalStats.stretch, self.globalStats.scale)
         im.set_norm(norm)
 
-        #self.cubeFigure.pan_zoom.set_initial_limits(self.ax.get_xlim(), self.ax.get_ylim())
-        self.cubeFigure.pan_zoom.set_initial_limits(self.cubeObj.maxXAxis, self.cubeObj.maxYAxis, self.cubeObj.cubeXCPix, self.cubeObj.cubeYCPix, self.cubeObj.cubeRAValue, self.cubeObj.cubeDValue, self.cubeObj.cubeXCRVal, self.cubeObj.cubeYCRVal)
-        self.ax_twiny.set_xlim((self.ax.get_xlim()[0]- self.cubeObj.cubeXCPix)*self.cubeObj.cubeRAValue*3600 + self.cubeObj.cubeXCRVal*3600, (self.ax.get_xlim()[1]- self.cubeObj.cubeXCPix)*self.cubeObj.cubeRAValue*3600 + self.cubeObj.cubeXCRVal*3600)
-        self.ax_twinx.set_ylim((self.ax.get_ylim()[0]- self.cubeObj.cubeYCPix)*self.cubeObj.cubeDValue*3600 + self.cubeObj.cubeYCRVal*3600, (self.ax.get_ylim()[1]- self.cubeObj.cubeYCPix)*self.cubeObj.cubeDValue*3600 + self.cubeObj.cubeYCRVal*3600)
+        #self.cubeFigure.pan_zoom.set_initial_limits(self.cubeModel.data.shape[1], self.cubeModel.data.shape[2], self.cubeModel.meta.wcsinfo.crpix1, self.cubeModel.meta.wcsinfo.crpix2, self.cubeModel.meta.wcsinfo.cdelt1, self.cubeModel.meta.wcsinfo.cdelt2, self.cubeModel.meta.wcsinfo.crval1, self.cubeModel.meta.wcsinfo.crval2)
+        self.cubeFigure.pan_zoom.set_initial_limits(self.ax.get_xlim(), self.ax.get_ylim(), self.cubeModel.meta.wcsinfo.crpix1, self.cubeModel.meta.wcsinfo.crpix2, self.cubeModel.meta.wcsinfo.cdelt1, self.cubeModel.meta.wcsinfo.cdelt2, self.cubeModel.meta.wcsinfo.crval1, self.cubeModel.meta.wcsinfo.crval2)
+
+        self.ax_twiny.set_xlim((self.ax.get_xlim()[0]- self.cubeModel.meta.wcsinfo.crpix1)*self.cubeModel.meta.wcsinfo.cdelt1*3600 + self.cubeModel.meta.wcsinfo.crval1*3600, (self.ax.get_xlim()[1]- self.cubeModel.meta.wcsinfo.crpix1)*self.cubeModel.meta.wcsinfo.cdelt1*3600 + self.cubeModel.meta.wcsinfo.crval1*3600)
+        self.ax_twinx.set_ylim((self.ax.get_ylim()[0]- self.cubeModel.meta.wcsinfo.crpix2)*self.cubeModel.meta.wcsinfo.cdelt2*3600 + self.cubeModel.meta.wcsinfo.crval2*3600, (self.ax.get_ylim()[1]- self.cubeModel.meta.wcsinfo.crpix2)*self.cubeModel.meta.wcsinfo.cdelt2*3600 + self.cubeModel.meta.wcsinfo.crval2*3600)
 
         self.cubeFigure.pan_zoom.zoom_reset()
-
-        self.cubeFigure.canvas.draw()
-
 
     def draw_rectangle_coordinates(self,left_bottom, right_top):
         self.cubeFigure.pan_zoom.update_rectangle(left_bottom[0], left_bottom[1], right_top[0], right_top[1])
@@ -529,35 +522,25 @@ class CubeAns(QMainWindow,
     def draw_ellipse_coordinates(self,center, axis):
         self.cubeFigure.pan_zoom.update_ellipse(center[0], center[1], axis[0], axis[1])
 
-    def update_wedges(self, typeWedge, redraw = False,  wedges_list = [], centerX = None, centerY = None, radius = None):
+    def update_wedges(self, typeWedge, centerX = None, centerY = None, radius = None):
         """ Draw wedges after it has been selected or the wavelength change
-        :param bool redraw: decide if the image changed because of wavelenth or not
-        :param list wedges_list: list if wedges to be redraw in case the image changed
         :param float centerX: center x value of the wedge
         :param float centerY: center y value of the wedge
         :parame float radius: radius of the wedge
         """
-        #Enter if the image changed because of the wavelength
-        if redraw == True and len(wedges_list) != 0:
-            for wedge in wedges_list:
-                self.ax.add_patch(wedge)
-            self.cubeFigure.canvas.draw()
+        wedge = next((patch for patch in enumerate(self.ax.patches) if patch[1].get_gid() == typeWedge), None)
 
-        #Enter if a wedge need to be drawn or change radius
-        elif redraw == False and centerX != None:
-            wedge = next((patch for patch in enumerate(self.ax.patches) if patch[1].get_gid() == typeWedge), None)
+        if wedge is not None:
+            if self.ax.patches[wedge[0]].r != radius:
+                self.ax.patches[wedge[0]].set_radius(radius)
+        else:
+            wedge= Wedge((centerX, centerY),
+                radius, 0, 360, width=0.2, gid=typeWedge)
+            self.ax.add_patch(wedge)
 
-            if wedge is not None:
-                if self.ax.patches[wedge[0]].r != radius:
-                    self.ax.patches[wedge[0]].set_radius(radius)
-            else:
-                wedge= Wedge((centerX, centerY),
-                    radius, 0, 360, width=0.2, gid=typeWedge)
-                self.ax.add_patch(wedge)
-
-    def load_file(self, path):
-        self.path = path
-        units_control, self.cubeObj = get_miri_cube_data(path)
+    def load_file(self, path, cubeModel):
+        cubeLoadDict = {"MIRI":get_miri_cube_data, "MUSE": get_muse_cube_data, "MEGARA": get_megara_cube_data}
+        units_control, self.cubeModel = cubeLoadDict[cubeModel](path)
 
         #If the units of the MIRI cube are not right, show a waring
         if units_control:
@@ -602,7 +585,7 @@ class CubeAns(QMainWindow,
         warning = QMessageBox()
         warning.setWindowTitle("Warning")
         warning.setIcon(QMessageBox.Warning)
-        warning.setText("The units of Wavelength and Flux should be 'um' and 'mJy/arcsec^2'")
+        warning.setText("The units of Wavelength and Flux should be 'um' and 'MJy/sr'")
         warning.exec_()
 
     def max_range_warning(self):
@@ -620,6 +603,7 @@ class CubeAns(QMainWindow,
         self.spectrumV.clear_data()
         self.rectCoord.clear_data()
         self.ellCreat.clear_data()
+        self.ellCoord.clear_data()
         self.backgSub.clear_data()
 
         self.cubeFigure.pan_zoom.clear_elements_axes(self.ax)
@@ -636,6 +620,7 @@ class CubeAns(QMainWindow,
         self.rectCoord.close()
         self.rectCreat.close()
         self.ellCreat.close()
+        self.ellCoord.close()
         self.backgSub.close()
 
     def changeEvent(self, event):
@@ -649,4 +634,5 @@ class CubeAns(QMainWindow,
         self.cubeSelection.close()
         self.rectCreat.close()
         self.ellCreat.close()
+        self.ellCoord.close()
         self.backgSub.close()

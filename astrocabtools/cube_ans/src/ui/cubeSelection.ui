@@ -42,12 +42,22 @@
       <widget class="QComboBox" name="cubeComboBox">
        <item>
         <property name="text">
+         <string>Select cube model</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>MIRI</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Other</string>
+         <string>MUSE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MEGARA</string>
         </property>
        </item>
       </widget>

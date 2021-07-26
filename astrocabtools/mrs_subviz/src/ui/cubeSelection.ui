@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>cubeSelection</class>
+ <widget class="QDialog" name="cubeSelection">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>336</width>
+    <height>88</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>cubeSelection</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="5" column="1">
+      <widget class="QPushButton" name="operationButton">
+       <property name="text">
+        <string>Make operation</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="subbandSelectionComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="duplicatesEnabled">
+        <bool>false</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>1A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1B</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1C</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2B</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2C</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3B</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3C</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4B</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4C</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="operationLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Select cube to make operation</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>cubeSelection</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>59</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>167</x>
+     <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

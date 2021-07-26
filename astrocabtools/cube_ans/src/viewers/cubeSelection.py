@@ -21,8 +21,10 @@ class CubeList(QDialog, astrocabtools.cube_ans.src.ui.ui_cubeSelection.Ui_cubeSe
         self.setupUi(self)
 
         self.extension = "*.fits"
+        self.cubeModel = ""
 
         self.cubeSelectionButton.clicked.connect(self.load_directory)
+        self.cubeComboBox.currentIndexChanged.connect(self.set_cube)
 
     @pyqtSlot()
     def load_directory(self):
@@ -36,12 +38,22 @@ class CubeList(QDialog, astrocabtools.cube_ans.src.ui.ui_cubeSelection.Ui_cubeSe
             self.set_interface_state(True)
 
     def get_data(self):
-        return self.cubePath
+        return self.cubePath, self.cubeModel
+
+    def set_cube(self, index):
+        if index == 1:
+            self.cubeModel = "MIRI"
+        elif index == 2:
+            self.cubeModel = "MUSE"
+        elif index == 3:
+            self.cubeModel = "MEGARA"
 
     def reset_widget(self):
         self.filePathLabel.setText("")
         self.cubePath = ""
         self.set_interface_state(False)
+        self.cubeComboBox.setCurrentIndex(0)
+        self.cubeModel = ""
 
     def set_interface_state(self, state):
         """ Disable or enble the widgets of the interface

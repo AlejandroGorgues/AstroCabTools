@@ -37,9 +37,14 @@ from ..io.spec_cube_load import apply_redshift_to_cube
 from ..models.lineModelCreation import lineModel
 from ..models.quadraticModelCreation import quadraticModel
 from ..models.gaussModelCreation import gaussModel
+from ..models.exponentialModelCreation import exponentialModel
+from ..models.powerLawModelCreation import powerLawModel
 from ..models.doubleGaussModelCreation import doubleGaussModel
 from ..models.lorentzModelCreation import lorentzModel
 from ..models.lorentzGaussModelCreation import lorentzGaussModel
+from ..models.voigtModelCreation import voigtModel
+from ..models.pseudoVoigtModelCreation import pseudoVoigtModel
+from ..models.moffatModelCreation import moffatModel
 
 __all__=["MrsFitLine"]
 
@@ -65,8 +70,8 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         self.typeModel = "singleGauss"
         self.typeCont = "line"
 
-        self.spectrumSelection = stmS.MrsPltList()
-        self.modelDataV = modelV.MrsFitLineData()
+        self.spectrumSelection = stmS.SpectrumSelection()
+        self.modelDataV = modelV.ModelDataVisualization()
         self.spectrumSelection.finished.connect(self.get_plot)
 
         self.modelDataV.savePlot.connect(self.save_plot_on_path)
@@ -241,34 +246,40 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
             if self.typeModel == "singleGauss":
                 text_lines = ["Mark right continuum", "Mark left sigma", "Mark right sigma", "Mark top (center and height)", ""]
                 self.model = gaussModel(text_lines, self.typeCont)
-                self.model.init_data_points()
-                self.indicationLabel.setText("Mark left continuum")
             elif self.typeModel == "doubleGauss":
                 text_lines = ["Mark right continuum", "Mark left sigma from left gaussian", "Mark right sigma from left gaussian", "Mark top (center and height) from left gaussian", "Mark left sigma from right gaussian", "Mark right sigma from right gaussian", "Mark top (center and height) from right gaussian", ""]
                 self.model = doubleGaussModel(text_lines, self.typeCont)
-                self.model.init_data_points()
-                self.indicationLabel.setText("Mark left continuum")
             elif self.typeModel == "lorentz":
                 text_lines = ["Mark right continuum", "Mark left sigma", "Mark right sigma", "Mark top (center and height)", ""]
                 self.model = lorentzModel(text_lines, self.typeCont)
-                self.model.init_data_points()
-                self.indicationLabel.setText("Mark left continuum")
             elif self.typeModel == "lorentzGauss":
                 text_lines = ["Mark right continuum", "Mark left sigma from lorentz", "Mark right sigma from lorentz", "Mark top (center and height) from lorentz", "Mark left sigma from gaussian", "Mark right sigma from gaussian", "Mark top (center and height) from gaussian", ""]
                 self.model = lorentzGaussModel(text_lines, self.typeCont)
-                self.model.init_data_points()
-                self.indicationLabel.setText("Mark left continuum")
+            elif self.typeModel == "voigt":
+                text_lines = ["Mark right continuum", "Mark left sigma", "Mark right sigma", "Mark top (center and height)", ""]
+                self.model = voigtModel(text_lines, self.typeCont)
+            elif self.typeModel == "pseudoVoigt":
+                text_lines = ["Mark right continuum", "Mark left sigma", "Mark right sigma", "Mark top (center and height)", ""]
+                self.model = pseudoVoigtModel(text_lines, self.typeCont)
+            elif self.typeModel == "moffat":
+                text_lines = ["Mark right continuum", "Mark left sigma", "Mark right sigma", "Mark top (center and height)", ""]
+                self.model = moffatModel(text_lines, self.typeCont)
             elif self.typeModel == "noline":
                 if self.typeCont == "line":
                     text_lines = ["Mark right continuum", ""]
                     self.model = lineModel(text_lines, self.typeCont)
-                    self.model.init_data_points()
-                    self.indicationLabel.setText("Mark left continuum")
                 elif self.typeCont == "quadratic":
                     text_lines = ["Mark right continuum", ""]
                     self.model = quadraticModel(text_lines, self.typeCont)
-                    self.model.init_data_points()
-                    self.indicationLabel.setText("Mark left continuum")
+                elif self.typeCont == "exponential":
+                    text_lines = ["Mark right continuum", ""]
+                    self.model = exponentialModel(text_lines, self.typeCont)
+                elif self.typeCont == "powerLaw":
+                    text_lines = ["Mark right continuum", ""]
+                    self.model = powerLawModel(text_lines, self.typeCont)
+
+            self.model.init_data_points()
+            self.indicationLabel.setText("Mark left continuum")
 
         else:
             self.markPointsToolButton.setText("Mark points")
@@ -306,6 +317,13 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
                         label_model_list.insert(len(label_model_list),"Fitted Quadratic")
                         num_model = 1
 
+                    elif isinstance(self.model, astrocabtools.fit_line.src.models.exponentialModelCreation.exponentialModel):
+                        label_model_list.insert(len(label_model_list),"Fitted Exponential")
+                        num_model = 1
+                    elif isinstance(self.model, astrocabtools.fit_line.src.models.powerLawModelCreation.powerLawModel):
+                        label_model_list.insert(len(label_model_list),"Power Law")
+                        num_model = 1
+
                     elif isinstance(self.model, astrocabtools.fit_line.src.models.gaussModelCreation.gaussModel):
                         label_model_list.insert(len(label_model_list),"Fitted Gaussian")
                         num_model = 2
@@ -314,14 +332,26 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
                         label_model_list.insert(len(label_model_list),"Fitted Lorentzian")
                         num_model = 2
 
+                    elif isinstance(self.model, astrocabtools.fit_line.src.models.voigtModelCreation.voigtModel):
+                        label_model_list.insert(len(label_model_list),"Fitted Voigt")
+                        num_model = 2
+
+                    elif isinstance(self.model, astrocabtools.fit_line.src.models.pseudoVoigtModelCreation.pseudoVoigtModel):
+                        label_model_list.insert(len(label_model_list),"Fitted PseudoVoigt")
+                        num_model = 2
+
+                    elif isinstance(self.model, astrocabtools.fit_line.src.models.moffatModelCreation.moffatModel):
+                        label_model_list.insert(len(label_model_list),"Fitted Moffat")
+                        num_model = 2
+
                     elif isinstance(self.model, astrocabtools.fit_line.src.models.doubleGaussModelCreation.doubleGaussModel):
                         label_model_list.insert(len(label_model_list),"Left fitted Gaussian")
                         label_model_list.insert(len(label_model_list),"Right fitted Gaussian")
                         num_model = 3
 
                     elif isinstance(self.model, astrocabtools.fit_line.src.models.lorentzGaussModelCreation.lorentzGaussModel):
-                        label_model_list.insert(len(label_model_list),"Fitted Gaussian")
                         label_model_list.insert(len(label_model_list),"Fitted Lorentzian")
+                        label_model_list.insert(len(label_model_list),"Fitted Gaussian")
                         num_model = 3
 
 
@@ -329,7 +359,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
                     if num_model == 1:
 
                         result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values = self.model.draw_model_fit(self.path, self.wavelength, self.flux)
-                        self.modelDataV.add_spectrum_values(result, wavelengthValues, fluxValues)
+                        self.modelDataV.add_spectrum_values(result, wavelengthValues, fluxValues, num_model)
                         self.modelDataV.add_model_data(resultText)
                         self.modelDataV.add_delimiter_line()
                         comps = result.eval_components()
@@ -341,7 +371,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
                     elif num_model == 2:
 
                         result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values = self.model.draw_model_fit(self.path, self.wavelength, self.flux)
-                        self.modelDataV.add_spectrum_values(result, wavelengthValues, fluxValues)
+                        self.modelDataV.add_spectrum_values(result, wavelengthValues, fluxValues, num_model)
                         self.modelDataV.add_model_data(resultText)
                         self.modelDataV.add_delimiter_line()
                         comps = result.eval_components()
@@ -356,7 +386,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
                     elif num_model == 3:
 
                         result, resultText, wavelengthValues, fluxValues, initial_y1_values, initial_y2_values = self.model.draw_model_fit(self.path, self.wavelength, self.flux)
-                        self.modelDataV.add_spectrum_values(result, wavelengthValues, fluxValues)
+                        self.modelDataV.add_spectrum_values(result, wavelengthValues, fluxValues, num_model)
                         self.modelDataV.add_model_data(resultText)
                         self.modelDataV.add_delimiter_line()
                         comps = result.eval_components()
@@ -391,7 +421,7 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
 
     def check_repeat_model_labels(self):
         """
-        Check if specified labels have been used befor to not duplicate the legend box
+        Check if specified labels have been used before to not duplicate the legend box
         """
         setList = set(['Initial fit', 'Best fit', 'Fitted gaussian', 'Fitted line'])
         setCurr = set(self.currLabels)
@@ -534,6 +564,12 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
         elif index == 3:
             self.typeModel = "lorentzGauss"
         elif index == 4:
+            self.typeModel = "voigt"
+        elif index == 5:
+            self.typeModel = "pseudoVoigt"
+        elif index == 6:
+            self.typeModel = "moffat"
+        elif index == 7:
             self.typeModel = "noline"
 
     def set_continuum(self, index):
@@ -541,6 +577,10 @@ class MrsFitLine(QMainWindow, astrocabtools.fit_line.src.ui.ui_fit_line.Ui_FitLi
             self.typeCont = "line"
         elif index == 1:
             self.typeCont = "quadratic"
+        elif index == 2:
+            self.typeCont = "exponential"
+        elif index == 3:
+            self.typeCont = "powerLaw"
 
     @pyqtSlot()
     def activate_click(self):

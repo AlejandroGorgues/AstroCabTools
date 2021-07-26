@@ -9,7 +9,7 @@ with open(path.join(absPath, 'README.md'), encoding='utf-8') as f:
 
 setup(
 	name='AstroCabTools',
-	version='1.1.0',
+	version='1.2.0',
 	author='Alejandro Gorgues',
 	description='Set of analysis tools of MRS data',
         long_description=long_description,
@@ -19,12 +19,16 @@ setup(
 		'src':'mrs_det_plot',
 		'src':'fit_line',
                 'src':'cube_ans',
+                'src':'subviz',
+                'src':'quick_spec',
                 'src':'all_tools'},
 	packages=['astrocabtools/mrs_chan/src',
 		'astrocabtools/mrs_spec_chan/src',
 		'astrocabtools/mrs_det_plot/src',
 		'astrocabtools/fit_line/src',
                 'astrocabtools/cube_ans/src',
+                'astrocabtools/mrs_subviz/src',
+                'astrocabtools/quick_spec/src',
                 'astrocabtools/all_tools/src'],
 	include_package_data=True,
 	classifiers=[
@@ -40,9 +44,12 @@ setup(
 		'lmfit>=1.0.0',
                 'PyPubSub>=4.0.3',
                 'photutils>=1.0.1',
+                'jwst>=1.1.0',
 	],
 	entry_points={
 		'gui_scripts':[
+                        'quickSpec = astrocabtools.quick_spec.src.main:main',
+                        'subViz = astrocabtools.mrs_subviz.src.main:main',
                         'cubeAns = astrocabtools.cube_ans.src.main:main',
 			'fitLine = astrocabtools.fit_line.src.main:main',
 			'detPlot = astrocabtools.mrs_det_plot.src.main:main',

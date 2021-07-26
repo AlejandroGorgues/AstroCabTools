@@ -58,6 +58,8 @@ class EllipseInteractions(RectangleInteractions):
         self.ellipseStats.centerY = ellipse_data[1][1]
         self.ellipseStats.aAxis = ellipse_data[0][2]
         self.ellipseStats.bAxis = ellipse_data[0][3]
+
+        pub.sendMessage('ellipseUpdateCoordinates', cx = ellipse_data[1][0], cy =ellipse_data[1][1], aAxis = ellipse_data[0][2], bAxis= ellipse_data[0][3])
         pub.sendMessage('ellipseSelected')
 
     def ellipse_line_select_callback(self, eclick, erelease):

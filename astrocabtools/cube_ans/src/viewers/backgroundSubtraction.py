@@ -18,8 +18,7 @@ __all__=["BackgroundSubstraction"]
 
 class BackgroundSubtraction(QDialog, astrocabtools.cube_ans.src.ui.ui_backgroundSubtraction.Ui_backgroundSubtraction):
 
-    innerWedgeSelected = pyqtSignal(float, float, float, name='innerEmit')
-    outerWedgeSelected = pyqtSignal(float, float, float, name='outerEmit')
+    wedgesSelected = pyqtSignal(float, float, float, float, name='wedgesEmit')
     valuesSubstracted = pyqtSignal(list, list, name='backgroundParameters')
 
     def __init__(self, parent=None):
@@ -46,8 +45,7 @@ class BackgroundSubtraction(QDialog, astrocabtools.cube_ans.src.ui.ui_background
 
             elif float(innerValue) != 0 and float(outerValue) != 0:
                 try:
-                    self.innerWedgeSelected.emit(self.xCenter, self.yCenter,float(innerValue))
-                    self.outerWedgeSelected.emit(self.xCenter, self.yCenter,float(outerValue))
+                    self.wedgesSelected.emit(self.xCenter, self.yCenter, float(innerValue), float(outerValue))
 
                     self.fValues_sub, self.bkg_sum = background_subtraction(self.xCenter, self.yCenter, float(innerValue),
                                                 float(outerValue), self.aperture, self.cubeObj, self.spectrumValues)

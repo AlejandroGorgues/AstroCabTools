@@ -49,7 +49,8 @@ class EllipseCreation(QDialog, astrocabtools.cube_ans.src.ui.ui_ellipseCreation.
                 y_center_value = float(y_center)
 
                 center = (x_center_value, y_center_value)
-                axis = (aAxis_value-1, bAxis_value -1)
+                #axis = (aAxis_value-1, bAxis_value -1)
+                axis = (aAxis_value, bAxis_value)
                 pub.sendMessage('ellipseCreation', center = center, axis = axis)
 
             else:

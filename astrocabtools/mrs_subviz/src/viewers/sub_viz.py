@@ -25,6 +25,7 @@ from PyQt5 import uic
 
 from matplotlib import widgets
 from matplotlib.patches import Wedge, Rectangle, Ellipse
+from matplotlib.collections import PathCollection
 import matplotlib.gridspec as gridspec
 
 from pubsub import pub
@@ -32,8 +33,9 @@ from pubsub import pub
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from ..utils.rectangle_xy_transformations import transform_xy_rectangle, transform_rectangle_subband
-from ..utils.ellipse_xy_transformations import transform_xy_ellipse, transform_ellipse_subband
+from ..utils.rectangle_xy_transformations import transform_xy_rectangle, transform_rectangle_subband, transform_rectangle_subband_from_coord
+from ..utils.ellipse_xy_transformations import transform_xy_ellipse, transform_ellipse_subband, transform_ellipse_subband_from_coord
+from ..utils.centroid_operations import transform_centroid_subband
 from ..utils.basic_transformations import slice_to_wavelength, wavelength_to_slice
 from ..utils.background_xy_transformations import background_subtraction, transform_wedges_subband
 from ..utils.constants import SUBBANDDICT, INDEXDICT, COLORDICT
@@ -53,6 +55,8 @@ import astrocabtools.mrs_subviz.src.viewers.rectangleCreation as rectCreat
 import astrocabtools.mrs_subviz.src.viewers.ellipseCreation as ellCreat
 import astrocabtools.mrs_subviz.src.viewers.ellipseCoordinates as ellCoord
 import astrocabtools.mrs_subviz.src.viewers.backgroundSubtraction as backgSub
+import astrocabtools.mrs_subviz.src.viewers.centroidWavelengthSelection as centWave
+import astrocabtools.mrs_subviz.src.viewers.centroidCoordinates as centCoord
 
 import astrocabtools.mrs_subviz.src.viewers.cubeLoader as cubeLoader
 import astrocabtools.mrs_subviz.src.viewers.styleManager as styleManager
@@ -72,8 +76,6 @@ class SubViz(QMainWindow,
 
         self.setupUi(self)
 
-        #plt.style.use('seaborn-white')
-
         self.actionOpen.triggered.connect(self.fileOrders)
 
         self.cubeList = {0:cube_viewer_data((0,0)), 1:cube_viewer_data((1,0)), 2:cube_viewer_data((2,0)), 3:cube_viewer_data((0,1)), 4:cube_viewer_data((1,1)), 5:cube_viewer_data((2,1)), 6:cube_viewer_data((0,2)), 7:cube_viewer_data((1,2)), 8:cube_viewer_data((2,2)), 9:cube_viewer_data((0,3)), 10:cube_viewer_data((1,3)), 11:cube_viewer_data((2,3))}
@@ -86,13 +88,19 @@ class SubViz(QMainWindow,
         self.actionInteractiveOp.triggered.connect(lambda: self.selectSubbandOrders("interactive"))
         self.actionRectangle_coordinates.triggered.connect(lambda: self.selectSubbandOrders("rectangleCoord"))
         self.actionEllipse_coordinates.triggered.connect(lambda: self.selectSubbandOrders("ellipseCoord"))
-        self.actionCreation_Rectangle.triggered.connect(lambda: self.selectSubbandOrders("rectangleCreate"))
-        self.actionCreation_Ellipse.triggered.connect(lambda: self.selectSubbandOrders("ellipseCreate"))
+        self.actionNo_centroid_CR.triggered.connect(lambda: self.selectSubbandOrders("rectangleCreate"))
+        self.actionCentroid_and_center_CR.triggered.connect(lambda: self.selectSubbandOrders("centroidSelect", "rectangleAndCenter"))
+        self.actionCentroid_as_center_CR.triggered.connect(lambda: self.selectSubbandOrders("centroidSelect", "rectangleWithCenter"))
+        self.actionNo_centroid_CE.triggered.connect(lambda: self.selectSubbandOrders("ellipseCreate"))
+        self.actionCentroid_and_center_CE.triggered.connect(lambda: self.selectSubbandOrders("centroidSelect", "ellipseAndCenter"))
+        self.actionCentroid_as_center_CE.triggered.connect(lambda: self.selectSubbandOrders("centroidSelect", "ellipseWithCenter"))
         self.actionDrawRectangle.triggered.connect(lambda: self.drawPatchOrders("rectangle"))
         self.actionDrawEllipse.triggered.connect(lambda: self.drawPatchOrders("ellipse"))
         self.actionSavespng.triggered.connect(self.save_figure)
         self.actionSpectrum_visualization.triggered.connect(self.spectrumVisOrders)
         self.actionBackground_subtraction.triggered.connect(lambda: self.selectSubbandOrders("wedgesBackg"))
+        self.actionCalculate_centroid.triggered.connect(lambda: self.selectSubbandOrders("centroidSelect"))
+        self.actionShow_centroid_coordinates.triggered.connect(lambda: self.selectSubbandOrders("centroidCoord"))
 
 
         self.actionManage_style.triggered.connect(self.manageStyleOrders)
@@ -109,6 +117,8 @@ class SubViz(QMainWindow,
         self.ellCoord = ellCoord.EllipseCoordinates()
         self.backgSub = backgSub.BackgroundSubtraction()
         self.cubeSelection = cubeSelect.CubeSelection()
+        self.centCoord = centCoord.CentroidCoordinates()
+        self.centWave = centWave.CentroidWavelengthSelection()
         self.styleManager = styleManager.StyleManager()
         self.sliceManager = sliceManager.SliceManager()
         self.cubeViewer = cubeViewer.CubeViewer()
@@ -127,12 +137,11 @@ class SubViz(QMainWindow,
         self.cubeViewer.update_modified_slice[str, dict].connect(self.update_cube_data_interaction)
         self.cubeViewer.update_modified_slice[str, dict, dict].connect(self.update_cube_data_interaction)
 
-        self.rectCreate.create_rectangle[dict].connect(self.create_rectangle_figure_coord)
-        self.ellCreate.create_ellipse[dict].connect(self.create_ellipse_figure_coord)
+        self.rectCreate.create_rectangle[dict, int].connect(self.create_rectangle_figure_coord)
+        self.ellCreate.create_ellipse[dict, int].connect(self.create_ellipse_figure_coord)
 
-        pub.subscribe(self.obtain_range_data, 'rangeData')
-
-        pub.subscribe(self.manageOrders, 'manageOrders')
+        #pub.subscribe(self.manageOrders, 'manageOrders')
+        pub.subscribe(self.create_centroid, 'centroidCoords')
 
 
     def fileOrders(self):
@@ -143,18 +152,26 @@ class SubViz(QMainWindow,
         self.sliceManager.show()
         self.sliceManager.open()
 
-    def selectSubbandOrders(self, order):
-        self.cubeSelection.set_order(order)
+    def selectSubbandOrders(self, order, additionalOrder = None):
+        self.cubeSelection.set_order(order, additionalOrder)
         self.cubeSelection.show()
         self.cubeSelection.open()
 
-    def manageOrders(self, order, data = None):
+    def manageOrders(self, order, data = None, additionalOrder= None):
         if order == "rectangleAp":
             self.cubeViewer.get_data_from_sub_viz(order, self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.rectangleSelection)
+            if self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX != -1:
+                self.cubeViewer.draw_wedges(self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX, self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerY, self.cubeList[self.subband].cubePatchesData.wedgesBackground.innerRadius, self.cubeList[self.subband].cubePatchesData.wedgesBackground.outerRadius)
+            if self.cubeList[self.subband].centroidCoordinates.xCoordinate != -1:
+                self.cubeViewer.draw_centroid(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
             self.cubeViewer.show()
             self.cubeViewer.open()
 
         elif order == "rectangleCreate":
+
+            wavelength_value = slice_to_wavelength(self.cubeList[self.subband].currSlice, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+
+            self.rectCreate.get_data(self.cubeList[self.subband].cubeModel, wavelength_value)
             self.rectCreate.show()
             self.rectCreate.open()
 
@@ -165,6 +182,7 @@ class SubViz(QMainWindow,
             self.rectCoord.open()
 
         elif order == "ellipseCoord":
+
             ellipseData = self.cubeList[self.subband].cubePatchesData.ellipseSelection
             self.ellCoord.set_coordinates(ellipseData.centerX, ellipseData.centerY, ellipseData.aAxis, ellipseData.bAxis)
             self.ellCoord.show()
@@ -172,10 +190,17 @@ class SubViz(QMainWindow,
 
         elif order == "ellipseAp":
             self.cubeViewer.get_data_from_sub_viz(order, self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.ellipseSelection)
+            if self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX != -1:
+                self.cubeViewer.draw_wedges(self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX, self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerY, self.cubeList[self.subband].cubePatchesData.wedgesBackground.innerRadius, self.cubeList[self.subband].cubePatchesData.wedgesBackground.outerRadius)
+            if self.cubeList[self.subband].centroidCoordinates.xCoordinate != -1:
+                self.cubeViewer.draw_centroid(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
             self.cubeViewer.show()
             self.cubeViewer.open()
 
         elif order == "ellipseCreate":
+
+            wavelength_value = slice_to_wavelength(self.cubeList[self.subband].currSlice, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+            self.ellCreate.get_data(self.cubeList[self.subband].cubeModel, wavelength_value)
             self.ellCreate.show()
             self.ellCreate.open()
 
@@ -183,8 +208,28 @@ class SubViz(QMainWindow,
             self.backgSub.show()
             self.backgSub.open()
 
+        elif order == "centroidSelect":
+            endWave = slice_to_wavelength(self.cubeList[self.subband].cubeModel.weightmap.shape[0], self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+
+            initWave = slice_to_wavelength(1, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+
+            self.centWave.clear_data()
+
+            self.centWave.get_data_from_sub_viz(initWave, endWave, self.subband, self.cubeList[self.subband], order, additionalOrder)
+            self.centWave.show()
+            self.centWave.open()
+        elif order == "centroidCoord":
+            self.centCoord.set_coordinates(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
+            self.centCoord.show()
+            self.centCoord.open()
+
+
         elif order == "interactive":
-            self.cubeViewer.get_data_from_sub_viz(order, self.cubeList[self.subband])
+            self.cubeViewer.get_data_from_sub_viz(order, self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData)
+            if self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX != -1:
+                self.cubeViewer.draw_wedges(self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX, self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerY, self.cubeList[self.subband].cubePatchesData.wedgesBackground.innerRadius, self.cubeList[self.subband].cubePatchesData.wedgesBackground.outerRadius)
+            if self.cubeList[self.subband].centroidCoordinates.xCoordinate != -1:
+                self.cubeViewer.draw_centroid(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
             self.cubeViewer.show()
             self.cubeViewer.open()
 
@@ -209,6 +254,7 @@ class SubViz(QMainWindow,
             self.cubeViewer.change_figure_from_sub_viz("ellipseAp")
 
         for index in self.cubeList.keys():
+            print("257")
             self.draw_patches(typePatch, index=index)
 
     @pyqtSlot(str, dict, name="cubeModified")
@@ -219,7 +265,7 @@ class SubViz(QMainWindow,
         all cubes if the interactive tools are the rectangle or ellipse aperture
         :param str order: type of modification id
         :param dict axesData: xlim and ylim new values to be applied to the cube selected
-        :param object patchesData: coordinates of the patch if drawn previously
+        :param dict patchesData: coordinates of the patch if drawn previously
         """
         if order == "rectangleAp":
 
@@ -247,25 +293,35 @@ class SubViz(QMainWindow,
 
     @pyqtSlot(int, name="obtainCube")
     def send_wavelength_data(self, indexCube):
+        """
+        Send the data of the cube selected by index from the sliceManager
+        :param int indexCube: index of the cube
+        """
         if self.cubeList[indexCube].cubeModel:
             self.sliceManager.change_state_widgets(True)
             self.sliceManager.set_widgets_values(self.cubeList[indexCube])
         else:
             self.missing_data_warning()
             self.sliceManager.change_state_widgets(False)
+            self.sliceManager.reset_widgets()
 
     @pyqtSlot(int, int, name="cubeChanged")
     def update_cube_slice(self, currSlice, indexCube):
-
+        """
+        Set the specific image at the slice to the  subband and update the patches on it
+        :param int currSlice: slice of the cube to be accessed
+        :param int indexCube: index of the cube to be accessed
+        """
         self.cubeList[indexCube].currSlice = currSlice
         self.draw_cube(indexCube)
         #Draw the wedges because the image has changed
         self.draw_patches("all", index = indexCube)
+        self.cubeViewer.redraw_slice(self.cubeList[indexCube])
 
         #To prevent the access when there is no spectrum made, it checks if it has been created
-        if not self.spectrumV.isHidden():
+        #if not self.spectrumV.isHidden():
             #Update the position of the line to match the current wavelength and it's associated flux
-            self.spectrumV.update_wavelength_line(wavelength_value)
+        #    self.spectrumV.update_wavelength_line(wavelength_value)
 
     @pyqtSlot(str, int, name="colorChanged")
     def colorOrders(self, color_text, index):
@@ -407,8 +463,8 @@ class SubViz(QMainWindow,
 
         return norm
 
-    @pyqtSlot(int, str, name="subbandSelected")
-    def obtain_subband(self, subband, order):
+    @pyqtSlot(int, str, str, name="subbandSelected")
+    def obtain_subband(self, subband, order, additionalOrder):
         """
         Send info on what subband the interactive operation (like zoom or ellipse aperture)
         needs to be applied
@@ -417,47 +473,27 @@ class SubViz(QMainWindow,
         self.subband = subband
         self.cubeSelection.close()
         if self.cubeList[self.subband].cubeModel:
-            self.manageOrders(order, self.cubeList[self.subband])
+            self.manageOrders(order, self.cubeList[self.subband], additionalOrder)
         else:
             self.missing_data_warning()
 
-    def obtain_range_data(self, iw, ew):
-        """Get the flux values from the wavelength range of values from all subbands to visualize it
-        :param int iw: left x wavelength value
-        :param int ew: right x wavelength value
-        """
-        iw_slice = wavelength_to_slice(iw, self.cubeList[index].cubeModel.meta.wcsinfo.crpix3, self.cubeList[index].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[index].cubeModel.meta.wcsinfo.crval3)
-        ew_slice = wavelength_to_slice(ew, self.cubeList[index].cubeModel.meta.wcsinfo.crpix3, self.cubeList[index].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[index].cubeModel.meta.wcsinfo.crval3)
-
-        #If the range rectangle is created outside the spectrum, show a warning
-        #Otherwise, check if the initial wavelength is below the slice 0 and assign it
-        #Otherwise, execute the program
-        if (iw_slice < 0 or iw_slice > self.cubeList[index].cubeModel.weightmap.shape[0]) and (ew_slice < 0 or ew_slice > self.cubeList[index].cubeModel.weightmap.shape[0]):
-            self.max_range_warning()
-        else:
-            if iw_slice < 0:
-                iw_slice = 0
-            cube_data = get_miri_cube_data(self.path)[1]
-            data = cube_data.data_cube[iw_slice:ew_slice]
-            data_converted = np.sum(data, axis=0)
-            self.spectrumV.show_range_data(str(round(iw,5)), str(round(ew,5)), data_converted)
-
-
-
-    def select_area_rectangle(self, patchesData):
+    def select_area_rectangle(self, patchesData, typeOp = 0):
         """.-Draw the spectrum based on the coordinates of the rectangle
         .-Draw the wedges based on the center of the figure
         .-Set the data for the figure to be drawn in the funcExtra dialog
         .-Update the data the background operation will use
+        :param dict patchesData: rectangle data associated that will be drawed
+        :param int typeOp: integer value that set if the coordinates are in pixels or
+        in RA and DEC
         """
         try:
-            if self.spectrumV.isHidden():
-                self.spectrumV.show()
-                self.spectrumV.open()
-            #Get flux and wavelength values from the aperture
-            wavelength_value = slice_to_wavelength(self.cubeList[self.subband].currSlice, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
-            patchDataTrans = copy.deepcopy(patchesData)
-            self.draw_patches("rectangle", patchDataTrans, self.subband)
+
+            #if typeOp:
+                #Get current wavelength value
+            #    wavelength_value = slice_to_wavelength(self.cubeList[self.subband].currSlice, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+
+            #    print(patchesData)
+                #patchesData = transform_rectangle_subband_from_coord(self.cubeList[self.subband].cubeModel, copy.deepcopy(patchesData), wavelength_value)
 
             for key in self.cubeList.keys():
                 currIndex = key
@@ -470,12 +506,15 @@ class SubViz(QMainWindow,
                     else:
                         currIndex = self.subband
                         patchDataTrans = copy.deepcopy(patchesData)
+                        print("patchDataTrans", patchDataTrans)
                         self.draw_patches("rectangle", patchDataTrans, self.subband)
+
 
                     fValues, wValues, aperture = transform_xy_rectangle(centerX=patchDataTrans['centerX'], centerY= patchDataTrans['centerY'], width = patchDataTrans['ex'] - patchDataTrans['ix'], height= patchDataTrans['ey'] - patchDataTrans['iy'], cubeModel = self.cubeList[currIndex].cubeModel)
                     self.cubeList[currIndex].wavelengthRange = wValues
                     self.cubeList[currIndex].fluxAperture = fValues
                     self.cubeList[currIndex].aperture = aperture
+
 
                     #Draw the spectrum
                     self.spectrumV.draw_spectrum(self.cubeList[currIndex].path, fValues, wValues, color = COLORDICT[currIndex][1], label = COLORDICT[currIndex][0])
@@ -513,23 +552,31 @@ class SubViz(QMainWindow,
 
         except Exception as e:
             self.generic_alert()
-
-    def select_area_ellipse(self, patchesData):
-        """.-Draw the spectrum based on the coordinates of the ellipse
-        .-Draw the wedges based on the center of the figure
-        .-Set the data for the figure to be drawn in the funcExtra dialog
-        .-Update the data that the background operation will use
-        """
-        try:
+            return 1
+        else:
             if self.spectrumV.isHidden():
                 self.spectrumV.show()
                 self.spectrumV.open()
 
+    def select_area_ellipse(self, patchesData, typeOp = 0):
+        """.-Draw the spectrum based on the coordinates of the ellipse
+        .-Draw the wedges based on the center of the figure
+        .-Set the data for the figure to be drawn in the funcExtra dialog
+        .-Update the data that the background operation will use
+        :param dict patchesData: ellipse data associated that will be drawed
+        :param int typeOp: integer value that set if the coordinates are in pixels or
+        in RA and DEC
+        """
+        try:
+
             fValuesFinal = []
             wValuesFinal = []
 
-            #Get flux and wavelength values from the aperture
-            wavelength_value = slice_to_wavelength(self.cubeList[self.subband].currSlice, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+            #if typeOp:
+                #Get current wavelength value
+            #    wavelength_value = slice_to_wavelength(self.cubeList[self.subband].currSlice, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+            #    patchesData = transform_ellipse_subband_from_coord(self.cubeList[self.subband].cubeModel, copy.deepcopy(patchesData), wavelength_value)
+
             for key in self.cubeList.keys():
                 currIndex = key
                 if self.cubeList[key].cubeModel is not None:
@@ -579,12 +626,18 @@ class SubViz(QMainWindow,
 
         except Exception as e:
             self.generic_alert()
+            return 1
+        else:
+            if self.spectrumV.isHidden():
+                self.spectrumV.show()
+                self.spectrumV.open()
 
     @pyqtSlot(object, bool, name="wedgesEmit")
     def calculate_background(self, wedgesData, updateWedgesCenter):
         """
         Calculate the background spectrum and the remaining of the subtraction from the aperture
-        :param dict data: radius of the inner and outer wedges
+        :param dict wedgesData: radius of the inner and outer wedges
+        :param bool updateWedgesCenter: signal to change the center of the wedges
         """
         wedgesDataTrans = copy.deepcopy(wedgesData)
         if updateWedgesCenter:
@@ -615,27 +668,60 @@ class SubViz(QMainWindow,
             self.spectrumV.show()
             self.spectrumV.open()
 
-    @pyqtSlot(dict, name="rectangleCreation")
-    def create_rectangle_figure_coord(self, patchesData):
+    def set_centroid(self, centroidData):
+        """
+        Calculate and draw the centroid for each cube
+        :param dict centroidData: x and y coordinates of the center
+        """
+        centroidDataTrans = copy.deepcopy(centroidData)
+        self.draw_patches("centroid", centroidDataTrans, self.subband)
+
+        for key in self.cubeList.keys():
+            if self.cubeList[key].cubeModel is not None:
+                centroidDataTrans = None
+
+                if key is not self.subband:
+                    centroidDataTrans = transform_centroid_subband(self.cubeList[self.subband].cubeModel, self.cubeList[key].cubeModel, copy.deepcopy(centroidData), self.cubeList[self.subband].currSlice)
+
+                    self.draw_patches("centroid", centroidDataTrans, key)
+
+
+        self.cubeViewer.get_data_from_sub_viz("centroidCoord", self.cubeList[self.subband], self.cubeList[self.subband].centroidCoordinates)
+
+    @pyqtSlot(dict, int, name="rectangleCreation")
+    def create_rectangle_figure_coord(self, patchesData, typeOp):
         """
         Generate the rectangle based on the coordinates written previously
         :param dict patchesData: dictionary of the coordinates of the rectangle
+        :param int typeOp: signal that set the type of coordinates
         """
-        self.select_area_rectangle(patchesData)
-        if not self.cubeViewer.isHidden():
+        error = self.select_area_rectangle(patchesData, typeOp)
+        if error is None:
             self.cubeViewer.get_data_from_sub_viz("rectangleAp", self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.rectangleSelection)
+            if self.cubeViewer.isHidden():
 
-    @pyqtSlot(dict, name="ellipseCreation")
-    def create_ellipse_figure_coord(self, patchesData):
+                self.cubeViewer.show()
+                self.cubeViewer.open()
+
+    @pyqtSlot(dict, int, name="ellipseCreation")
+    def create_ellipse_figure_coord(self, patchesData, typeOp):
         """
         Generate the ellipse based on the coordinates written previously
         :param dict patchesData: dictionary of the coordinates of the ellipse
+        :param int typeOp: signal that set the type of coordinates
         """
-        self.select_area_ellipse(patchesData)
-        if not self.cubeViewer.isHidden():
-            self.cubeViewer.get_data_from_sub_viz("ellipseAp", self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.ellipseSelection)
+        self.select_area_ellipse(patchesData, typeOp)
+        self.cubeViewer.get_data_from_sub_viz("ellipseAp", self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.ellipseSelection)
+        if self.cubeViewer.isHidden():
+            self.cubeViewer.show()
+            self.cubeViewer.open()
 
     def get_background_center(self, index):
+        """
+        Return the center of the figure when background operaiton is made
+        :param int index: index of the cube to obtain the center
+        :return: the coordinates of the center
+        """
         centerX = 0
         centerY = 0
         if self.cubeCurrState.active == 'rectangle':
@@ -647,18 +733,49 @@ class SubViz(QMainWindow,
 
         return centerX, centerY
 
+    def create_centroid(self, patchesData, additionalOrder=None):
+        """
+        Calculate the centroid and make the aperture if needed
+        with the centroid as the center of the aperture or as
+        another element
+        :param dict patchesData: centroid coordinates
+        :param str additionalOrder: string that contains the type of aperture to be made
+        """
+        if additionalOrder == 'rectangleAndCenter':
+            self.rectCreate.show()
+            self.rectCreate.open()
+        elif additionalOrder == 'rectangleWithCenter':
+            self.rectCreate.set_center_coordinates(patchesData['xCoordinate'], patchesData['yCoordinate'])
+            self.rectCreate.show()
+            self.rectCreate.open()
+        elif additionalOrder == 'ellipseAndCenter':
+            self.ellCreate.show()
+            self.ellCreate.open()
+        elif additionalOrder == 'ellipseWithCenter':
+            self.ellCreate.set_center_coordinates(patchesData['xCoordinate'], patchesData['yCoordinate'])
+            self.ellCreate.show()
+            self.ellCreate.open()
+
+        self.set_centroid(patchesData)
+        self.centCoord.set_coordinates(patchesData['xCoordinate'], patchesData['yCoordinate'])
+        self.cubeViewer.draw_centroid(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
+        self.centCoord.show()
+        self.centCoord.open()
+
+
     @pyqtSlot(int)
     def get_cube(self, int):
         try:
             if int == QDialog.Accepted:
-                path, subbandIndex = self.cubeLoader.get_data()
+                #path, subbandIndex = self.cubeLoader.get_data()
+                path, subband= self.cubeLoader.get_data()
                 self.cubeLoader.reset_widget()
                 #If the path obtained is a list of files,
                 #load a directory instead of a single file
                 if type(path) is list:
                     self.load_directory(path)
                 else:
-                    self.load_file(subbandIndex, path)
+                    self.load_file(path, subband)
             self.canvas.draw()
         except Exception as e:
             self.show_file_alert()
@@ -760,21 +877,26 @@ class SubViz(QMainWindow,
             self.sliceManager.clear_data()
 
             self.cubeSelection.clear_data()
+
+            self.centCoord.clear_data()
+            self.centWave.clear_data()
+
             self.disable_interface_state()
 
-
-
-        units_control = []
+        error = 0
         for path in pathList:
-            units, subband, cubeModel = get_miri_cube_subband(path)
-            units_control.append(units)
+            try:
+                subband, cubeModel = get_miri_cube_subband(path)
 
-            self.cubeList[INDEXDICT[subband]].path = path
-            self.cubeList[INDEXDICT[subband]].cubeModel = copy.deepcopy(cubeModel)
-            self.draw_cube(INDEXDICT[subband])
+                self.cubeList[INDEXDICT[subband]].path = path
+                self.cubeList[INDEXDICT[subband]].cubeModel = copy.deepcopy(cubeModel)
+                self.draw_cube(INDEXDICT[subband])
+            except Exception as e:
+                error += 1
+                pass
 
-        if any(units_control):
-            self.units_warning()
+        if error > 0:
+            self.jwst_alert()
 
         #Check if it is the first cube loaded and set all data
         axisWithData = [ax.has_data() for cube in self.cubeList.values() for ax in cube.axis if ax.get_gid().startswith("main_axis")]
@@ -782,19 +904,23 @@ class SubViz(QMainWindow,
             self.set_interface_state(True)
 
 
-    def load_file(self, index, path):
-        units_control,  cubeModel = get_miri_cube_data(path)
+    def load_file(self, path, subband):
+        cubeModel = None
+        index = -1
 
-
-        #If the units of the MIRI cube are not right, show warning
-        if units_control:
-            self.units_warning()
+        if subband is None:
+            subband, cubeModel= get_miri_cube_data(path)
+            index = INDEXDICT[subband]
+        else:
+            cubeModel= get_miri_cube_data(path, ignoreHeaderSubband = True)
+            index = subband
 
         self.cubeList[index].path = path
         #Print the slice of the cube
 
         self.cubeList[index].path = path
         cubeExist = any([cube.aperture is not None for cube in self.cubeList.values()])
+        centroidCalculated= any([cube.centroidCoordinates.xCoordinate != -1 for cube in self.cubeList.values()])
 
         #If any aperture had been made and a new cube is loaded, make it
         if self.cubeList[index].cubeModel is None and cubeExist:
@@ -805,9 +931,18 @@ class SubViz(QMainWindow,
             if backgroundCalculated:
                 self.make_background_from_new_cube(index)
 
+            if centroidCalculated:
+                self.make_centroid_from_new_cube(index)
+
         #If no aperture had been made and a new cube is loaded, just draw it
         elif self.cubeList[index].cubeModel is None and not cubeExist:
+
             self.cubeList[index].cubeModel = copy.deepcopy(cubeModel)
+
+            #If no aperture had been made, a new cube is loaded and centroid had been made
+            if centroidCalculated:
+                self.make_centroid_from_new_cube(index)
+
 
         #If a new cube is gonna delete the previous one, only clean all figures
         #from previous cube
@@ -815,6 +950,7 @@ class SubViz(QMainWindow,
             self.cubeList[index].cubeModel = copy.deepcopy(cubeModel)
             self.spectrumV.delete_duplicated_cube(SUBBANDDICT[index])
             self.clear_figures_on_cube(index)
+            self.sliceManager.reset_same_cube(index)
 
 
         self.draw_cube(index)
@@ -926,14 +1062,24 @@ class SubViz(QMainWindow,
                 self.cubeList[index].cubePatchesData.wedgesBackground.innerRadius = patchesData['innerRadius']
                 self.cubeList[index].cubePatchesData.wedgesBackground.outerRadius = patchesData['outerRadius']
 
+        elif typePatch == "centroid":
+            ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
+
+            self.delete_current_patch(ax, "Centroid")
+            ax.scatter(patchesData['xCoordinate'], patchesData['yCoordinate'], marker='+', c= 'red')
+
+            self.cubeList[index].centroidCoordinates.xCoordinate = patchesData['xCoordinate']
+            self.cubeList[index].centroidCoordinates.yCoordinate = patchesData['yCoordinate']
+
         elif typePatch == "all":
             ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
             ax.patches.clear()
+            self.delete_current_patch(ax, "Centroid")
 
             if self.cubeCurrState.active == "rectangle":
                 ax.add_patch(Rectangle((self.cubeList[index].cubePatchesData.rectangleSelection.ix, self.cubeList[index].cubePatchesData.rectangleSelection.iy),
                                                 self.cubeList[index].cubePatchesData.rectangleSelection.ex - self.cubeList[index].cubePatchesData.rectangleSelection.ix,
-                                                self.cubeList[index].cubePatchesData.rectangleSelection.ey - self.cubeList[index].cubePatchesData.rectangleSelection.iy, facecolor = 'red', lw=2 ))
+                                                self.cubeList[index].cubePatchesData.rectangleSelection.ey - self.cubeList[index].cubePatchesData.rectangleSelection.iy, edgecolor = 'red', lw=2 ))
 
             elif self.cubeCurrState.active == "ellipse":
                 ax.add_patch(Ellipse((self.cubeList[index].cubePatchesData.ellipseSelection.centerX, self.cubeList[index].cubePatchesData.ellipseSelection.centerY),
@@ -948,11 +1094,24 @@ class SubViz(QMainWindow,
                                         self.cubeList[index].cubePatchesData.wedgesBackground.centerY),
                                   self.cubeList[index].cubePatchesData.wedgesBackground.outerRadius, 0, 360, width= 0.5))
 
+            if self.cubeList[index].centroidCoordinates.xCoordinate != -1:
+
+                ax.scatter(self.cubeList[index].centroidCoordinates.xCoordinate, self.cubeList[index].centroidCoordinates.yCoordinate, marker='+', c= 'red')
+
         self.canvas.draw()
 
     def delete_current_patch(self, ax, typePatch):
-        patchReference = {"Rectangle": Rectangle, "Ellipse": Ellipse, "Wedge": Wedge}
-        [ax.patches.remove(patch) for patch in reversed(ax.patches) if isinstance(patch, patchReference[typePatch])]
+        """
+        Delete the patch or collection selected
+        :param axis ax: axis to eliminate the element
+        :param str typePatch: type of patch or collection to be removed
+        """
+        if typePatch == "Centroid":
+            collectionReference = {"Centroid": PathCollection}
+            [ax.collections.remove(marker) for marker in reversed(ax.collections) if isinstance(marker, collectionReference[typePatch])]
+        else:
+            patchReference = {"Rectangle": Rectangle, "Ellipse": Ellipse, "Wedge": Wedge}
+            [ax.patches.remove(patch) for patch in reversed(ax.patches) if isinstance(patch, patchReference[typePatch])]
 
     def make_aperture_from_new_cube(self, index):
         """
@@ -1005,12 +1164,26 @@ class SubViz(QMainWindow,
 
         self.spectrumV.draw_background(self.cubeList[index].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[index][0])
 
+    def make_centroid_from_new_cube(self, index):
+        """
+        Calculate the centroid on a new cube
+        :param int index: position of the cube where the centroid is gonna be calculated
+        """
+
+        centroidData = self.cubeList[self.subband].centroidCoordinates.asdict()
+
+        centroidDataTrans = transform_centroid_subband(self.cubeList[self.subband].cubeModel, self.cubeList[index].cubeModel, copy.deepcopy(centroidData), self.cubeList[self.subband].currSlice)
+
+        self.draw_patches("centroid", centroidDataTrans, index)
+
+        self.cubeViewer.get_data_from_sub_viz("centroidCoord", self.cubeList[self.subband], self.cubeList[self.subband].centroidCoordinates)
 
     def clear_figures_on_cube(self, index):
         ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
         self.delete_current_patch(ax, "Rectangle")
         self.delete_current_patch(ax, "Ellipse")
         self.delete_current_patch(ax, "Wedge")
+        self.delete_current_patch(ax, "Centroid")
 
         self.cubeList[index].cubePatchesData.reset_coordinates()
         self.cubeViewer.clear_data()
@@ -1052,9 +1225,15 @@ class SubViz(QMainWindow,
         alert.setDetailedText(traceback.format_exc())
         alert.exec_()
 
+    def jwst_alert(self):
+        alert=QMessageBox()
+        alert.setText("Error, some files could not be opened")
+        alert.setDetailedText(traceback.format_exc())
+        alert.exec_()
+
     def show_file_alert(self):
         alert = QMessageBox()
-        alert.setText("Error: File/Files values or properties incorrect")
+        alert.setText("Error: Some file/files values, names or properties are incorrect")
         alert.setDetailedText(traceback.format_exc())
         alert.exec_()
 
@@ -1102,3 +1281,5 @@ class SubViz(QMainWindow,
         self.styleManager.close()
         self.sliceManager.close()
         self.backgSub.close()
+        self.centCoord.close()
+        self.centWave.close()

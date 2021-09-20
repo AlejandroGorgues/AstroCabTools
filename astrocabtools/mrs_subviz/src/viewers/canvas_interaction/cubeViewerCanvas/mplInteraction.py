@@ -134,6 +134,12 @@ class MplInteraction(object):
         self._cids_callback_pan[event_name] = callback
 
     def disconnect_rectangle(self, changeFigure=False):
+        """
+        Called to disconnect or disable the figure in case the figure is draw
+        to prevent the manipulation of it
+        :param bool changeFigure: Check if the figure drawn need to be disabled
+        entirely, or just to disconnect the interaction of it
+        """
         if self._fig_ref is not None:
             figure = self._fig_ref()
             if figure is not None:
@@ -147,6 +153,12 @@ class MplInteraction(object):
             self._cids_rectangle.clear()
 
     def disconnect_ellipse(self, changeFigure=False):
+        """
+        Called to disconnect or disable the figure in case the figure is draw
+        to prevent the manipulation of it
+        :param bool changeFigure: Check if the figure drawn need to be disabled
+        entirely, or just to disconnect the interaction of it
+        """
         if self._fig_ref is not None:
             figure = self._fig_ref()
             if figure is not None:
@@ -264,7 +276,7 @@ class MplInteraction(object):
         return x_axes, y_axes
 
     def create_rectangle_ax(self, ax):
-        rectprops = dict(edgecolor = 'black',fill = False,
+        rectprops = dict(edgecolor = 'red',fill = False,
                          linewidth = 5, linestyle= '-')
 
         self._rectangle_selector = RectangleSelector(ax, self._callback_rectangle,
@@ -275,7 +287,7 @@ class MplInteraction(object):
         self._disable_rectangle()
 
     def create_ellipse_ax(self, ax):
-        elliprops = dict(edgecolor = 'black', fill = False,
+        elliprops = dict(edgecolor = 'red', fill = False,
                          linewidth = 5, linestyle= '-')
 
         self._ellipse_selector = EllipseSelector(ax, self._callback_ellipse,
@@ -303,7 +315,18 @@ class MplInteraction(object):
 
         pub.sendMessage('emit_data', order = "rectangleAp")
 
-    def redraw_rectangle_without_interaction(self):
+    def redraw_rectangle_without_interaction(self, ix, iy, ex, ey):
+        """
+        Redraw the rectangle on the axe that does not require to interact with it
+        """
+        self._rectangle_selector.extents = (ix, ex, iy, ey)
+        self.rectangleStats.ix = ix
+        self.rectangleStats.iy = iy
+        self.rectangleStats.ex = ex
+        self.rectangleStats.ey = ey
+
+
+    def redraw_rectangle_from_interactive_action(self):
         """
         Redraw the rectangle on the axe that does not require to interact with it
         """
@@ -328,7 +351,6 @@ class MplInteraction(object):
                                                 self.rectangleStats.iy, self.rectangleStats.ey)
 
     def redraw_rectangle_from_rectButton(self):
-
 
         if self.rectangleStats.ix != -1:
             self._enable_rectangle()
@@ -358,7 +380,24 @@ class MplInteraction(object):
 
         pub.sendMessage('emit_data', order= "ellipseAp")
 
-    def redraw_ellipse_without_interaction(self):
+    def redraw_ellipse_without_interaction(self, centerX, centerY, aAxis, bAxis):
+        """
+        Redraw the ellipse on the axe that does not require to activate tools(pan or zoom)
+        after it and to emit the signal
+        """
+
+        xmax = centerX + aAxis/2
+        xmin = centerX - aAxis/2
+        ymax = centerY + bAxis/2
+        ymin = centerY - bAxis/2
+
+        self._ellipse_selector.extents = (xmin, xmax, ymin, ymax)
+        self.ellipseStats.centerX = centerX
+        self.ellipseStats.centerY = centerY
+        self.ellipseStats.aAxis = aAxis
+        self.ellipseStats.bAxis = bAxis
+
+    def redraw_ellipse_from_interactive_action(self):
         """
         Redraw the ellipse on the axe that does not require to activate tools(pan or zoom)
         after it and to emit the signal
@@ -441,11 +480,11 @@ class MplInteraction(object):
         pub.sendMessage('emit_data')
         self._draw()
 
-    def redraw_figure_without_interaction(self):
+    def redraw_figure_without_interaction(self, figureData):
         if self._rectangle_selector.visible or self._rectangle_selector.active:
-            self.redraw_rectangle_without_interaction()
+            self.redraw_rectangle_without_interaction(figureData.rectangleSelection.ix, figureData.rectangleSelection.iy, figureData.rectangleSelection.ex, figureData.rectangleSelection.ey)
         elif self._ellipse_selector.active or self._ellipse_selector.visible:
-            self.redraw_ellipse_without_interaction()
+            self.redraw_ellipse_without_interaction(figureData.ellipseSelection.centerX, figureData.ellipseSelection.centerY, figureData.ellipseSelection.aAxis, figureData.ellipseSelection.bAxis)
 
     def clear_elements_axes(self, ax):
 

@@ -124,8 +124,8 @@ class PanOnClick(ZoomOnWheel):
 
     def _on_mouse_release(self, event):
         if self._pressed_button == 1:  # pan
-            self.redraw_rectangle_from_interactive_action()
-            self.redraw_ellipse_from_interactive_action()
+            self.redraw_rectangle_without_interaction()
+            self.redraw_ellipse_without_interaction()
             self._pan(event)
             pub.sendMessage('emit_data')
 

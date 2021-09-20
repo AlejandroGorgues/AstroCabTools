@@ -106,8 +106,10 @@ class MrsImagesFits(QDialog, astrocabtools.mrs_det_plot.src.ui.ui_images_fits.Ui
 
         self.imageAxes[index].set_title(
             "{}".format(os.path.basename(fitsObj.filename), fontsize=10))
-
-        im = self.imageAxes[index].imshow(hdul[1].data[fitsObj.currIntegration, fitsObj.currFrame],
+        #print(hdul[1].data.shape)
+        #im = self.imageAxes[index].imshow(hdul[1].data[fitsObj.currIntegration, fitsObj.currFrame],
+        #                             norm = norm, cmap=plt.get_cmap(self.globalStats.color), origin='lower')
+        im = self.imageAxes[index].imshow(hdul[1].data[fitsObj.currFrame],
                                      norm = norm, cmap=plt.get_cmap(self.globalStats.color), origin='lower')
 
         #If pixel lines where drawn, add it again to the axes because with clear() the lines were deleted

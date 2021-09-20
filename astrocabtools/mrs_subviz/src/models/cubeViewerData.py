@@ -3,6 +3,7 @@ Class that contains data to manage the properties of a cube
 """
 from .cubeStats import cube_stats
 from .cubePatchesData import cube_patches_data
+from .centroidCoordinates import centroid_coordinates
 
 __all__= ['cube_viewer_data']
 
@@ -16,6 +17,7 @@ class cube_viewer_data:
         self.__axis = []
         self.__cubeModel = None
         self.__cubePatchesData = cube_patches_data()
+        self.__centroidCoordinates = centroid_coordinates()
         self.__wavelengthRange = None
         self.__fluxAperture = None
         self.__aperture = None
@@ -47,6 +49,10 @@ class cube_viewer_data:
     @property
     def cubePatchesData(self):
         return self.__cubePatchesData
+
+    @property
+    def centroidCoordinates(self):
+        return self.__centroidCoordinates
 
     @property
     def aperture(self):
@@ -86,7 +92,11 @@ class cube_viewer_data:
 
     @cubePatchesData.setter
     def cubePatchesData(self, cubePatchesData):
-        self.__cubePatchesData = cubePatchesDatsa
+        self.__cubePatchesData = cubePatchesData
+
+    @centroidCoordinates.setter
+    def centroidCoordinates(self, centroidCoordinates):
+        self.__centroidCoordinates = centroidCoordinates
 
     @aperture.setter
     def aperture(self, aperture):
@@ -109,6 +119,7 @@ class cube_viewer_data:
         self.__currSlice = 0
         self.__cubeModel = None
         self.__cubePatchesData = cube_patches_data()
+        self.__centroidCoordinates = centroid_coordinates()
         self.__wavelengthRange = None
         self.__fluxAperture = None
         self.__aperture = None

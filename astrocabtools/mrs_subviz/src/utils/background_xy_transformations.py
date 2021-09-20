@@ -29,6 +29,14 @@ def background_subtraction(centerX, centerY, r_in, r_out, aperture, cubeModel, s
     return fValues_sub, bkg_sum
 
 def transform_wedges_subband(from_model, to_model, wedgesData, lambdaCube):
+    """
+    Transform the wedges coordinates from one cube to other
+    :param object from_model: initial cube
+    :param object to_model: cube where the data is gonna be transformed
+    :param dict patchesData: coordinates of the figure
+    :param int lambdaCube: lambda value to be used in the transformation
+    :return: dictionary with the new coordinates
+    """
     d2w = from_model.meta.wcs.get_transform('detector', 'world')
     w2d = to_model.meta.wcs.get_transform('world', 'detector')
 

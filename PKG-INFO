@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: AstroCabTools
-Version: 1.2.0
+Version: 1.3.0
 Summary: Set of analysis tools of MRS data
 Home-page: UNKNOWN
 Author: Alejandro Gorgues
@@ -87,7 +87,7 @@ Description: [![Documentation Status](https://readthedocs.org/projects/astrotool
         
         ### Cube_ans and mrs_subviz templates
         
-        The templates for this tools can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_cube_ans.zip).
+        The templates for this tools can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_cubes.zip).
         
         ## Development
         

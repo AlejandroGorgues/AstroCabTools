@@ -80,7 +80,7 @@ The templates for this tool can be downloaded from this [link](https://cab.inta-
 
 ### Cube_ans and mrs_subviz templates
 
-The templates for this tools can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_cube_ans.zip).
+The templates for this tools can be downloaded from this [link](https://cab.inta-csic.es/users/alabiano/templates_cubes.zip).
 
 ## Development
 

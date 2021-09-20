@@ -109,6 +109,6 @@ class ZoomOnWheel(MplInteraction):
 
             pub.sendMessage('emit_data')
 
-            self.redraw_rectangle_from_interactive_action()
-            self.redraw_ellipse_from_interactive_action()
+            self.redraw_rectangle_without_interaction()
+            self.redraw_ellipse_without_interaction()
 

@@ -2,7 +2,7 @@ import numpy as np
 from photutils import RectangularAperture, aperture_photometry
 import math
 
-__all__=["transform_xy_rectangle", "transform_rectangle_subband"]
+__all__=["transform_xy_rectangle", "transform_rectangle_subband", "transform_rectangle_subband_from_coord"]
 
 def transform_xy_rectangle(centerX, centerY,width, height, cubeModel):
     """ Update rectangle data widgets and image object attributes
@@ -11,10 +11,7 @@ def transform_xy_rectangle(centerX, centerY,width, height, cubeModel):
     :param float width: width value of the rectangle
     :param float height: height value of the rectangle
     :param object cubeModel: current data with standarized structure of the cube
-    :param object cubeObj: current data from the cube
-    :return list fValues: flux values list for each wavelength
-    :return list wValues: wavelenght list for each slice
-    :return Aperture_Photometry aperture: aperture of the rectangle
+    :return: flux, wavelength and aperture values
     """
     fValues = []
     wValues = []
@@ -28,16 +25,18 @@ def transform_xy_rectangle(centerX, centerY,width, height, cubeModel):
 
         ra, dec, wavelength = d2w(1,1, i)
         wValues.append(wavelength)
-    #wValues = [((w+1) - cubeObj.cubeZCPix)*cubeObj.cubeWValue + cubeObj.cubeZCRVal for w in range(len(fValues))]
-    #print("*********************")
-    #print(wValues)
-    #print("---------------------")
-    #print([((w+1) - cubeObj.cubeZCPix)*cubeObj.cubeWValue + cubeObj.cubeZCRVal for w in range(len(fValues))])
-    #print("*********************")
 
     return fValues, wValues, aperture
 
 def transform_rectangle_subband(from_model, to_model, patchesData, lambdaCube):
+    """
+    Transform the figure coordinates from one cube to other
+    :param object from_model: initial cube
+    :param object to_model: cube where the data is gonna be transformed
+    :param dict patchesData: coordinates of the figure
+    :param int lambdaCube: lambda value to be used in the transformation
+    :return: dictionary with the new coordinates
+    """
     d2w = from_model.meta.wcs.get_transform('detector', 'world')
     w2d = to_model.meta.wcs.get_transform('world', 'detector')
 
@@ -56,5 +55,27 @@ def transform_rectangle_subband(from_model, to_model, patchesData, lambdaCube):
     patchesData['centerX'] = x
     patchesData['centerY'] = y
 
-    #print(patchesData)
+    return patchesData
+
+def transform_rectangle_subband_from_coord(from_model, patchesData, wavelengthValue):
+    """
+    Transform the figure coordinates from RA and DEC to pixel of the same cube
+    :param object from_model: cube where the data is gonna be transformed
+    :param dict patchesData: coordinates of the figure
+    :param float wavelenghtValue: wavelength value to be used in the transformation
+    :return: dictionary with pixel coordinates
+    """
+    w2d = from_model.meta.wcs.get_transform('world', 'detector')
+
+    x, y, _ = w2d(patchesData['ix'], patchesData['iy'], wavelengthValue)
+    patchesData['ix'] = x
+    patchesData['iy'] = y
+
+    x, y, _ = w2d(patchesData['ex'], patchesData['ey'], wavelengthValue)
+    patchesData['ex'] = x
+    patchesData['ey'] = y
+
+    x, y, _ = w2d(patchesData['centerX'], patchesData['centerY'], wavelengthValue)
+    patchesData['centerX'] = x
+    patchesData['centerY'] = y
     return patchesData

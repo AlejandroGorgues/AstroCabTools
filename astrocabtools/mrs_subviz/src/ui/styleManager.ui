@@ -136,62 +136,62 @@
        </item>
        <item>
         <property name="text">
-         <string>1A</string>
+         <string>1 Short</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>1B</string>
+         <string>1 Medium</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>1C</string>
+         <string>1 Long</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>2A</string>
+         <string>2 Short</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>2B</string>
+         <string>2 Medium</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>2C</string>
+         <string>2 Long</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>3A</string>
+         <string>3 Short</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>3B</string>
+         <string>3 Medium</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>3C</string>
+         <string>3 Long</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>4A</string>
+         <string>4 Short</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>4B</string>
+         <string>4 Medium</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>4C</string>
+         <string>4 Long</string>
         </property>
        </item>
       </widget>

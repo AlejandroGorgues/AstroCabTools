@@ -37,6 +37,30 @@ class SliceManager(QDialog, astrocabtools.mrs_subviz.src.ui.ui_sliceManager.Ui_s
         else:
             self.change_state_widgets(False)
 
+    def reset_widgets(self):
+        self.sliceMinimumValue.setText("")
+        self.sliceMaximumValue.setText("")
+        self.wavelengthLineEdit.setText("")
+        self.sliceSpinBox.blockSignals(True)
+        self.sliceSlider.blockSignals(True)
+        self.sliceSlider.setValue(0)
+        self.subbandSelectionComboBox.setCurrentIndex(0)
+        self.sliceSpinBox.setValue(0)
+        self.sliceSpinBox.blockSignals(False)
+
+    def reset_same_cube(self, index):
+        """
+        Check if the subband that had been changed is the same as the selected in
+        the sliceManager window and set the values to the new ones
+        :param in index: index of the subband changed
+        """
+        if index == self.subbandSelectionComboBox.currentIndex()-1:
+            self.set_subband(self.subbandSelectionComboBox.currentIndex())
+            self.wavelengthLineEdit.setText("")
+            self.sliceSlider.setValue(0)
+            self.sliceSpinBox.setValue(0)
+
+
     def initialize_slice_widgets(self):
         #If text change, update slider and viceversa
         self.sliceSpinBox.valueChanged.connect(self.update_from_spinBox)
@@ -113,4 +137,14 @@ class SliceManager(QDialog, astrocabtools.mrs_subviz.src.ui.ui_sliceManager.Ui_s
             self.sliceSpinBox.setEnabled(state)
 
     def clear_data(self):
+        self.sliceMinimumValue.setText("")
+        self.sliceMaximumValue.setText("")
+        self.wavelengthLineEdit.setText("")
+        self.sliceSpinBox.blockSignals(True)
+        self.sliceSlider.blockSignals(True)
+        self.sliceSlider.setValue(0)
+        self.subbandSelectionComboBox.setCurrentIndex(0)
+        self.sliceSpinBox.setValue(0)
+        self.sliceSpinBox.blockSignals(False)
+        self.sliceSlider.blockSignals(False)
         self.close()

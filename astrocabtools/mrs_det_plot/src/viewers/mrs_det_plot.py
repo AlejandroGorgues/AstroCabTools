@@ -416,7 +416,9 @@ class MrsDetPlot(QMainWindow, astrocabtools.mrs_det_plot.src.ui.ui_mrs_det_plot.
                 self.reset_pixel_values(index)
 
                 globalStats = self.imagesFits.get_global_stats()
+                print(index, self.fitsObjList[index])
                 norm = self.get_norm(index, globalStats)
+                #print(self.fitsObjList[index].shape)
 
                 self.imagesFits.draw_plot(index, self.fitsObjList[index], hdul, norm)
 

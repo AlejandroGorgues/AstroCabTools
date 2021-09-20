@@ -55,8 +55,6 @@ class CubeViewer(QDialog,
 
         self.setupUi(self)
 
-        #plt.style.use('seaborn-white')
-
         self.create_axes()
         self.zoomButton.clicked.connect(self.zoomOrders)
         self.panButton.clicked.connect(self.panOrders)
@@ -118,6 +116,9 @@ class CubeViewer(QDialog,
         """
         Draw the cube each time this method is called in case the slice or
         subband changed
+        :param str order: operation to be made
+        :param dict cubeParams: data of the cube
+        :param dict figureData: data of the figure to be draw if needed
         """
         self.order = order
         self.cubeParams = cubeParams
@@ -155,14 +156,20 @@ class CubeViewer(QDialog,
 
         elif order == "interactive":
             self.figureButton.setEnabled(False)
+            self.cubeFigure.pan_zoom.disconnect_pan()
+            self.cubeFigure.pan_zoom.disconnect_zoom()
+            self.cubeFigure.pan_zoom.disconnect_rectangle()
+            self.cubeFigure.pan_zoom.disconnect_ellipse()
             self.figureButton.setText("No figure")
-            self.cubeFigure.pan_zoom.redraw_figure_without_interaction()
+            self.cubeFigure.canvas.draw()
+            self.cubeFigure.pan_zoom.redraw_figure_without_interaction(figureData)
 
     def change_figure_from_sub_viz(self, order):
 
         """
         Change the current figure selector that is currently displayed in the
         QDialog
+        :param str order: operation to be made
         """
         self.order = order
         self.cubeFigure.pan_zoom.disconnect_pan()
@@ -192,6 +199,7 @@ class CubeViewer(QDialog,
         self.cubeParams = cubeParams
         self.draw_cube(cubeParams.path, cubeParams.currSlice, cubeParams.cubeModel, cubeParams.style,
                        cubeParams.axis[0].get_xlim(), cubeParams.axis[0].get_ylim())
+        self.cubeFigure.canvas.draw()
 
     def draw_wedges(self, centerX, centerY, innerRadius, outerRadius):
 
@@ -203,10 +211,24 @@ class CubeViewer(QDialog,
         :param float innerRadius:
         :param float outerRadius:
         """
-
         self.update_wedges("first_wedge", centerX = centerX, centerY = centerY, radius = innerRadius)
         self.update_wedges("second_wedge", centerX = centerX, centerY = centerY, radius = outerRadius)
         self.cubeFigure.canvas.draw()
+
+
+    def draw_centroid(self, xdata, ydata):
+        """ Draw marker on specified point
+        :param float xdata: X coordinate
+        :param float ydata: Y coordinate
+        """
+
+        marker = next((marker for marker in enumerate(self.ax.collections) if marker[1].get_gid() == "centroid"), None)
+
+        if marker is not None:
+            self.ax.collections[marker[0]].set_offsets(np.array([xdata, ydata], ndmin = 2))
+            self.cubeFigure.canvas.draw()
+        else:
+            self.ax.scatter(xdata, ydata, marker='+', c= 'red', gid="centroid")
 
     def modify_image(self, typeStyle, objStyle):
         im = self.ax.get_images()[0]
@@ -320,6 +342,7 @@ class CubeViewer(QDialog,
 
         if wedge is not None:
             if self.ax.patches[wedge[0]].r != radius:
+                self.ax.patches[wedge[0]].set_center((centerX, centerY))
                 self.ax.patches[wedge[0]].set_radius(radius)
         else:
             wedge= Wedge((centerX, centerY),
@@ -327,6 +350,9 @@ class CubeViewer(QDialog,
             self.ax.add_patch(wedge)
 
     def emit_data(self, order = None, patchesData = None):
+        """
+        Update the limits and current image if any interaction have been made
+        """
         axisData = {}
         axisData['xlim'] = self.ax.get_xlim()
         axisData['ylim'] = self.ax.get_ylim()

@@ -44,7 +44,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2">
+     <item row="4" column="0" colspan="2">
       <widget class="QPushButton" name="cancelButton">
        <property name="enabled">
         <bool>true</bool>
@@ -55,6 +55,15 @@
        <property name="text">
         <string>Cancel</string>
        </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="cubeComboBox">
+       <item>
+        <property name="text">
+         <string>MIRI</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="2" column="0">
@@ -73,22 +82,6 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="cubeComboBox">
-       <item>
-        <property name="text">
-         <string>MIRI</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Subband associate with</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="QComboBox" name="subbandComboBox">
        <property name="enabled">
@@ -96,64 +89,84 @@
        </property>
        <item>
         <property name="text">
-         <string>1A</string>
+         <string>1 Short</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>1B</string>
+         <string>1 Medium</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>1C</string>
+         <string>1 Long</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>2A</string>
+         <string>2 Short</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>2B</string>
+         <string>2 Medium</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>2C</string>
+         <string>2 Long</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>3A</string>
+         <string>3 Short</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>3B</string>
+         <string>3 Medium</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>3C</string>
+         <string>3 Long</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>4A</string>
+         <string>4 Short</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>4B</string>
+         <string>4 Medium</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>4C</string>
+         <string>4 Long</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item row="4" column="2" colspan="2">
+      <widget class="QPushButton" name="acceptButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>Accept</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Subband associate with</string>
+       </property>
       </widget>
      </item>
      <item row="0" column="2">
@@ -170,23 +183,43 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="2" colspan="2">
-      <widget class="QPushButton" name="acceptButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="text">
-        <string>Accept</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1" colspan="3">
       <widget class="QLabel" name="filePathLabel">
        <property name="text">
         <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="filterLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="placeholderText">
+        <string>*.fits</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="filterLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Filter text</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QCheckBox" name="customSubbandCheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Use custom subband instead of default</string>
        </property>
       </widget>
      </item>

@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>475</width>
+    <width>525</width>
     <height>210</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>475</width>
+    <width>525</width>
     <height>210</height>
    </size>
   </property>
@@ -22,27 +22,90 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="widthLineEdit">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>0</height>
+        </size>
        </property>
-       <property name="text">
-        <string>Center X</string>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="centerXLineEdit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="2" column="3">
+      <widget class="QLineEdit" name="bottomLeftYLineEdit">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Bottom Left Y or DEC</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QLineEdit" name="heightLineEdit">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Height (pixel or arcsec)</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2" colspan="2">
+      <widget class="QPushButton" name="createBottomButtonPixel">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>Create rectangle 
+with bottom coordinates in pixels</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="centerYLineEdit">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -51,70 +114,41 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>16777215</width>
          <height>16777215</height>
         </size>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="widthLineEdit">
-       <property name="maximumSize">
-        <size>
-         <width>70</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QLabel" name="label_5">
+     <item row="5" column="2" colspan="2">
+      <widget class="QPushButton" name="createBottomButtonCoord">
        <property name="text">
-        <string>Height</string>
+        <string>Create rectangle 
+with bottom coordinates</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Bottom Left X or RA</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Width</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Bottom Left Y</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="3">
-      <widget class="QLineEdit" name="bottomLeftYLineEdit">
-       <property name="maximumSize">
+     <item row="1" column="3">
+      <widget class="QLineEdit" name="bottomLeftXLineEdit">
+       <property name="minimumSize">
         <size>
          <width>60</width>
-         <height>16777215</height>
+         <height>0</height>
         </size>
        </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QLineEdit" name="heightLineEdit">
        <property name="maximumSize">
         <size>
-         <width>70</width>
+         <width>16777215</width>
          <height>16777215</height>
         </size>
        </property>
@@ -136,13 +170,77 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="0" colspan="2">
-      <widget class="QPushButton" name="createCenterButton">
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="centerXLineEdit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Center Y or DEC</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Width (pixel or arcsec)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Center X or RA</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="QPushButton" name="createCenterButtonPixel">
        <property name="enabled">
         <bool>true</bool>
        </property>
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -170,7 +268,7 @@
        </property>
        <property name="text">
         <string>Create rectangle 
-with center coordinates</string>
+with center coordinates in pixels</string>
        </property>
        <property name="default">
         <bool>false</bool>
@@ -180,63 +278,26 @@ with center coordinates</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="2" colspan="2">
-      <widget class="QPushButton" name="createBottomButton">
-       <property name="enabled">
-        <bool>true</bool>
+     <item row="5" column="4">
+      <widget class="QPushButton" name="skyCoordInfoButton">
+       <property name="text">
+        <string>Sky coordinate
+ format info</string>
        </property>
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QPushButton" name="createCenterButtonCoord">
        <property name="text">
         <string>Create rectangle 
-with bottom coordinates</string>
+with center coordinates</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+     <item row="4" column="4">
+      <widget class="QPushButton" name="pixelInfoButton">
        <property name="text">
-        <string>Center Y</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="centerYLineEdit">
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="3">
-      <widget class="QLineEdit" name="bottomLeftXLineEdit">
-       <property name="maximumSize">
-        <size>
-         <width>60</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Bottom Left X</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <string>Pixel format info</string>
        </property>
       </widget>
      </item>

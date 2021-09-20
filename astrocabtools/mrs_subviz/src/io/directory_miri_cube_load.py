@@ -24,7 +24,7 @@ def get_miri_cube_subband(path):
     Obtain the list of X, Y, wavelength (slices) and flux values from each miri cube fits file in a directory selected previously
     :param dict pathCubes: list of paths of each cube
     """
-    subbandsList = []
+    subband = ""
     cubeModel = datamodels.CubeModel(path)
     start_index = list(cubeModel.extra_fits.HDRTAB.data[3]).index('MJy/sr')
 
@@ -34,17 +34,15 @@ def get_miri_cube_subband(path):
     cubeModel.data = cubeModel.data*photujua2 / (1000*photmjsr)
 
     hdul = fits.open(path)
-    units_control = cubeModel.meta.wcsinfo.cunit3 != 'um' or cubeModel.meta.bunit_data[:3] != 'mJy'
+
     if hdul[0].header['BAND'] == "MULTIPLE":
-        subbandsList = subband_position(int(hdul[1].header["NAXIS3"]), float(hdul[1].header["CRPIX3"]), float(hdul[1].header["CDELT3"]),float(hdul[1].header["CRVAL3"]))
+        subband = subband_position(int(hdul[1].header["NAXIS3"]), float(hdul[1].header["CRPIX3"]), float(hdul[1].header["CDELT3"]),float(hdul[1].header["CRVAL3"]))
     elif hdul[0].header['BAND'] == "SHORT":
-        subband = hdul[0].header['CHANNEL'] + 'A'
-        subbandsList.append(subband)
+        subband = hdul[0].header['CHANNEL'] + 'S'
     elif hdul[0].header['BAND'] == "MEDIUM":
-        subband = hdul[0].header['CHANNEL'] + 'B'
-        subbandsList.append(subband)
+        subband = hdul[0].header['CHANNEL'] + 'M'
     elif hdul[0].header['BAND'] == "LONG":
-        subband = hdul[0].header['CHANNEL'] + 'C'
-        subbandsList.append(subband)
+        subband = hdul[0].header['CHANNEL'] + 'L'
     hdul.close()
-    return units_control, subbandsList, cubeModel
+
+    return subband, cubeModel

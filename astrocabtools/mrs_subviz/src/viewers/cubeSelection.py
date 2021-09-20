@@ -15,7 +15,7 @@ from PyQt5 import uic
 import astrocabtools.mrs_subviz.src.ui.ui_cubeSelection
 
 class CubeSelection(QDialog, astrocabtools.mrs_subviz.src.ui.ui_cubeSelection.Ui_cubeSelection):
-    subbandSelected = pyqtSignal(int, str,  name="subbandSelected")
+    subbandSelected = pyqtSignal(int, str, str,  name="subbandSelected")
 
     def __init__(self, parent = None):
         super(CubeSelection, self).__init__(parent)
@@ -30,9 +30,9 @@ class CubeSelection(QDialog, astrocabtools.mrs_subviz.src.ui.ui_cubeSelection.Ui
         self.subband = index
 
     def send_operation(self):
-        self.subbandSelected.emit(self.subband, self.order)
+        self.subbandSelected.emit(self.subband, self.order, self.additionalOrder)
 
-    def set_order(self, order):
+    def set_order(self, order, additionalOrder):
         ordersDetailed = {"rectangleAp":"Operation: make rectangle aperture",
                           "ellipseAp":"Operation: make ellipse aperture",
                           "interactive":"Operation: interact with the cube",
@@ -40,8 +40,11 @@ class CubeSelection(QDialog, astrocabtools.mrs_subviz.src.ui.ui_cubeSelection.Ui
                           "ellipseCoord":"Operation: visualize ellipse coordinates",
                           "rectangleCreate":"Operation: create rectangle from coordinates",
                           "ellipseCreate":"Operation: create ellipse from coordinates",
-                          "wedgesBackg":"Operation: generate background"}
+                          "wedgesBackg":"Operation: generate background",
+                          "centroidSelect":"Operation: calculate centroid",
+                          "centroidCoord":"Operation: show coordinates of centroid"}
         self.order = order
+        self.additionalOrder = additionalOrder
         self.operationLabel.setText(ordersDetailed[order])
 
     def clear_data(self):

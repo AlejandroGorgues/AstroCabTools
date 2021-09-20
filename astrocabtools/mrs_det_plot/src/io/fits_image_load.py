@@ -24,10 +24,10 @@ def get_fits_image_data(path):
     #I look into the first position to check the order
     if hdul[1].header["CUNIT3"] == "groups":
         fitsObj.maxFrame = int(hdul[1].header["NAXIS3"])
-        fitsObj.maxIntegration = int(hdul[1].header["NAXIS4"])
+        fitsObj.maxIntegration = int(hdul[1].header["NAXIS1"])
     else:
-        fitsObj.maxFrame = int(hdul[1].header["NAXIS4"])
-        fitsObj.maxIntegration = int(hdul[1].header["NAXIS3"])
+        fitsObj.maxFrame = int(hdul[1].header["NAXIS3"])
+        fitsObj.maxIntegration = int(hdul[1].header["NAXIS"])
         fitsObj.maxXAxis = int(hdul[1].header["NAXIS1"]) - 1
         fitsObj.maxYAxis = int(hdul[1].header["NAXIS2"]) - 1
 

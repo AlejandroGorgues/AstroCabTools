@@ -109,22 +109,40 @@
      <addaction name="actionDrawRectangle"/>
      <addaction name="actionDrawEllipse"/>
     </widget>
+    <widget class="QMenu" name="menuCreation_of_Rectangle_parameterized">
+     <property name="title">
+      <string>Creation of Rectangle parameterized</string>
+     </property>
+     <addaction name="actionNo_centroid_CR"/>
+     <addaction name="actionCentroid_and_center_CR"/>
+     <addaction name="actionCentroid_as_center_CR"/>
+    </widget>
+    <widget class="QMenu" name="menuCreation_of_Ellipse_parameterized">
+     <property name="title">
+      <string>Creation of Ellipse parameterized</string>
+     </property>
+     <addaction name="actionNo_centroid_CE"/>
+     <addaction name="actionCentroid_and_center_CE"/>
+     <addaction name="actionCentroid_as_center_CE"/>
+    </widget>
     <addaction name="actionSet_current_wavelength"/>
+    <addaction name="actionInteractiveOp"/>
     <addaction name="actionRectangle"/>
     <addaction name="actionEllipse"/>
-    <addaction name="actionInteractiveOp"/>
     <addaction name="actionManage_style"/>
     <addaction name="separator"/>
     <addaction name="actionRectangle_coordinates"/>
-    <addaction name="actionCreation_Rectangle"/>
+    <addaction name="menuCreation_of_Rectangle_parameterized"/>
     <addaction name="separator"/>
     <addaction name="actionEllipse_coordinates"/>
-    <addaction name="actionCreation_Ellipse"/>
+    <addaction name="menuCreation_of_Ellipse_parameterized"/>
     <addaction name="separator"/>
     <addaction name="actionSpectrum_visualization"/>
     <addaction name="separator"/>
     <addaction name="actionBackground_subtraction"/>
     <addaction name="menuShow_figure"/>
+    <addaction name="actionCalculate_centroid"/>
+    <addaction name="actionShow_centroid_coordinates"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -132,14 +150,6 @@
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
-   </property>
-  </action>
-  <action name="actionRectangle">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Rectangle</string>
    </property>
   </action>
   <action name="actionZoom">
@@ -216,19 +226,9 @@
     <string>Rectangle coordinates</string>
    </property>
   </action>
-  <action name="actionCreation_Rectangle">
-   <property name="text">
-    <string>Creation of Rectangle parameterized</string>
-   </property>
-  </action>
   <action name="actionSpectrum_visualization">
    <property name="text">
     <string>Spectrum visualization</string>
-   </property>
-  </action>
-  <action name="actionEllipse">
-   <property name="text">
-    <string>Ellipse</string>
    </property>
   </action>
   <action name="actionBackground_subtraction">
@@ -242,11 +242,6 @@
   <action name="actionUnselect">
    <property name="text">
     <string>Unselect current tool</string>
-   </property>
-  </action>
-  <action name="actionCreation_Ellipse">
-   <property name="text">
-    <string>Creation of Ellipse parameterized</string>
    </property>
   </action>
   <action name="actionInteractiveOp">
@@ -299,6 +294,116 @@
    </property>
    <property name="text">
     <string>Ellipse coordinates</string>
+   </property>
+  </action>
+  <action name="actionUse_centroid">
+   <property name="text">
+    <string>No centroid</string>
+   </property>
+  </action>
+  <action name="actionUse_centroid_as_center">
+   <property name="text">
+    <string>Use centroid as center</string>
+   </property>
+  </action>
+  <action name="actionUse_centroid_as_center_2">
+   <property name="text">
+    <string>Centroid as center</string>
+   </property>
+  </action>
+  <action name="actionUse_centroid_and_center_independently">
+   <property name="text">
+    <string>Centroid and center</string>
+   </property>
+  </action>
+  <action name="actionNo_centroid_E">
+   <property name="text">
+    <string>No centroid</string>
+   </property>
+  </action>
+  <action name="actionCentroid_as_center_E">
+   <property name="text">
+    <string>Centroid as center</string>
+   </property>
+  </action>
+  <action name="actionCentroid_and_center_E">
+   <property name="text">
+    <string>Centroid and center</string>
+   </property>
+  </action>
+  <action name="actionNo_centroid_R">
+   <property name="text">
+    <string>No centroid</string>
+   </property>
+  </action>
+  <action name="actionCentroid_and_center_R">
+   <property name="text">
+    <string>Centroid and center</string>
+   </property>
+  </action>
+  <action name="actionCentroid_as_center_R">
+   <property name="text">
+    <string>Centroid as center</string>
+   </property>
+  </action>
+  <action name="actionNo_centroid_CR">
+   <property name="text">
+    <string>No centroid</string>
+   </property>
+  </action>
+  <action name="actionCentroid_and_center_CR">
+   <property name="text">
+    <string>Centroid and center</string>
+   </property>
+  </action>
+  <action name="actionCentroid_as_center_CR">
+   <property name="text">
+    <string>Centroid as center</string>
+   </property>
+  </action>
+  <action name="actionNo_centroid_CE">
+   <property name="text">
+    <string>No centroid</string>
+   </property>
+  </action>
+  <action name="actionCentroid_and_center_CE">
+   <property name="text">
+    <string>Centroid and center</string>
+   </property>
+  </action>
+  <action name="actionCentroid_as_center_CE">
+   <property name="text">
+    <string>Centroid as center</string>
+   </property>
+  </action>
+  <action name="actionCalculate_centroid">
+   <property name="text">
+    <string>Calculate centroid</string>
+   </property>
+  </action>
+  <action name="actionmenuRectangle">
+   <property name="text">
+    <string>Rectangle</string>
+   </property>
+  </action>
+  <action name="actionRectangke">
+   <property name="text">
+    <string>Rectangke</string>
+   </property>
+  </action>
+  <action name="actionRectangle">
+   <property name="text">
+    <string>Rectangle</string>
+   </property>
+  </action>
+  <action name="actionEllipse">
+   <property name="text">
+    <string>Ellipse</string>
+   </property>
+  </action>
+  <action name="actionShow_centroid_coordinates">
+   <property name="text">
+    <string>Show centroid coordinates</string>
    </property>
   </action>
  </widget>

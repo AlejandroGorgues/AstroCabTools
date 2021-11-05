@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'sub_viz.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.0
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_sub_viz(object):
     def setupUi(self, sub_viz):
@@ -256,6 +254,7 @@ class Ui_sub_viz(object):
         self.actionCalculate_centroid.setText(_translate("sub_viz", "Calculate centroid"))
         self.actionmenuRectangle.setText(_translate("sub_viz", "Rectangle"))
         self.actionRectangke.setText(_translate("sub_viz", "Rectangke"))
-        self.actionRectangle.setText(_translate("sub_viz", "Rectangle"))
-        self.actionEllipse.setText(_translate("sub_viz", "Ellipse"))
+        self.actionRectangle.setText(_translate("sub_viz", "Rectangle Aperture"))
+        self.actionEllipse.setText(_translate("sub_viz", "Ellipse Aperture"))
         self.actionShow_centroid_coordinates.setText(_translate("sub_viz", "Show centroid coordinates"))
+

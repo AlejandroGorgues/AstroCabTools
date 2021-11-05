@@ -9,7 +9,7 @@ with open(path.join(absPath, 'README.md'), encoding='utf-8') as f:
 
 setup(
 	name='AstroCabTools',
-	version='1.3.0',
+	version='1.4.0',
 	author='Alejandro Gorgues',
 	description='Set of analysis tools of MRS data',
         long_description=long_description,

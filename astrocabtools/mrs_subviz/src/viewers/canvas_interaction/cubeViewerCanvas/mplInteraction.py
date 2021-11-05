@@ -313,7 +313,7 @@ class MplInteraction(object):
         self.rectangleStats.ey = right_topY
         self._draw()
 
-        pub.sendMessage('emit_data', order = "rectangleAp")
+        #pub.sendMessage('emit_data', order = "rectangleAp")
 
     def redraw_rectangle_without_interaction(self, ix, iy, ex, ey):
         """
@@ -486,15 +486,20 @@ class MplInteraction(object):
         elif self._ellipse_selector.active or self._ellipse_selector.visible:
             self.redraw_ellipse_without_interaction(figureData.ellipseSelection.centerX, figureData.ellipseSelection.centerY, figureData.ellipseSelection.aAxis, figureData.ellipseSelection.bAxis)
 
-    def clear_elements_axes(self, ax):
+    def redraw_figure_with_interaction(self):
+        if self._rectangle_selector.visible or self._rectangle_selector.active:
+            self.redraw_rectangle_with_interaction()
+        elif self._ellipse_selector.active or self._ellipse_selector.visible:
+            self.redraw_ellipse_with_interaction()
 
-        self.create_ellipse_ax(ax)
-        self.create_rectangle_ax(ax)
+    def clear_elements_axes(self, ax):
 
         self.rectangleStats = rectangle_selection(-1,-1,-1,-1)
         self.ellipseStats = ellipse_selection(-1,-1,-1,-1)
+        self._rectangle_selector.extents = (0,0,0,1)
 
-        ax.patches.clear()
+        self._ellipse_selector.extents = (0,0,0,1)
+
 
     def _draw(self):
         """Conveninent method to redraw the figure"""

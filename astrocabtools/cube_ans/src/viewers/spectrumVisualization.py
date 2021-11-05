@@ -158,8 +158,7 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
 
     @pyqtSlot()
     def select_parameters(self):
-        """Load the dialog where the parameters to be applied to the spectrum to load the
-        fitLine tool will be used"""
+        """Load the dialog where the parameters to be applied to the spectrum to load           the fitLine tool will be used"""
         self.specPars.update_path(self.path)
         self.specPars.show()
         self.specPars.open()

@@ -1,11 +1,34 @@
 import numpy as np
 import math
 
-from photutils import aperture_photometry, CircularAnnulus
+from photutils import aperture_photometry, CircularAnnulus, RectangularAperture
 
-__all__=["background_subtraction", "transform_wedges_subband"]
+__all__=["annulus_background_subtraction","rectangle_background_subtraction", "transform_wedges_subband"]
 
-def background_subtraction(centerX, centerY, r_in, r_out, aperture, cubeModel, spectrumValues):
+def rectangle_background_subtraction(centerX, centerY, width, height, aperture, cubeModel, spectrumValues):
+    """Get the total flux values subtracting the aperture position of the rectangle
+    :param float centerX: center x coordinate
+    :param float centerY: center y coordinate
+    :param float width: value of the width
+    :param float height: value of the height
+    :param Aperture Photometry aperture: aperture object
+    :param Spectrum Values spectrumValues: object that contains reference to current wavelength and flux values transformed
+    :return: list fValues_sub
+    :return: list bkg_sum
+    """
+
+    fValues_sub = []
+    bkg_sum = []
+    rectangular_aperture = RectangularAperture([centerX, centerY], width, height)
+    pixelArea = (cubeModel.meta.wcsinfo.cdelt1 * 3600.) * (cubeModel.meta.wcsinfo.cdelt2 * 3600.)
+    for i in range(cubeModel.weightmap.shape[0]):
+        phot_table = aperture_photometry(cubeModel.data[i], rectangular_aperture)
+        bkg_mean = (phot_table['aperture_sum'][0]/rectangular_aperture.area)*pixelArea
+        bkg_sum.append(bkg_mean*aperture.area)
+        fValues_sub.append(spectrumValues[i] - bkg_sum[i])
+    return fValues_sub, bkg_sum
+
+def annulus_background_subtraction(centerX, centerY, r_in, r_out, aperture, cubeModel, spectrumValues):
     """Get the total flux values subtracting the aperture position of the rings
     :param float centerX: center x coordinate
     :param float centerY: center y coordinate

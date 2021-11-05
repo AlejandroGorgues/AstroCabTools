@@ -21,7 +21,7 @@ from PyQt5 import QtGui
 from PyQt5 import uic
 
 from matplotlib import widgets
-from matplotlib.patches import Wedge
+from matplotlib.patches import Wedge, Rectangle
 import matplotlib.gridspec as gridspec
 
 from pubsub import pub
@@ -37,9 +37,7 @@ from ..io.miri_cube_load import get_miri_cube_data
 
 from .canvas_interaction.cubeViewerCanvas.panZoom import figure_pz
 
-import astrocabtools.mrs_subviz.src.viewers.rectangleCoordinates as rectCoord
-import astrocabtools.mrs_subviz.src.viewers.rectangleCreation as rectCreat
-import astrocabtools.mrs_subviz.src.viewers.ellipseCreation as ellCreat
+import astrocabtools.mrs_subviz.src.viewers.styleManagerCubeViewer as styleCube
 import astrocabtools.mrs_subviz.src.ui.ui_cubeViewer
 
 
@@ -56,14 +54,22 @@ class CubeViewer(QDialog,
         self.setupUi(self)
 
         self.create_axes()
+
+        self.styleCube = styleCube.StyleManagerCubeViewer()
+
         self.zoomButton.clicked.connect(self.zoomOrders)
         self.panButton.clicked.connect(self.panOrders)
         self.zoomResetButton.clicked.connect(self.zoomResetOrders)
         self.unselectButton.clicked.connect(self.unSelectOrders)
+        self.styleButton.clicked.connect(self.styleOrders)
+        self.apertureButton.clicked.connect(self.apertureOrders)
         self.saveButton.clicked.connect(self.save_figure)
 
-        pub.subscribe(self.draw_rectangle_coordinates, 'rectangleCreation')
-        pub.subscribe(self.draw_ellipse_coordinates, 'ellipseCreation')
+        self.styleCube.cubeColorChanged.connect(self.colorOrders)
+        self.styleCube.cubeStretchChanged.connect(self.stretchOrders)
+
+        #pub.subscribe(self.draw_rectangle_coordinates, 'rectangleCreation')
+        #pub.subscribe(self.draw_ellipse_coordinates, 'ellipseCreation')
 
         pub.subscribe(self.emit_data, 'emit_data')
 
@@ -111,6 +117,46 @@ class CubeViewer(QDialog,
             #self.cubeFigure.canvas.clearFocus()
             self.cubeFigure.pan_zoom.redraw_ellipse_from_elliButton()
 
+    def styleOrders(self):
+        self.styleCube.show()
+        self.styleCube.open()
+
+    def apertureOrders(self):
+        """
+        Make the aperture when the user press the button
+        """
+        try:
+            self.update_modified_slice[str, dict, dict].emit(self.modifiedData['order'], self.modifiedData['axisData'], self.modifiedData['patchesData'])
+        except Exception as e:
+            self.missing_data_alert()
+
+    def colorOrders(self, colorText):
+        im = self.ax.get_images()[0]
+        if colorText == "Accent":
+            im.set_cmap(plt.get_cmap("Accent"))
+        elif colorText == "Heat":
+            im.set_cmap(plt.get_cmap("gist_heat"))
+        else:
+            im.set_cmap(plt.get_cmap(colorText.lower()))
+        self.cubeFigure.canvas.draw()
+        self.cubeFigure.pan_zoom.redraw_figure_with_interaction()
+
+    def scaleOrders(self, scale):
+        im = self.ax.get_images()[0]
+        _,_, stretch = self.styleCube.get_data()
+        norm = self.get_norm(stretch, scale)
+        im.set_norm(norm)
+        self.cubeFigure.canvas.draw()
+        self.cubeFigure.pan_zoom.redraw_figure_with_interaction()
+
+    def stretchOrders(self, stretch):
+        im = self.ax.get_images()[0]
+        _,scale, _ = self.styleCube.get_data()
+        norm = self.get_norm(stretch, scale)
+        im.set_norm(norm)
+        self.cubeFigure.canvas.draw()
+        self.cubeFigure.pan_zoom.redraw_figure_with_interaction()
+
     def get_data_from_sub_viz(self, order, cubeParams, figureData=None):
 
         """
@@ -128,11 +174,13 @@ class CubeViewer(QDialog,
         if order == "rectangleAp":
         #Check if rectangle is not activate previously to not duplicate it
             self.figureButton.setEnabled(True)
+            self.apertureButton.setEnabled(True)
             self.figureButton.setText("Rectangle")
             self.cubeFigure.canvas.draw()
             self.cubeFigure.pan_zoom.disconnect_pan()
             self.cubeFigure.pan_zoom.disconnect_zoom()
             self.cubeFigure.pan_zoom.disconnect_ellipse(True)
+            self.cubeFigure.pan_zoom.disconnect_rectangle()
             self.cubeFigure.pan_zoom.connect_rectangle()
             self.cubeFigure.canvas.clearFocus()
 
@@ -141,6 +189,7 @@ class CubeViewer(QDialog,
         elif order == "ellipseAp":
         #Check if ellipse is not activate previously to not duplicate it
             self.figureButton.setEnabled(True)
+            self.apertureButton.setEnabled(True)
             self.figureButton.setText("Ellipse")
             self.cubeFigure.canvas.draw()
             self.cubeFigure.pan_zoom.disconnect_pan()
@@ -152,10 +201,17 @@ class CubeViewer(QDialog,
             self.cubeFigure.pan_zoom.update_ellipse(figureData.centerX, figureData.centerY, figureData.aAxis, figureData.bAxis)
 
         elif order == "wedgesBackg":
+            self.delete_patch("rectangleBackg")
             self.draw_wedges(figureData.centerX, figureData.centerY, figureData.innerRadius, figureData.outerRadius)
+
+        elif order == "rectangleBackg":
+            self.delete_patch("first_wedge")
+            self.delete_patch("second_wedge")
+            self.draw_rectangleBackg(figureData.centerX, figureData.centerY, figureData.width, figureData.height)
 
         elif order == "interactive":
             self.figureButton.setEnabled(False)
+            self.apertureButton.setEnabled(False)
             self.cubeFigure.pan_zoom.disconnect_pan()
             self.cubeFigure.pan_zoom.disconnect_zoom()
             self.cubeFigure.pan_zoom.disconnect_rectangle()
@@ -179,6 +235,7 @@ class CubeViewer(QDialog,
         if order == "rectangleAp":
         #Check if rectangle is not activate previously to not duplicate it
             self.figureButton.setEnabled(True)
+            self.apertureButton.setEnabled(True)
             self.figureButton.setText("Rectangle")
             self.cubeFigure.pan_zoom.disconnect_ellipse(True)
             self.cubeFigure.pan_zoom.connect_rectangle()
@@ -187,6 +244,7 @@ class CubeViewer(QDialog,
         elif order == "ellipseAp":
         #Check if ellipse is not activate previously to not duplicate it
             self.figureButton.setEnabled(True)
+            self.apertureButton.setEnabled(True)
             self.figureButton.setText("Ellipse")
             self.cubeFigure.pan_zoom.disconnect_rectangle(True)
             self.cubeFigure.pan_zoom.connect_ellipse()
@@ -211,8 +269,22 @@ class CubeViewer(QDialog,
         :param float innerRadius:
         :param float outerRadius:
         """
+
+
         self.update_wedges("first_wedge", centerX = centerX, centerY = centerY, radius = innerRadius)
         self.update_wedges("second_wedge", centerX = centerX, centerY = centerY, radius = outerRadius)
+        self.cubeFigure.canvas.draw()
+
+
+    def draw_rectangleBackg(self, centerX, centerY, width, height):
+        """
+        Draw the rectangle used in the background operatiion
+        :param float centerX:
+        :param float centerY:
+        :param float width:
+        :param float height:
+        """
+        self.update_rectangle("rectangleBackg",centerX = centerX, centerY = centerY, width = width, height = height)
         self.cubeFigure.canvas.draw()
 
 
@@ -230,6 +302,7 @@ class CubeViewer(QDialog,
         else:
             self.ax.scatter(xdata, ydata, marker='+', c= 'red', gid="centroid")
 
+
     def modify_image(self, typeStyle, objStyle):
         im = self.ax.get_images()[0]
 
@@ -241,8 +314,7 @@ class CubeViewer(QDialog,
             im.set_norm(objStyle)
 
         self.cubeFigure.canvas.draw()
-        self.cubeFigure.pan_zoom.redraw_ellipse_with_interaction()
-        self.cubeFigure.pan_zoom.redraw_rectangle_with_interaction()
+        self.cubeFigure.pan_zoom.redraw_figure_with_interaction()
 
     def create_axes(self):
         """Create the layout that will show the slice selected of a cube"""
@@ -266,7 +338,9 @@ class CubeViewer(QDialog,
         self.ax_twiny.set_gid("twiny_axis")
 
         #Set self.ax to the front to be able to use the figures on it
-        self.ax.set_zorder(5)
+        self.ax.set_zorder(-5)
+        self.ax_twinx.set_zorder(-6)
+        self.ax_twiny.set_zorder(-7)
 
         self.cubeFigure.pan_zoom.create_rectangle_ax(self.ax)
         self.cubeFigure.pan_zoom.create_ellipse_ax(self.ax)
@@ -281,6 +355,8 @@ class CubeViewer(QDialog,
 
         self.ax_twiny.set_visible(True)
         self.ax_twinx.set_visible(True)
+        self.ax_twiny.grid(False)
+        self.ax_twinx.grid(False)
 
         self.ax.set_title("{}".format(cubeModel.meta.filename))
         self.ax.set_xlabel("pixel - 1")
@@ -290,8 +366,16 @@ class CubeViewer(QDialog,
         self.ax_twinx.set_ylabel(r'$arcsec$')
 
         im = self.ax.imshow(cubeModel.data[currSlice], origin='lower',aspect='auto')
-        im.set_cmap(plt.get_cmap((style.color)))
-        norm = self.get_norm(style.stretch, style.scale)
+
+        color, scale, stretch = self.styleCube.get_data()
+
+        if color == "Accent":
+            im.set_cmap(plt.get_cmap("Accent"))
+        elif color == "Heat":
+            im.set_cmap(plt.get_cmap("gist_heat"))
+        else:
+            im.set_cmap(plt.get_cmap(color.lower()))
+        norm = self.get_norm(stretch, scale)
         im.set_norm(norm)
 
         self.cubeFigure.pan_zoom.set_initial_limits(xlim, ylim, cubeModel.meta.wcsinfo.crpix1, cubeModel.meta.wcsinfo.crpix2, cubeModel.meta.wcsinfo.cdelt1, cubeModel.meta.wcsinfo.cdelt2, cubeModel.meta.wcsinfo.crval1, cubeModel.meta.wcsinfo.crval2)
@@ -323,16 +407,9 @@ class CubeViewer(QDialog,
         norm = ImageNormalize(vmin=minV, vmax=maxV, stretch=stretch)
         return norm
 
-    def draw_rectangle_coordinates(self,left_bottom, right_top):
-        self.cubeFigure.pan_zoom.update_rectangle(left_bottom[0], left_bottom[1], right_top[0], right_top[1])
-
-    def draw_ellipse_coordinates(self,center, axis):
-        self.cubeFigure.pan_zoom.update_ellipse(center[0], center[1], axis[0], axis[1])
-
-    def update_wedges(self, typeWedge,  wedges_list = [], centerX = None, centerY = None, radius = None):
+    def update_wedges(self, typeWedge, centerX = None, centerY = None, radius = None):
         """ Draw wedges after it has been selected or the wavelength change
         :param bool redraw: decide if the image changed because of wavelenth or not
-        :param list wedges_list: list if wedges to be redraw in case the image changed
         :param float centerX: center x value of the wedge
         :param float centerY: center y value of the wedge
         :parame float radius: radius of the wedge
@@ -349,6 +426,33 @@ class CubeViewer(QDialog,
                 radius, 0, 360, width=0.2, gid=typeWedge)
             self.ax.add_patch(wedge)
 
+    def update_rectangle(self, typeRectangle, centerX = None, centerY = None, width = None, height = None):
+        """ Draw rectangle after it has been selected or the wavelength change
+        :param bool redraw: decide if the image changed because of wavelenth or not
+        :param float centerX: center x value of the rectangle
+        :param float centerY: center y value of the rectangle
+        :param float width: width of the rectangle
+        :param float height: height of the rectangle
+        """
+
+        rectangle = next((patch for patch in enumerate(self.ax.patches) if patch[1].get_gid() == typeRectangle), None)
+
+        if rectangle is not None:
+            self.ax.patches[rectangle[0]].set_center((centerX, centerY))
+            self.ax.patches[rectangle[0]].set_width(width)
+            self.ax.patches[rectangle[0]].set_height(height)
+        else:
+            rectangle= Rectangle((centerX, centerY),
+                width, height, lw=1.5, facecolor='none', edgecolor='white', gid=typeRectangle)
+            self.ax.add_patch(rectangle)
+
+
+    def delete_patch(self, typePatch):
+        if typePatch == "rectangleBackg":
+            [self.ax.patches.remove(patch) for patch in reversed(self.ax.patches) if isinstance(patch, Rectangle) and patch.get_gid() == typePatch]
+        else:
+            [self.ax.patches.remove(patch) for patch in reversed(self.ax.patches) if isinstance(patch, Wedge) and patch.get_gid() == typePatch]
+
     def emit_data(self, order = None, patchesData = None):
         """
         Update the limits and current image if any interaction have been made
@@ -361,7 +465,14 @@ class CubeViewer(QDialog,
         if patchesData is None:
             self.update_modified_slice[str, dict].emit(order, axisData)
         else:
-            self.update_modified_slice[str, dict, dict].emit(order, axisData, patchesData)
+            self.modifiedData = {}
+            self.modifiedData['axisData'] = axisData
+            self.modifiedData['order'] = order
+            self.modifiedData['patchesData'] = patchesData
+
+            #self.update_modified_slice[str, dict, dict].emit(order, axisData, patchesData)
+
+
 
     def generic_alert(self):
         alert=QMessageBox()
@@ -379,16 +490,20 @@ class CubeViewer(QDialog,
     def clear_data(self):
         """Clear all the data generated from the cube loaded previously"""
 
-        self.ax.clear()
         self.ax.set_visible(False)
+        self.modifiedData = {}
 
         #Disconnect all events
         self.cubeFigure.pan_zoom.disconnect_pan()
         self.cubeFigure.pan_zoom.disconnect_rectangle(True)
         self.cubeFigure.pan_zoom.disconnect_ellipse(True)
         self.cubeFigure.pan_zoom.disconnect_zoom()
+        self.delete_patch("rectangleBackg")
+        self.delete_patch("first_wedge")
+        self.delete_patch("second_wedge")
         self.cubeFigure.pan_zoom.clear_elements_axes(self.ax)
 
+        self.styleCube.clear_data()
         self.close()
 
     def save_figure(self):
@@ -400,3 +515,13 @@ class CubeViewer(QDialog,
 
         except Exception as e:
             self.show_file_extension_alert()
+
+    def missing_data_alert(self):
+        alert = QMessageBox()
+        alert.setWindowTitle("Error")
+        alert.setIcon(QMessageBox.Critical)
+        alert.setText("No aperture has been made")
+        alert.exec_()
+
+    def closeEvent(self, event):
+        self.styleCube.close()

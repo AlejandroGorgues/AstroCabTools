@@ -393,12 +393,12 @@
   </action>
   <action name="actionRectangle">
    <property name="text">
-    <string>Rectangle</string>
+    <string>Rectangle Aperture</string>
    </property>
   </action>
   <action name="actionEllipse">
    <property name="text">
-    <string>Ellipse</string>
+    <string>Ellipse Aperture</string>
    </property>
   </action>
   <action name="actionShow_centroid_coordinates">

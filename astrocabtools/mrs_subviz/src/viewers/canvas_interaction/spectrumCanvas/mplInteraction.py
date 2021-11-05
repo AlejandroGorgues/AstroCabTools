@@ -28,7 +28,7 @@ import weakref
 from pubsub import pub
 
 import matplotlib.pyplot as _plt
-from matplotlib.patches import Rectangle
+from matplotlib.widgets import RectangleSelector
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
@@ -50,10 +50,23 @@ class MplInteraction(object):
         self._cids_callback_zoom = {}
         self._cids_callback_pan = {}
 
+        self._callback_rectangle = None
+
+        self._rectangle_selector = None
+
         self._cids = []
 
     def __del__(self):
         self.disconnect()
+
+    def _add_rectangle_callback(self, callback):
+        """
+        Beacuse the callback method can only be created when the
+        Zoom event is created and the axe can only be know after the creation of it,
+        this method allow to assign the callback before
+        the creation of the rectangle selector object
+        """
+        self._callback_rectangle = callback
 
     def _add_connection(self, event_name, callback):
         """Called to add a connection to an event of the figure
@@ -92,6 +105,7 @@ class MplInteraction(object):
             if figure is not None:
                 for cid in self._cids_zoom:
                     figure.canvas.mpl_disconnect(cid)
+                self._disable_rectangle()
             self._cids_zoom.clear()
 
     def disconnect_pan(self):
@@ -122,6 +136,8 @@ class MplInteraction(object):
             cid = self.canvas.mpl_connect(event_name, callback)
             self._cids_zoom.append(cid)
 
+        self._enable_rectangle()
+
     def connect_pan(self):
         """
         Assign all callback pan events to the mpl
@@ -129,6 +145,30 @@ class MplInteraction(object):
         for event_name, callback in self._cids_callback_pan.items():
             cid = self.canvas.mpl_connect(event_name, callback)
             self._cids_pan.append(cid)
+
+
+    def create_rectangle_ax(self, ax):
+        rectprops = dict(edgecolor = 'red',
+         fill=False, linewidth = 1, linestyle = '-')
+
+        self._rectangle_selector = RectangleSelector(ax, self._callback_rectangle,
+                                           drawtype='box', useblit=True,
+                                           rectprops = rectprops,
+                                           button=[1, 3],  # don't use middle button
+                                           minspanx=5, minspany=5,
+                                           spancoords='pixels',
+                                           interactive=False)
+
+        #self._rectangle_selector.set_visible(False)
+        self._disable_rectangle()
+
+    def _disable_rectangle(self):
+        self._rectangle_selector.set_visible(False)
+        self._rectangle_selector.set_active(False)
+
+    def _enable_rectangle(self):
+        self._rectangle_selector.set_visible(True)
+        self._rectangle_selector.set_active(True)
 
     def set_initial_limits(self, xlim, ylim):
         """ Set initial limits of the representation to use it when the zoom reset

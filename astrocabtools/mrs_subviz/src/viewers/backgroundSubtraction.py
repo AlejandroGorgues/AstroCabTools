@@ -10,11 +10,14 @@ from PyQt5 import QtGui
 
 import astrocabtools.mrs_subviz.src.ui.ui_backgroundSubtraction
 
+from ..utils.basic_transformations import rectangle_patch_to_border_coordinates
+
 __all__=["BackgroundSubstraction"]
 
 class BackgroundSubtraction(QDialog, astrocabtools.mrs_subviz.src.ui.ui_backgroundSubtraction.Ui_backgroundSubtraction):
 
-    wedgesSelected = pyqtSignal(object, bool, name='wedgesEmit')
+    wedgesSelected = pyqtSignal(object, str, bool, name='wedgesEmit')
+    rectangleSelected = pyqtSignal(object, str, name='rectangleEmit')
 
     def __init__(self, parent=None):
         super(BackgroundSubtraction, self).__init__(parent)
@@ -23,10 +26,16 @@ class BackgroundSubtraction(QDialog, astrocabtools.mrs_subviz.src.ui.ui_backgrou
         self.innerRadiusLineEdit.setValidator(QtGui.QDoubleValidator())
         self.outerRadiusLineEdit.setValidator(QtGui.QDoubleValidator())
 
-        self.applyButton.clicked.connect(self.apply_background_subs)
+        self.rectangleXCenterLineEdit.setValidator(QtGui.QDoubleValidator())
+        self.rectangleYCenterLineEdit.setValidator(QtGui.QDoubleValidator())
+        self.widthLineEdit.setValidator(QtGui.QDoubleValidator())
+        self.heightLineEdit.setValidator(QtGui.QDoubleValidator())
+
+        self.wedgesApplyButton.clicked.connect(self.wedges_apply_background_subs)
+        self.rectangleApplyButton.clicked.connect(self.rectangle_apply_background_subs)
 
     @pyqtSlot()
-    def apply_background_subs(self, updateWedgesCenter= True):
+    def wedges_apply_background_subs(self, updateWedgesCenter= True):
         innerValue = self.innerRadiusLineEdit.text()
         outerValue = self.outerRadiusLineEdit.text()
 
@@ -47,7 +56,7 @@ class BackgroundSubtraction(QDialog, astrocabtools.mrs_subviz.src.ui.ui_backgrou
                     data['centerX'] = self.centerX
                     data['centerY'] = self.centerY
 
-                    self.wedgesSelected.emit(data, updateWedgesCenter)
+                    self.wedgesSelected.emit(data, "wedges",  updateWedgesCenter)
 
                 except Exception as e:
                     self.generic_alert("Error")
@@ -58,14 +67,47 @@ class BackgroundSubtraction(QDialog, astrocabtools.mrs_subviz.src.ui.ui_backgrou
         self.centerX = centerX
         self.centerY = centerY
 
-        self.xCenterLineEdit.setText(str(round(centerX)))
-        self.yCenterLineEdit.setText(str(round(centerY)))
+        self.wedgesXCenterLineEdit.setText(str(round(centerX)))
+        self.wedgesYCenterLineEdit.setText(str(round(centerY)))
+
+    def rectangle_apply_background_subs(self):
+        centerXValue = self.rectangleXCenterLineEdit.text()
+        centerYValue = self.rectangleYCenterLineEdit.text()
+
+        widthValue = self.widthLineEdit.text()
+        heightValue = self.heightLineEdit.text()
+
+        if centerXValue != '' and centerYValue != '' and widthValue != '' and heightValue != '':
+
+            if float(centerXValue) == 0 or float(centerYValue) == 0 or float(widthValue)== 0 or float(heightValue) == 0:
+                self.generic_alert("Error: all of the rectangle parameters must not be 0")
+
+            else:
+                try:
+                    data = {}
+                    data['width'] = float(widthValue)
+                    data['height'] = float(heightValue)
+                    data['centerX'] = float(centerXValue)
+                    data['centerY'] = float(centerYValue)
+                    borderCoord = rectangle_patch_to_border_coordinates(data)
+                    borderCoord.update(data)
+
+                    self.rectangleSelected.emit(borderCoord, "rectangle")
+
+                except Exception as e:
+                    self.generic_alert("Error")
+        else:
+            self.generic_alert("Error: all rectangle parameters must have a value")
 
     def clear_data(self):
-        self.xCenterLineEdit.setText('')
-        self.yCenterLineEdit.setText('')
+        self.wedgesXCenterLineEdit.setText('')
+        self.wedgesYCenterLineEdit.setText('')
+        self.rectangleXCenterLineEdit.setText('')
+        self.rectangleYCenterLineEdit.setText('')
         self.innerRadiusLineEdit.setText('')
         self.outerRadiusLineEdit.setText('')
+        self.widthLineEdit.setText('')
+        self.heightLineEdit.setText('')
         self.close()
 
     def generic_alert(self, message):

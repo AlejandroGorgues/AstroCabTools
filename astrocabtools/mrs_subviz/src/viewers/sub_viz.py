@@ -36,8 +36,8 @@ from matplotlib.figure import Figure
 from ..utils.rectangle_xy_transformations import transform_xy_rectangle, transform_rectangle_subband, transform_rectangle_subband_from_coord
 from ..utils.ellipse_xy_transformations import transform_xy_ellipse, transform_ellipse_subband, transform_ellipse_subband_from_coord
 from ..utils.centroid_operations import transform_centroid_subband
-from ..utils.basic_transformations import slice_to_wavelength, wavelength_to_slice
-from ..utils.background_xy_transformations import background_subtraction, transform_wedges_subband
+from ..utils.basic_transformations import slice_to_wavelength, wavelength_to_slice, rectangle_patch_to_border_coordinates, rectangle_border_to_patch_coordinates
+from ..utils.background_xy_transformations import annulus_background_subtraction, rectangle_background_subtraction, transform_wedges_subband
 from ..utils.constants import SUBBANDDICT, INDEXDICT, COLORDICT
 
 from ..io.miri_cube_load import get_miri_cube_data
@@ -98,7 +98,7 @@ class SubViz(QMainWindow,
         self.actionDrawEllipse.triggered.connect(lambda: self.drawPatchOrders("ellipse"))
         self.actionSavespng.triggered.connect(self.save_figure)
         self.actionSpectrum_visualization.triggered.connect(self.spectrumVisOrders)
-        self.actionBackground_subtraction.triggered.connect(lambda: self.selectSubbandOrders("wedgesBackg"))
+        self.actionBackground_subtraction.triggered.connect(lambda: self.selectSubbandOrders("backgSub"))
         self.actionCalculate_centroid.triggered.connect(lambda: self.selectSubbandOrders("centroidSelect"))
         self.actionShow_centroid_coordinates.triggered.connect(lambda: self.selectSubbandOrders("centroidCoord"))
 
@@ -123,7 +123,8 @@ class SubViz(QMainWindow,
         self.sliceManager = sliceManager.SliceManager()
         self.cubeViewer = cubeViewer.CubeViewer()
 
-        self.backgSub.wedgesSelected[object, bool].connect(self.calculate_background)
+        self.backgSub.wedgesSelected[object, str, bool].connect(self.calculate_background)
+        self.backgSub.rectangleSelected[object, str].connect(self.calculate_background)
 
         self.sliceManager.update_slice.connect(self.update_cube_slice)
         self.sliceManager.obtain_cube.connect(self.send_wavelength_data)
@@ -159,11 +160,13 @@ class SubViz(QMainWindow,
 
     def manageOrders(self, order, data = None, additionalOrder= None):
         if order == "rectangleAp":
+
             self.cubeViewer.get_data_from_sub_viz(order, self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.rectangleSelection)
             if self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX != -1:
                 self.cubeViewer.draw_wedges(self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX, self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerY, self.cubeList[self.subband].cubePatchesData.wedgesBackground.innerRadius, self.cubeList[self.subband].cubePatchesData.wedgesBackground.outerRadius)
             if self.cubeList[self.subband].centroidCoordinates.xCoordinate != -1:
                 self.cubeViewer.draw_centroid(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
+            self.update_image_stats()
             self.cubeViewer.show()
             self.cubeViewer.open()
 
@@ -194,6 +197,7 @@ class SubViz(QMainWindow,
                 self.cubeViewer.draw_wedges(self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX, self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerY, self.cubeList[self.subband].cubePatchesData.wedgesBackground.innerRadius, self.cubeList[self.subband].cubePatchesData.wedgesBackground.outerRadius)
             if self.cubeList[self.subband].centroidCoordinates.xCoordinate != -1:
                 self.cubeViewer.draw_centroid(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
+            self.update_image_stats()
             self.cubeViewer.show()
             self.cubeViewer.open()
 
@@ -204,7 +208,7 @@ class SubViz(QMainWindow,
             self.ellCreate.show()
             self.ellCreate.open()
 
-        elif order == "wedgesBackg":
+        elif order == "backgSub":
             self.backgSub.show()
             self.backgSub.open()
 
@@ -230,6 +234,7 @@ class SubViz(QMainWindow,
                 self.cubeViewer.draw_wedges(self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX, self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerY, self.cubeList[self.subband].cubePatchesData.wedgesBackground.innerRadius, self.cubeList[self.subband].cubePatchesData.wedgesBackground.outerRadius)
             if self.cubeList[self.subband].centroidCoordinates.xCoordinate != -1:
                 self.cubeViewer.draw_centroid(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
+            self.update_image_stats()
             self.cubeViewer.show()
             self.cubeViewer.open()
 
@@ -254,7 +259,6 @@ class SubViz(QMainWindow,
             self.cubeViewer.change_figure_from_sub_viz("ellipseAp")
 
         for index in self.cubeList.keys():
-            print("257")
             self.draw_patches(typePatch, index=index)
 
     @pyqtSlot(str, dict, name="cubeModified")
@@ -273,7 +277,7 @@ class SubViz(QMainWindow,
             if patchesData is None:
                 self.draw_patches("rectangle", index = self.subband)
             else:
-                self.draw_patches("rectangle", patchesData, self.subband)
+                #self.draw_patches("rectangle", patchesData, self.subband)
                 self.select_area_rectangle(patchesData)
 
         elif order == "ellipseAp":
@@ -281,7 +285,7 @@ class SubViz(QMainWindow,
             if patchesData is None:
                 self.draw_patches("ellipse", index = self.subband)
             else:
-                self.draw_patches("ellipse", patchesData, self.subband)
+                #self.draw_patches("ellipse", patchesData, self.subband)
                 self.select_area_ellipse(patchesData)
 
         self.cubeList[self.subband].axis[0].set_xlim(axesData['xlim'])
@@ -317,11 +321,6 @@ class SubViz(QMainWindow,
         #Draw the wedges because the image has changed
         self.draw_patches("all", index = indexCube)
         self.cubeViewer.redraw_slice(self.cubeList[indexCube])
-
-        #To prevent the access when there is no spectrum made, it checks if it has been created
-        #if not self.spectrumV.isHidden():
-            #Update the position of the line to match the current wavelength and it's associated flux
-        #    self.spectrumV.update_wavelength_line(wavelength_value)
 
     @pyqtSlot(str, int, name="colorChanged")
     def colorOrders(self, color_text, index):
@@ -371,8 +370,6 @@ class SubViz(QMainWindow,
                     cmap = plt.get_cmap(color_text.lower())
 
             self.canvas.draw()
-            if not self.cubeViewer.isHidden():
-                self.cubeViewer.modify_image("color", cmap)
         except Exception as e:
             pass
 
@@ -401,8 +398,6 @@ class SubViz(QMainWindow,
                 image.set_norm(norm)
 
             self.canvas.draw()
-            if not self.cubeViewer.isHidden():
-                self.cubeViewer.modify_image("stretch", norm)
         except Exception as e:
             self.missing_data_warning()
 
@@ -431,8 +426,6 @@ class SubViz(QMainWindow,
                 image.set_norm(norm)
 
             self.canvas.draw()
-            if not self.cubeViewer.isHidden():
-                self.cubeViewer.modify_image("scale", norm)
         except Exception as e:
             pass
 
@@ -463,6 +456,15 @@ class SubViz(QMainWindow,
 
         return norm
 
+
+    def update_image_stats(self):
+        self.cubeViewer.modify_image("color", plt.get_cmap(self.cubeList[self.subband].style.color))
+
+        norm = self.get_norm(self.cubeList[self.subband].style.stretch, self.cubeList[self.subband].style.scale, self.subband)
+        #Although it modify the scale, because I got the norm from the stretch and scale,
+        #it works the same as if the text would be the stretch which update the norm
+        self.cubeViewer.modify_image("scale", norm)
+
     @pyqtSlot(int, str, str, name="subbandSelected")
     def obtain_subband(self, subband, order, additionalOrder):
         """
@@ -488,13 +490,6 @@ class SubViz(QMainWindow,
         """
         try:
 
-            #if typeOp:
-                #Get current wavelength value
-            #    wavelength_value = slice_to_wavelength(self.cubeList[self.subband].currSlice, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
-
-            #    print(patchesData)
-                #patchesData = transform_rectangle_subband_from_coord(self.cubeList[self.subband].cubeModel, copy.deepcopy(patchesData), wavelength_value)
-
             for key in self.cubeList.keys():
                 currIndex = key
                 if self.cubeList[key].cubeModel is not None:
@@ -506,7 +501,6 @@ class SubViz(QMainWindow,
                     else:
                         currIndex = self.subband
                         patchDataTrans = copy.deepcopy(patchesData)
-                        print("patchDataTrans", patchDataTrans)
                         self.draw_patches("rectangle", patchDataTrans, self.subband)
 
 
@@ -518,7 +512,7 @@ class SubViz(QMainWindow,
 
                     #Draw the spectrum
                     self.spectrumV.draw_spectrum(self.cubeList[currIndex].path, fValues, wValues, color = COLORDICT[currIndex][1], label = COLORDICT[currIndex][0])
-            self.spectrumV.reset_range_axis()
+            #self.spectrumV.reset_range_axis()
 
             #Set the parameters the background operation will use
             if not self.actionBackground_subtraction.isEnabled():
@@ -572,11 +566,6 @@ class SubViz(QMainWindow,
             fValuesFinal = []
             wValuesFinal = []
 
-            #if typeOp:
-                #Get current wavelength value
-            #    wavelength_value = slice_to_wavelength(self.cubeList[self.subband].currSlice, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
-            #    patchesData = transform_ellipse_subband_from_coord(self.cubeList[self.subband].cubeModel, copy.deepcopy(patchesData), wavelength_value)
-
             for key in self.cubeList.keys():
                 currIndex = key
                 if self.cubeList[key].cubeModel is not None:
@@ -595,7 +584,7 @@ class SubViz(QMainWindow,
                     self.cubeList[currIndex].aperture = aperture
                     #Draw the spectrum
                     self.spectrumV.draw_spectrum(self.cubeList[currIndex].path, fValues, wValues, color = COLORDICT[currIndex][1], label = COLORDICT[currIndex][0])
-            self.spectrumV.reset_range_axis()
+            #self.spectrumV.reset_range_axis()
 
             #Set the parameters the background operation will use
             if not self.actionBackground_subtraction.isEnabled():
@@ -632,37 +621,78 @@ class SubViz(QMainWindow,
                 self.spectrumV.show()
                 self.spectrumV.open()
 
-    @pyqtSlot(object, bool, name="wedgesEmit")
-    def calculate_background(self, wedgesData, updateWedgesCenter):
+    @pyqtSlot(object, str, name="rectangleEmit")
+    @pyqtSlot(object, str, bool, name="wedgesEmit")
+    def calculate_background(self, data, typePatch, updateWedgesCenter = None):
         """
         Calculate the background spectrum and the remaining of the subtraction from the aperture
-        :param dict wedgesData: radius of the inner and outer wedges
+        :param dict data: parameters of the figure
+        :param str typePatch: info about the type of the figure
         :param bool updateWedgesCenter: signal to change the center of the wedges
         """
-        wedgesDataTrans = copy.deepcopy(wedgesData)
-        if updateWedgesCenter:
-            self.draw_patches("wedges", wedgesDataTrans, self.subband)
+        dataTrans = copy.deepcopy(data)
 
-        fValues_sub, bkg_sum = background_subtraction(wedgesDataTrans['centerX'], wedgesDataTrans['centerY'], wedgesDataTrans['innerRadius'], wedgesDataTrans['outerRadius'], self.cubeList[self.subband].aperture, self.cubeList[self.subband].cubeModel, self.cubeList[self.subband].fluxAperture)
-        self.spectrumV.draw_background(self.cubeList[self.subband].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[self.subband][0])
+        if typePatch == 'wedges':
+            #To prevent the appearance of multiple wedges and rectangles on all the
+            #images when a background operation is gonna be made, the opposite patch
+            #is deleted instead of the one which is gonna be drawn
+            self.cubeList[self.subband].cubePatchesData.reset_rectangleBackg()
+            self.draw_patches("wedgesBackg", dataTrans, self.subband)
+        #if updateWedgesCenter:
+        #    self.draw_patches("wedges", wedgesDataTrans, self.subband)
+
+            fValues_sub, bkg_sum = annulus_background_subtraction(dataTrans['centerX'], dataTrans['centerY'], dataTrans['innerRadius'], dataTrans['outerRadius'], self.cubeList[self.subband].aperture, self.cubeList[self.subband].cubeModel, self.cubeList[self.subband].fluxAperture)
+            self.spectrumV.draw_background(self.cubeList[self.subband].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[self.subband][0])
+
+        elif typePatch == 'rectangle':
+            #To prevent the appearance of multiple wedges and rectangles on all the
+            #images when a background operation is gonna be made, the opposite patch
+            #is deleted instead of the one which is gonna be drawn
+            self.cubeList[self.subband].cubePatchesData.reset_wedgesBackg()
+            dataTrans = rectangle_patch_to_border_coordinates(dataTrans)
+            self.draw_patches("rectangleBackg", dataTrans, self.subband)
+            fValues_sub, bkg_sum = rectangle_background_subtraction(dataTrans['centerX'], dataTrans['centerY'], abs(dataTrans['ex'] - dataTrans['ix']), abs(dataTrans['ey'] - dataTrans['iy']), self.cubeList[self.subband].aperture, self.cubeList[self.subband].cubeModel, self.cubeList[self.subband].fluxAperture)
+
+            self.spectrumV.draw_background(self.cubeList[self.subband].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[self.subband][0])
 
         for key in self.cubeList.keys():
+
+            #To prevent the appearance of multiple wedges and rectangles on all the
+            #images when a background operation is gonna be made, the opposite patch
+            #is deleted instead of the one which is gonna be drawn
+            if typePatch == 'wedges':
+                self.cubeList[self.subband].cubePatchesData.reset_rectangleBackg()
+            elif typePatch == 'rectangle':
+                self.cubeList[self.subband].cubePatchesData.reset_wedgesBackg()
+
             if self.cubeList[key].cubeModel is not None:
-                wedgesDataTrans = None
+                dataTrans = None
 
                 if key is not self.subband:
-                    wedgesDataTrans = transform_wedges_subband(self.cubeList[self.subband].cubeModel, self.cubeList[key].cubeModel, copy.deepcopy(wedgesData), self.cubeList[self.subband].currSlice)
+                    if typePatch == 'wedges':
+
+                        dataTrans = transform_wedges_subband(self.cubeList[self.subband].cubeModel, self.cubeList[key].cubeModel, copy.deepcopy(data), self.cubeList[self.subband].currSlice)
+                        self.draw_patches("wedgesBackg", dataTrans, key)
+                        fValues_sub, bkg_sum = annulus_background_subtraction(dataTrans['centerX'], dataTrans['centerY'], dataTrans['innerRadius'], dataTrans['outerRadius'], self.cubeList[key].aperture, self.cubeList[key].cubeModel, self.cubeList[key].fluxAperture)
+                        self.spectrumV.draw_background(self.cubeList[key].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[key][0])
+                    elif typePatch == 'rectangle':
+
+                        dataTrans = transform_rectangle_subband(self.cubeList[self.subband].cubeModel, self.cubeList[key].cubeModel, copy.deepcopy(data), self.cubeList[self.subband].currSlice)
+                        self.draw_patches("rectangleBackg", dataTrans, key)
+                        fValues_sub, bkg_sum = rectangle_background_subtraction(dataTrans['centerX'], dataTrans['centerY'], abs(dataTrans['ex'] - dataTrans['ix']), abs(dataTrans['ey'] - dataTrans['iy']), self.cubeList[key].aperture, self.cubeList[key].cubeModel, self.cubeList[key].fluxAperture)
+                        self.spectrumV.draw_background(self.cubeList[key].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[key][0])
 
                     #If only the aperture is moving, dont update the center of the wedges
                     #Otherwise, do it
-                    if updateWedgesCenter:
-                        self.draw_patches("wedges", wedgesDataTrans, key)
+                    #if updateWedgesCenter:
+                    #    self.draw_patches("wedges", wedgesDataTrans, key)
 
-                    fValues_sub, bkg_sum = background_subtraction(wedgesDataTrans['centerX'], wedgesDataTrans['centerY'], wedgesDataTrans['innerRadius'], wedgesDataTrans['outerRadius'], self.cubeList[key].aperture, self.cubeList[key].cubeModel, self.cubeList[key].fluxAperture)
-                    self.spectrumV.draw_background(self.cubeList[key].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[key][0])
 
         if not self.cubeViewer.isHidden():
-            self.cubeViewer.get_data_from_sub_viz("wedgesBackg", self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.wedgesBackground)
+            if typePatch == 'wedges':
+                self.cubeViewer.get_data_from_sub_viz("wedgesBackg", self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.wedgesBackground)
+            elif typePatch == 'rectangle':
+                self.cubeViewer.get_data_from_sub_viz("rectangleBackg", self.cubeList[self.subband], self.cubeList[self.subband].cubePatchesData.rectangleBackground)
 
         if self.spectrumV.isHidden():
             self.spectrumV.show()
@@ -926,7 +956,7 @@ class SubViz(QMainWindow,
         if self.cubeList[index].cubeModel is None and cubeExist:
             self.cubeList[index].cubeModel = copy.deepcopy(cubeModel)
             self.make_aperture_from_new_cube(index)
-            backgroundCalculated= any([cube.cubePatchesData.wedgesBackground.centerX != -1 for cube in self.cubeList.values()])
+            backgroundCalculated= any([cube.cubePatchesData.wedgesBackground.centerX != -1 or cube.cubePatchesData.rectangleBackground.centerX != -1 for cube in self.cubeList.values()])
 
             if backgroundCalculated:
                 self.make_background_from_new_cube(index)
@@ -963,25 +993,24 @@ class SubViz(QMainWindow,
         if axisWithData.count(True) == 1:
             self.set_interface_state(True)
 
-    def draw_patches(self, typePatch, patchesData=None, index=None, newWedges=True):
+    def draw_patches(self, typePatch, patchesData=None, index=None):
         """
         When the rectangle, ellipse or wedge are modified or created, instead of manage 36 patches
         (wedges, rectangles and ellipses) the patches are redrawn based on the option selected
         :param str typePatch: type of patch to be drawn in each subband
         :param dict patchesData: data and coordinates of the patch
         :param int index: position of the cube where the patch is gonna be drawn
-        :param bool newWedges: True if wedges data need to be set or False if onle need to be redrawn
         """
-
         if typePatch == "rectangle":
             ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
-            self.delete_current_patch(ax, "Rectangle")
-            self.delete_current_patch(ax, "Ellipse")
+            self.delete_current_patch(ax, "RectangleAp")
+            self.delete_current_patch(ax, "EllipseAp")
 
             if patchesData is not None:
                 ax.add_patch(Rectangle((patchesData['ix'], patchesData['iy']),
                                                 patchesData['ex'] - patchesData['ix'],
-                                                patchesData['ey'] - patchesData['iy'], facecolor = 'none', edgecolor='red', lw=2 ))
+                                                patchesData['ey'] - patchesData['iy'],
+                                                facecolor = 'none', edgecolor='red', lw=2, gid="RectangleAp" ))
                 self.cubeList[index].cubePatchesData.rectangleSelection.ix = patchesData['ix']
                 self.cubeList[index].cubePatchesData.rectangleSelection.iy = patchesData['iy']
                 self.cubeList[index].cubePatchesData.rectangleSelection.ex = patchesData['ex']
@@ -990,18 +1019,29 @@ class SubViz(QMainWindow,
             elif  patchesData is None:
                 ax.add_patch(Rectangle((self.cubeList[index].cubePatchesData.rectangleSelection.ix, self.cubeList[index].cubePatchesData.rectangleSelection.iy),
                                                 self.cubeList[index].cubePatchesData.rectangleSelection.ex - self.cubeList[index].cubePatchesData.rectangleSelection.ix,
-                                                self.cubeList[index].cubePatchesData.rectangleSelection.ey - self.cubeList[index].cubePatchesData.rectangleSelection.iy, facecolor = 'none', edgecolor='red', lw=2 ))
+                                                self.cubeList[index].cubePatchesData.rectangleSelection.ey - self.cubeList[index].cubePatchesData.rectangleSelection.iy, facecolor = 'none', edgecolor='red', lw=2, gid="RectangleAp" ))
 
 
+            #If the wedge object have positive data, the wedges are gonna be drawn,
+            #otherwise it could be that the rectangle is gonna be drawn
             if self.cubeList[index].cubePatchesData.wedgesBackground.centerX != -1:
 
-                self.delete_current_patch(ax, "Wedge")
+                self.delete_current_patch(ax, "WedgeBackg")
                 ax.add_patch(Wedge((self.cubeList[index].cubePatchesData.wedgesBackground.centerX,
                                           self.cubeList[index].cubePatchesData.wedgesBackground.centerY),
                                   self.cubeList[index].cubePatchesData.wedgesBackground.innerRadius, 0, 360, width= 0.5))
                 ax.add_patch(Wedge((self.cubeList[index].cubePatchesData.wedgesBackground.centerX,
                                         self.cubeList[index].cubePatchesData.wedgesBackground.centerY),
                                    self.cubeList[index].cubePatchesData.wedgesBackground.outerRadius, 0, 360, width= 0.5))
+
+            elif self.cubeList[index].cubePatchesData.rectangleBackground.centerX != -1:
+
+                self.delete_current_patch(ax, "RectangleBackg")
+                ax.add_patch(Rectangle((self.cubeList[index].cubePatchesData.rectangleBackground.centerX,
+                                          self.cubeList[index].cubePatchesData.rectangleBackground.centerY),
+                                        self.cubeList[index].cubePatchesData.rectangleBackground.width,
+                                        self.cubeList[index].cubePatchesData.rectangleBackground.height,
+                                       lw= 1.5, facecolor='none', edgecolor='white', gid ="RectangleBackg"))
 
             self.cubeCurrState.active = "rectangle"
 
@@ -1012,8 +1052,8 @@ class SubViz(QMainWindow,
 
         elif typePatch == "ellipse":
             ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
-            self.delete_current_patch(ax, "Ellipse")
-            self.delete_current_patch(ax, "Rectangle")
+            self.delete_current_patch(ax, "EllipseAp")
+            self.delete_current_patch(ax, "RectangleAp")
 
             if patchesData is not None:
                 ax.add_patch(Ellipse((patchesData['centerX'], patchesData['centerY']),
@@ -1029,14 +1069,26 @@ class SubViz(QMainWindow,
                                                 self.cubeList[index].cubePatchesData.ellipseSelection.aAxis,
                                                 self.cubeList[index].cubePatchesData.ellipseSelection.bAxis, facecolor='none', edgecolor='red', lw=2 ))
 
+            #If the wedge object have positive data, the wedges are gonna be drawn,
+            #otherwise it could be that the rectangle is gonna be drawn
             if self.cubeList[index].cubePatchesData.wedgesBackground.centerX != -1:
-                self.delete_current_patch(ax, "Wedge")
+                self.delete_current_patch(ax, "WedgeBackg")
                 ax.add_patch(Wedge((self.cubeList[index].cubePatchesData.wedgesBackground.centerX,
                                             self.cubeList[index].cubePatchesData.wedgesBackground.centerY),
                                       self.cubeList[index].cubePatchesData.wedgesBackground.innerRadius, 0, 360, width= 0.5))
                 ax.add_patch(Wedge((self.cubeList[index].cubePatchesData.wedgesBackground.centerX,
                                             self.cubeList[index].cubePatchesData.wedgesBackground.centerY),
                                       self.cubeList[index].cubePatchesData.wedgesBackground.outerRadius, 0, 360, width= 0.5))
+
+            elif self.cubeList[index].cubePatchesData.rectangleBackground.centerX != -1:
+
+                self.delete_current_patch(ax, "RectangleBackg")
+                ax.add_patch(Rectangle((self.cubeList[index].cubePatchesData.rectangleBackground.centerX,
+                                          self.cubeList[index].cubePatchesData.rectangleBackground.centerY),
+                                        self.cubeList[index].cubePatchesData.rectangleBackground.width,
+                                        self.cubeList[index].cubePatchesData.rectangleBackground.height,
+                                       lw= 1.5, facecolor='none', edgecolor='white', gid ="RectangleBackg"))
+
 
             self.cubeCurrState.active = "ellipse"
 
@@ -1045,22 +1097,42 @@ class SubViz(QMainWindow,
             if not self.actionDrawEllipse.isEnabled():
                 self.actionDrawEllipse.setEnabled(True)
 
-        elif typePatch == "wedges":
+        elif typePatch == "wedgesBackg":
             ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
 
-            self.delete_current_patch(ax, "Wedge")
+            self.delete_current_patch(ax, "WedgeBackg")
+            self.delete_current_patch(ax, "RectangleBackg")
             centerX, centerY = self.get_background_center(index)
             ax.add_patch(Wedge((centerX, centerY),
                                   patchesData['innerRadius'], 0, 360, width= 0.5))
             ax.add_patch(Wedge((centerX, centerY),
                                   patchesData['outerRadius'], 0, 360, width= 0.5))
 
-            #Check if newWedges is True to set the data of the new wedges
-            if newWedges:
-                self.cubeList[index].cubePatchesData.wedgesBackground.centerX = centerX
-                self.cubeList[index].cubePatchesData.wedgesBackground.centerY = centerY
-                self.cubeList[index].cubePatchesData.wedgesBackground.innerRadius = patchesData['innerRadius']
-                self.cubeList[index].cubePatchesData.wedgesBackground.outerRadius = patchesData['outerRadius']
+            self.cubeList[index].cubePatchesData.wedgesBackground.centerX = centerX
+            self.cubeList[index].cubePatchesData.wedgesBackground.centerY = centerY
+            self.cubeList[index].cubePatchesData.wedgesBackground.innerRadius = patchesData['innerRadius']
+            self.cubeList[index].cubePatchesData.wedgesBackground.outerRadius = patchesData['outerRadius']
+
+        elif typePatch == "rectangleBackg":
+            ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
+            self.delete_current_patch(ax, "RectangleBackg")
+            self.delete_current_patch(ax, "WedgeBackg")
+            ax.add_patch(Rectangle((patchesData['centerX'],
+                                    patchesData['centerY']),
+                                    abs(patchesData['ex']-patchesData['ix']),
+                                    abs(patchesData['ey']-patchesData['iy']),
+                                   lw= 1.5,facecolor = 'none', edgecolor='white',  gid ="RectangleBackg"))
+
+            self.cubeList[index].cubePatchesData.rectangleBackground.centerX = patchesData['centerX']
+            self.cubeList[index].cubePatchesData.rectangleBackground.centerY = patchesData['centerY']
+            self.cubeList[index].cubePatchesData.rectangleBackground.width = abs(patchesData['ex']-patchesData['ix'])
+            self.cubeList[index].cubePatchesData.rectangleBackground.height = abs(patchesData['ey']-patchesData['iy'])
+            self.cubeList[index].cubePatchesData.rectangleBackground.ix = patchesData['ix']
+            self.cubeList[index].cubePatchesData.rectangleBackground.iy = patchesData['iy']
+            self.cubeList[index].cubePatchesData.rectangleBackground.ex = patchesData['ex']
+            self.cubeList[index].cubePatchesData.rectangleBackground.ey = patchesData['ey']
+
+
 
         elif typePatch == "centroid":
             ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
@@ -1079,7 +1151,7 @@ class SubViz(QMainWindow,
             if self.cubeCurrState.active == "rectangle":
                 ax.add_patch(Rectangle((self.cubeList[index].cubePatchesData.rectangleSelection.ix, self.cubeList[index].cubePatchesData.rectangleSelection.iy),
                                                 self.cubeList[index].cubePatchesData.rectangleSelection.ex - self.cubeList[index].cubePatchesData.rectangleSelection.ix,
-                                                self.cubeList[index].cubePatchesData.rectangleSelection.ey - self.cubeList[index].cubePatchesData.rectangleSelection.iy, edgecolor = 'red', lw=2 ))
+                                                self.cubeList[index].cubePatchesData.rectangleSelection.ey - self.cubeList[index].cubePatchesData.rectangleSelection.iy, edgecolor = 'red', facecolor='none', lw=2, gid="RectangleAp" ))
 
             elif self.cubeCurrState.active == "ellipse":
                 ax.add_patch(Ellipse((self.cubeList[index].cubePatchesData.ellipseSelection.centerX, self.cubeList[index].cubePatchesData.ellipseSelection.centerY),
@@ -1093,6 +1165,15 @@ class SubViz(QMainWindow,
                 ax.add_patch(Wedge((self.cubeList[index].cubePatchesData.wedgesBackground.centerX,
                                         self.cubeList[index].cubePatchesData.wedgesBackground.centerY),
                                   self.cubeList[index].cubePatchesData.wedgesBackground.outerRadius, 0, 360, width= 0.5))
+
+            elif self.cubeList[index].cubePatchesData.rectangleBackground.centerX != -1:
+
+                ax.add_patch(Rectangle((self.cubeList[index].cubePatchesData.rectangleBackground.centerX,
+                                          self.cubeList[index].cubePatchesData.rectangleBackground.centerY),
+                                        self.cubeList[index].cubePatchesData.rectangleBackground.width,
+                                        self.cubeList[index].cubePatchesData.rectangleBackground.height,
+                                       lw= 1.5, facecolor='none', edgecolor='white', gid ="RectangleBackg"))
+
 
             if self.cubeList[index].centroidCoordinates.xCoordinate != -1:
 
@@ -1109,8 +1190,17 @@ class SubViz(QMainWindow,
         if typePatch == "Centroid":
             collectionReference = {"Centroid": PathCollection}
             [ax.collections.remove(marker) for marker in reversed(ax.collections) if isinstance(marker, collectionReference[typePatch])]
+
+        elif typePatch == 'RectangleAp':
+            patchReference = {"RectangleAp": Rectangle}
+            [ax.patches.remove(patch) for patch in reversed(ax.patches) if isinstance(patch, patchReference[typePatch]) and patch.get_gid() == typePatch]
+
+        elif typePatch == 'RectangleBackg':
+            patchReference = {"RectangleBackg": Rectangle}
+            [ax.patches.remove(patch) for patch in reversed(ax.patches) if isinstance(patch, patchReference[typePatch]) and patch.get_gid() == typePatch]
+
         else:
-            patchReference = {"Rectangle": Rectangle, "Ellipse": Ellipse, "Wedge": Wedge}
+            patchReference = {"EllipseAp": Ellipse, "WedgeBackg": Wedge}
             [ax.patches.remove(patch) for patch in reversed(ax.patches) if isinstance(patch, patchReference[typePatch])]
 
     def make_aperture_from_new_cube(self, index):
@@ -1146,7 +1236,7 @@ class SubViz(QMainWindow,
 
         #Draw the spectrum
         self.spectrumV.draw_spectrum(self.cubeList[index].path, fValues, wValues, color = COLORDICT[index][1], label = COLORDICT[index][0])
-        self.spectrumV.reset_range_axis()
+
 
     def make_background_from_new_cube(self, index):
         """
@@ -1155,14 +1245,28 @@ class SubViz(QMainWindow,
         :param int index: position of the cube where the background is gonna be calculated
         """
 
-        wedgesData = self.cubeList[self.subband].cubePatchesData.wedgesBackground.asdict()
+        if self.cubeList[self.subband].cubePatchesData.wedgesBackground.centerX != -1:
 
-        wedgesDataTrans = transform_wedges_subband(self.cubeList[self.subband].cubeModel, self.cubeList[index].cubeModel, copy.deepcopy(wedgesData), self.cubeList[self.subband].currSlice)
-        self.draw_patches("wedges", wedgesDataTrans, index)
+            wedgesData = self.cubeList[self.subband].cubePatchesData.wedgesBackground.asdict()
 
-        fValues_sub, bkg_sum = background_subtraction(wedgesDataTrans['centerX'], wedgesDataTrans['centerY'], wedgesDataTrans['innerRadius'], wedgesDataTrans['outerRadius'], self.cubeList[index].aperture, self.cubeList[index].cubeModel, self.cubeList[index].fluxAperture)
+            wedgesDataTrans = transform_wedges_subband(self.cubeList[self.subband].cubeModel, self.cubeList[index].cubeModel, copy.deepcopy(wedgesData), self.cubeList[self.subband].currSlice)
+            self.draw_patches("wedgesBackg", wedgesDataTrans, index)
 
-        self.spectrumV.draw_background(self.cubeList[index].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[index][0])
+            fValues_sub, bkg_sum = annulus_background_subtraction(wedgesDataTrans['centerX'], wedgesDataTrans['centerY'], wedgesDataTrans['innerRadius'], wedgesDataTrans['outerRadius'], self.cubeList[index].aperture, self.cubeList[index].cubeModel, self.cubeList[index].fluxAperture)
+
+            self.spectrumV.draw_background(self.cubeList[index].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[index][0])
+
+        elif self.cubeList[self.subband].cubePatchesData.rectangleBackground.centerX != -1:
+
+            rectangleData = self.cubeList[self.subband].cubePatchesData.rectangleBackground.asdict()
+
+            rectangleDataTrans = transform_rectangle_subband(self.cubeList[self.subband].cubeModel, self.cubeList[index].cubeModel, copy.deepcopy(rectangleData), self.cubeList[self.subband].currSlice)
+            self.draw_patches("rectangleBackg", rectangleDataTrans, index)
+
+            fValues_sub, bkg_sum = rectangle_background_subtraction(rectangleDataTrans['centerX'], rectangleDataTrans['centerY'],abs(rectangleDataTrans['ex'] - rectangleDataTrans['ix']), abs(rectangleDataTrans['ey'] - rectangleDataTrans['iy']), self.cubeList[index].aperture, self.cubeList[index].cubeModel, self.cubeList[index].fluxAperture)
+
+            self.spectrumV.draw_background(self.cubeList[index].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[index][0])
+
 
     def make_centroid_from_new_cube(self, index):
         """
@@ -1180,9 +1284,10 @@ class SubViz(QMainWindow,
 
     def clear_figures_on_cube(self, index):
         ax = [ax for ax in self.cubeList[index].axis if ax.get_gid().startswith("main_axis")][0]
-        self.delete_current_patch(ax, "Rectangle")
-        self.delete_current_patch(ax, "Ellipse")
-        self.delete_current_patch(ax, "Wedge")
+        self.delete_current_patch(ax, "RectangleAp")
+        self.delete_current_patch(ax, "EllipseAp")
+        self.delete_current_patch(ax, "WedgeBackg")
+        self.delete_current_patch(ax, "RectangleBackg")
         self.delete_current_patch(ax, "Centroid")
 
         self.cubeList[index].cubePatchesData.reset_coordinates()
@@ -1283,3 +1388,4 @@ class SubViz(QMainWindow,
         self.backgSub.close()
         self.centCoord.close()
         self.centWave.close()
+        self.cubeLoader.close()

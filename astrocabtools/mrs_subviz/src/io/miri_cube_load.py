@@ -12,9 +12,6 @@ import io
 from astropy.io import fits
 from jwst import datamodels
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-
 from ..utils.subband_position import subband_position
 
 __all__ = ['get_miri_cube_data']

@@ -9,7 +9,7 @@ with open(path.join(absPath, 'README.md'), encoding='utf-8') as f:
 
 setup(
 	name='AstroCabTools',
-	version='1.4.0',
+	version='1.4.1',
 	author='Alejandro Gorgues',
 	description='Set of analysis tools of MRS data',
         long_description=long_description,
@@ -43,8 +43,8 @@ setup(
 		'seaborn>=0.9.0',
 		'lmfit>=1.0.0',
                 'PyPubSub>=4.0.3',
-                'photutils>=1.0.1',
-                'jwst>=1.1.0',
+                'photutils<1.2>=1.1.0',
+                'jwst>=1.3.2',
 	],
 	entry_points={
 		'gui_scripts':[

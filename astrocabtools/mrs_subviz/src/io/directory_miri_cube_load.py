@@ -25,8 +25,8 @@ def get_miri_cube_subband(path):
     cubeModel = datamodels.CubeModel(path)
     start_index = list(cubeModel.extra_fits.HDRTAB.data[3]).index('MJy/sr')
 
-    photmjsr = list(cubeModel.extra_fits.HDRTAB.data[3])[340]
-    photujua2 = list(cubeModel.extra_fits.HDRTAB.data[3])[341]
+    photmjsr = list(cubeModel.extra_fits.HDRTAB.data[3])[start_index+1]
+    photujua2 = list(cubeModel.extra_fits.HDRTAB.data[3])[start_index+2]
 
     cubeModel.data = cubeModel.data*photujua2 / (1000*photmjsr)
 

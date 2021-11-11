@@ -23,8 +23,8 @@ def get_miri_cube_data(path):
     cubeModel = datamodels.CubeModel(path)
     start_index = list(cubeModel.extra_fits.HDRTAB.data[3]).index('MJy/sr')
 
-    photmjsr = list(cubeModel.extra_fits.HDRTAB.data[3])[340]
-    photujua2 = list(cubeModel.extra_fits.HDRTAB.data[3])[341]
+    photmjsr = list(cubeModel.extra_fits.HDRTAB.data[3])[start_index]
+    photujua2 = list(cubeModel.extra_fits.HDRTAB.data[3])[start_index]
 
     #photmjsr = 1.0
     #photujua2 = 1.0

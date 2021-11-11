@@ -15,8 +15,8 @@ Set of tools made in order to:
 + mrs_spec_chan.py - Visualization of relationship emitted wavelength and density flux associate (BETA version).
 + mrs_det_plot.py - Manipulation of astronomic images based of frame and integration values (BETA version).
 + fit_line.py - Representation of multiple gauss fitted models based on an spectrum.
-+ cube_ans.py - Representation and analyisis of miri cubes
-+ mrs_subviz.py - Representation and analyisis of all MRS subbands
++ cube_ans.py - Representation and analysis of miri cubes
++ mrs_subviz.py - Representation and analysis of all MRS subbands
 + quick_spec.py - Easy representation of spectra with specific format and from fit__line, cube_ans and mrs_subviz
 + all_tools - Interface that allows to load each tool without using command line.
 
@@ -42,12 +42,23 @@ For each tool, this repo uses a number of libraries and packages on python:
 + Seaborn (tested for 0.9.0)
 + lmfit (tested for 1.0.0)
 + PyPubSub (tested for 4.0.3)
-+ Photutils (tested for 1.0.1)
-+ jwst (tested for 1.1.0)
++ Photutils (tested for 1.1.0)
++ jwst (tested for 1.3.3)
 
 > We have detected a problem with older versions of Mac not working with newer versons of pip because it can not found any version of matplotlib avaliable, for this case it is recommended to create an enviroment with a **pip version** no more than **20.2.2**.
 
 ## How to install and execute
+
+> It is recommended to install and execute the tools in a clean enviroment with Anaconda or similar to prevent the conflict of package versions.
+
+If you have plans to use Anaconda, simply follow this steps once you activate it:
+
+1. Create the environment with `conda create --name myenv python=3.7` (replace `myenv` with the environment name)
+2. Activate the environment with `conda activate myenv` or `source activate myenv` if the previous one did not work (replace `myenv` with the environment name)
+3. Install and execute one of the tools from AstroCabTools following the instructions below
+
+If you are already in your conda environment or you do not need to, follow the next steps to install and execute the tools from AstroCabTools:
+
 1. Open the terminal and write `pip install AstroCabTools`
 2. Once all the libraries had been updated and the package installed, to execute each program, the next commands need to be written on the terminal:
  - `bandChan` to execute mrs_chan.
@@ -89,7 +100,6 @@ The templates for this tools can be downloaded from this [link](https://cab.inta
 New:
 
 + [ ] Online documentation
-+ [ ] Update templates zip file of cube_ans and mrs_subviz to new fits file standards
 
 Done:
 

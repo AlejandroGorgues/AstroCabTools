@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>457</width>
+    <width>825</width>
     <height>350</height>
    </rect>
   </property>
@@ -44,7 +44,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Tool that visualize the relationship between emitted wavelength and density flux associate.</string>
+         <string>Tool to visualize the relationship between emitted wavelength and density flux associate.</string>
         </property>
         <property name="scaledContents">
          <bool>false</bool>
@@ -66,7 +66,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string> Tool that identify wich channels from the MRS range, an emitted wavelenth is.</string>
+         <string> Tool to identify wich channels from the MRS range, an emitted wavelenth is.</string>
         </property>
         <property name="scaledContents">
          <bool>false</bool>
@@ -115,7 +115,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Tool that manipulate astronomic images based of frame and integration values.</string>
+         <string>Tool to manipulate astronomic images based of frame and integration values.</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -164,7 +164,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Tool that visualize multiple gauss fitted models based on an spectrum.</string>
+              <string>Tool to visualize multiple Gauss fitted models based on an spectrum.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignBottom|Qt::AlignHCenter</set>
@@ -190,7 +190,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Tool that visualize cubes given a MIRI cube format</string>
+              <string>Tool to visualize and interact a single cube given a MIRI cube format</string>
              </property>
             </widget>
            </item>
@@ -204,6 +204,26 @@
              </property>
              <property name="text">
               <string>cube_ans</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Tool to visualize and interact with all 12 cubes from the MRS channels</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="subVizButton">
+             <property name="text">
+              <string>sub_viz</string>
              </property>
             </widget>
            </item>

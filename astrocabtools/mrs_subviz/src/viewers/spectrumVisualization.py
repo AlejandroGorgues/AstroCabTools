@@ -52,7 +52,8 @@ class SpectrumV(QDialog, astrocabtools.mrs_subviz.src.ui.ui_spectrumVisualizatio
 
         self.create_spectrum_plot()
 
-        self.saveButton.clicked.connect(self.save_spectrum)
+        self.saveButton.clicked.connect(self.save_spectra)
+        self.savePNGButton.clicked.connect(self.save_png_spectra)
 
         self.loadButton.clicked.connect(self.select_parameters)
         self.selectLinesButton.clicked.connect(self.select_loi)
@@ -224,8 +225,8 @@ class SpectrumV(QDialog, astrocabtools.mrs_subviz.src.ui.ui_spectrumVisualizatio
         self.update_legend()
         self.spectrumFigure.canvas.draw()
 
-    def save_spectrum(self):
-        """ Save the spectrum as a .png file"""
+    def save_spectra(self):
+        """ Save the spectra as a .txt file"""
         try:
             fileSave = QFileDialog()
             name = fileSave.getSaveFileName(self, 'Save File')
@@ -253,10 +254,17 @@ class SpectrumV(QDialog, astrocabtools.mrs_subviz.src.ui.ui_spectrumVisualizatio
             path_file_txt = name[0] + ".txt"
             spectra_df.to_csv(path_file_txt, sep=' ', index=False)
 
-            self.spectrumFigure.savefig(name[0], dpi = 600, bbox_inches="tight")
+        except Exception as e:
+            self.show_file_extension_alert()
 
-            #np.savetxt(path_file_txt, df_spectra.values, delimiter="     ", \
-            #           header=' '.join(df_spectra.columns.values.tolist()))
+    def save_png_spectra(self):
+        """ Save the plot as a .png file """
+        try:
+            fileSave = QFileDialog()
+            fileSave.setNameFilter("PNG files (*.png)")
+            name = fileSave.getSaveFileName(self, 'Save File')
+            if name[0] !="":
+                self.spectrumFigure.savefig(name[0], dpi = 600, bbox_inches='tight')
         except Exception as e:
             self.show_file_extension_alert()
 
@@ -410,6 +418,7 @@ class SpectrumV(QDialog, astrocabtools.mrs_subviz.src.ui.ui_spectrumVisualizatio
         """
         self.zoomResetButton.setEnabled(state)
         self.saveButton.setEnabled(state)
+        self.savePNGButton.setEnabled(state)
         self.loadButton.setEnabled(state)
 
     def show_file_extension_alert(self):

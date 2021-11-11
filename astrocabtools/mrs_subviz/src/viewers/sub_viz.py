@@ -450,6 +450,7 @@ class SubViz(QMainWindow,
         else:
             stretch = SqrtStretch()
 
+        #print(self.cubeList[index].cubeModel.data)
         minV, maxV = scale.get_limits(self.cubeList[index].cubeModel.data[self.cubeList[index].currSlice])
 
         norm = ImageNormalize(vmin=minV, vmax=maxV, stretch=stretch)

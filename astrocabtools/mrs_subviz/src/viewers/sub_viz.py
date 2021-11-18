@@ -57,6 +57,8 @@ import astrocabtools.mrs_subviz.src.viewers.ellipseCoordinates as ellCoord
 import astrocabtools.mrs_subviz.src.viewers.backgroundSubtraction as backgSub
 import astrocabtools.mrs_subviz.src.viewers.centroidWavelengthSelection as centWave
 import astrocabtools.mrs_subviz.src.viewers.centroidCoordinates as centCoord
+import astrocabtools.mrs_subviz.src.viewers.collapsedWavelengthSelection as collapsedWave
+import astrocabtools.mrs_subviz.src.viewers.wavelengthRangeSelection as waveSelect
 
 import astrocabtools.mrs_subviz.src.viewers.cubeLoader as cubeLoader
 import astrocabtools.mrs_subviz.src.viewers.styleManager as styleManager
@@ -99,6 +101,7 @@ class SubViz(QMainWindow,
         self.actionSavespng.triggered.connect(self.save_figure)
         self.actionSpectrum_visualization.triggered.connect(self.spectrumVisOrders)
         self.actionBackground_subtraction.triggered.connect(lambda: self.selectSubbandOrders("backgSub"))
+        self.actionCollapsed_image.triggered.connect(lambda: self.selectSubbandOrders("collapsedSelect"))
         self.actionCalculate_centroid.triggered.connect(lambda: self.selectSubbandOrders("centroidSelect"))
         self.actionShow_centroid_coordinates.triggered.connect(lambda: self.selectSubbandOrders("centroidCoord"))
 
@@ -119,6 +122,8 @@ class SubViz(QMainWindow,
         self.cubeSelection = cubeSelect.CubeSelection()
         self.centCoord = centCoord.CentroidCoordinates()
         self.centWave = centWave.CentroidWavelengthSelection()
+        self.collapsedWave = collapsedWave.CollapsedWavelengthSelection()
+        self.waveSelect = waveSelect.WavelengthRangeSelection()
         self.styleManager = styleManager.StyleManager()
         self.sliceManager = sliceManager.SliceManager()
         self.cubeViewer = cubeViewer.CubeViewer()
@@ -141,8 +146,10 @@ class SubViz(QMainWindow,
         self.rectCreate.create_rectangle[dict, int].connect(self.create_rectangle_figure_coord)
         self.ellCreate.create_ellipse[dict, int].connect(self.create_ellipse_figure_coord)
 
-        #pub.subscribe(self.manageOrders, 'manageOrders')
+        self.collapsedWave.rangeData[int, int].connect(self.send_range_data)
+
         pub.subscribe(self.create_centroid, 'centroidCoords')
+
 
 
     def fileOrders(self):
@@ -212,16 +219,28 @@ class SubViz(QMainWindow,
             self.backgSub.show()
             self.backgSub.open()
 
+        elif order == "collapsedSelect":
+            endWave = slice_to_wavelength(self.cubeList[self.subband].cubeModel.weightmap.shape[0], self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+
+            initWave = slice_to_wavelength(0, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+
+            self.collapsedWave.clear_data()
+
+            self.collapsedWave.get_data_from_sub_viz(initWave, endWave, self.cubeList[self.subband])
+            self.collapsedWave.show()
+            self.collapsedWave.open()
+
         elif order == "centroidSelect":
             endWave = slice_to_wavelength(self.cubeList[self.subband].cubeModel.weightmap.shape[0], self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
 
-            initWave = slice_to_wavelength(1, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
+            initWave = slice_to_wavelength(0, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crpix3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.cdelt3, self.cubeList[self.subband].cubeModel.meta.wcsinfo.crval3)
 
             self.centWave.clear_data()
 
             self.centWave.get_data_from_sub_viz(initWave, endWave, self.subband, self.cubeList[self.subband], order, additionalOrder)
             self.centWave.show()
             self.centWave.open()
+
         elif order == "centroidCoord":
             self.centCoord.set_coordinates(self.cubeList[self.subband].centroidCoordinates.xCoordinate, self.cubeList[self.subband].centroidCoordinates.yCoordinate)
             self.centCoord.show()
@@ -639,8 +658,6 @@ class SubViz(QMainWindow,
             #is deleted instead of the one which is gonna be drawn
             self.cubeList[self.subband].cubePatchesData.reset_rectangleBackg()
             self.draw_patches("wedgesBackg", dataTrans, self.subband)
-        #if updateWedgesCenter:
-        #    self.draw_patches("wedges", wedgesDataTrans, self.subband)
 
             fValues_sub, bkg_sum = annulus_background_subtraction(dataTrans['centerX'], dataTrans['centerY'], dataTrans['innerRadius'], dataTrans['outerRadius'], self.cubeList[self.subband].aperture, self.cubeList[self.subband].cubeModel, self.cubeList[self.subband].fluxAperture)
             self.spectrumV.draw_background(self.cubeList[self.subband].wavelengthRange, fValues_sub, bkg_sum, COLORDICT[self.subband][0])
@@ -993,6 +1010,16 @@ class SubViz(QMainWindow,
 
         if axisWithData.count(True) == 1:
             self.set_interface_state(True)
+
+    @pyqtSlot(int, int, name="getRangeData")
+    def send_range_data(self, iw, ew):
+        """Get the flux values from the wavelength range of values to visualize it
+        :param int iw: left x wavelength value
+        :param int ew: right x wavelength value
+        """
+        self.waveSelect.draw_image(str(iw), str(ew),np.mean(self.cubeList[self.subband].cubeModel.data[iw:ew], axis=0))
+        self.waveSelect.show()
+        self.waveSelect.open()
 
     def draw_patches(self, typePatch, patchesData=None, index=None):
         """
@@ -1389,4 +1416,6 @@ class SubViz(QMainWindow,
         self.backgSub.close()
         self.centCoord.close()
         self.centWave.close()
+        self.collapsedWave.close()
+        self.waveSelect.close()
         self.cubeLoader.close()

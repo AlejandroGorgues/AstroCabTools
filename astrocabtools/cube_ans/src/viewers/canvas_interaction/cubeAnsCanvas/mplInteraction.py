@@ -264,7 +264,7 @@ class MplInteraction(object):
         return x_axes, y_axes
 
     def create_rectangle_ax(self, ax):
-        rectprops = dict(edgecolor = 'black',fill = False,
+        rectprops = dict(edgecolor = 'red',fill = False,
                          linewidth = 5, linestyle= '-')
 
         self._rectangle_selector = RectangleSelector(ax, self._callback_rectangle,
@@ -275,7 +275,7 @@ class MplInteraction(object):
         self._disable_rectangle()
 
     def create_ellipse_ax(self, ax):
-        elliprops = dict(edgecolor = 'black', fill = False,
+        elliprops = dict(edgecolor = 'red', fill = False,
                          linewidth = 5, linestyle= '-')
 
         self._ellipse_selector = EllipseSelector(ax, self._callback_ellipse,

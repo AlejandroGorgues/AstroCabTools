@@ -43,7 +43,7 @@ Data insertion
 To be able to manipulate different images, a ".fits" file needs to be selected. For each one of the images that are going to be drawn into the canvas of the second window, there are four buttons that allows to load them. Once clicked one of them, a file directory window will appear to select the ".fits" file that wants to be selected, this would change it's current representation on the canvas (see :numref:`figure1_mrsdetPlot`).
 
 .. _figure1_mrsdetPlot:
-.. figure:: _static/proj3-in1.PNG
+.. figure:: _static/mrsDetPlot/proj3-in1.PNG
 
 ------------------
 Image manipulation
@@ -55,7 +55,7 @@ File representation
 Each image is going to be represented on the second window on a specific position as show in :numref:`figure2_mrsdetPlot`.
 
 .. _figure2_mrsdetPlot:
-.. figure:: _static/proj3-re18.png
+.. figure:: _static/mrsDetPlot/proj3-re18.png
 
 ^^^^^^^^
 Colorbar
@@ -64,7 +64,7 @@ Colorbar
 After an image has been loaded, a colorbar will appear on the main window. This colorbar will change it's range once the mouse pass over one an image avaliable, and it's colours when the scale or stretch or colour of the image change.
 
 .. _figure3_mrsdetPlot:
-.. figure:: _static/proj3-in4.PNG
+.. figure:: _static/mrsDetPlot/proj3-in4.PNG
 
 ^^^^^^^^^^^^^^^^^^^^
 Image loading window
@@ -81,7 +81,7 @@ Because there are four images on the main window, the values of each one can be 
 For each image, the frame and integration values can be modify moving the corresponding sliders to the left or the right as well as modifying the text fields located to the left of each slider pressing them with the "Enter" key to change it (see :numref:`figure4_mrsdetPlot`). To change other image, it's equivalent elements need to be used.
 
 .. _figure4_mrsdetPlot:
-.. figure:: _static/proj3-in2.PNG
+.. figure:: _static/mrsDetPlot/proj3-in2.PNG
 
 ^^^^^^^^^^^^^^^
 Pixel selection
@@ -103,22 +103,22 @@ In any case new pixels need to be selected, by double clicking again on the one 
 |
 
 .. _figure5_mrsdetPlot:
-.. figure:: _static/proj3-re3.PNG
+.. figure:: _static/mrsDetPlot/proj3-re3.PNG
 
 |
 
 .. _figure6_mrsdetPlot:
-.. figure:: _static/proj3-re16.PNG
+.. figure:: _static/mrsDetPlot/proj3-re16.PNG
 
 |
 
 .. _figure7_mrsdetPlot:
-.. figure:: _static/proj3-re4.PNG
+.. figure:: _static/mrsDetPlot/proj3-re4.PNG
 
 |
 
 .. _figure8_mrsdetPlot:
-.. figure:: _static/proj3-re5.PNG
+.. figure:: _static/mrsDetPlot/proj3-re5.PNG
 
 ^^^^^^^^^^^^
 Zoom and pad
@@ -140,7 +140,7 @@ Given all the images, some characteristics, that will affect all of them at the 
 #. Fit all the figures. Pressing the "zoom fit" button will center each image on each corresponding space given initially.
 
 .. _figure9_mrsdetPlot:
-.. figure:: _static/proj3-re11.PNG
+.. figure:: _static/mrsDetPlot/proj3-re11.PNG
 
 
 
@@ -151,19 +151,19 @@ Examples
 On the first example, four ".fits" files (see :numref:`example1_mrsdetPlot`) have been loaded. After loading them, the interval has been changed to zscale, the scale to Sqrt and the frame and integration values of each one respectively to 14 and 2, 26 and 1, 1 and 2, 27 and 3 (see :numref:`example2_mrsdetPlot`).
 
 .. _example1_mrsdetPlot:
-.. figure:: _static/proj3-re12.PNG
+.. figure:: _static/mrsDetPlot/proj3-re12.PNG
 
 |
 
 .. _example2_mrsdetPlot:
-.. figure:: _static/proj3-re13.PNG
+.. figure:: _static/mrsDetPlot/proj3-re13.PNG
 
 On the second example based on the first example, a pixel has been selected for each one of the images (see :numref:`example3_mrsdetPlot`), showing the values of the pixels at the bottom of the interface (see :numref:`example4_mrsdetPlot`).
 
 .. _example3_mrsdetPlot:
-.. figure:: _static/proj3-re14.PNG
+.. figure:: _static/mrsDetPlot/proj3-re14.PNG
 
 |
 
 .. _example4_mrsdetPlot:
-.. figure:: _static/proj3-re15.PNG
+.. figure:: _static/mrsDetPlot/proj3-re15.PNG

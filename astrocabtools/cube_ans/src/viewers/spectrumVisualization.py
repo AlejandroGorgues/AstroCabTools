@@ -37,7 +37,8 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
 
         self.create_spectrum_plot()
 
-        self.saveButton.clicked.connect(self.save_spectrum)
+        self.saveTextButton.clicked.connect(self.save_spectrum_as_text)
+        self.savePNGButton.clicked.connect(self.save_plot_as_png)
         self.loadButton.clicked.connect(self.select_parameters)
 
         self.specPars = specPars.SpectrumParametersSelection()
@@ -71,17 +72,6 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
         :param float x: wavelength value
         """
         self.spectrumFigure.pan_zoom.draw_line_position(x)
-
-    def set_figure_coordinates(self, figureData, typeFigure):
-        self.figureData["data"] = figureData
-        self.figureData["type"] = typeFigure
-
-        if self.figureData["type"] == "rectangle":
-            self.rangeSelect.get_rectangle_data(x0 = self.figureData["data"][0][0], y0 = self.figureData["data"][0][1],
-                                            width = self.figureData["data"][0][2], height  = self.figureData["data"][0][3])
-        else:
-            self.rangeSelect.get_ellipse_data(centerX = self.figureData["data"][1][0], centerY = self.figureData["data"][1][1],
-                                            aAxis = self.figureData["data"][0][2], bAxis = self.figureData["data"][0][3])
 
     def draw_spectrum(self, path, fValues, wValues, wUnits, fUnits):
         """
@@ -143,13 +133,13 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
 
         self.delete_duplicated_lines()
         self.ax.plot(self.wValues, bkg_sum, 'r-', gid="sum", label="Sum background")
-        self.ax.plot(self.wValues, fValues_sub, 'g-', gid="subtr", label="Backgrond subtracted spectrum")
+        self.ax.plot(self.wValues, fValues_sub, 'g-', gid="subtr", label="Background subtracted spectrum")
         self.update_legend()
 
         self.spectrumFigure.canvas.draw()
 
     def delete_duplicated_lines(self):
-        """ Delete the sum background and bacground subtraction spectrum
+        """ Delete the sum background and background subtraction spectrum
         to be able to load again without duplicate them
         """
         lines = [line for line in self.ax.lines if line.get_gid() == "sum" or line.get_gid() == "subtr"]
@@ -181,16 +171,6 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
 
         self.rangeSelect.draw_image(iw, ew, data)
 
-        if self.figureData["type"] == "rectangle":
-            #Because the yaxis goes from min value to max value insted of max to min,
-            #the y0 value must be the sum of the width + the lower y value, and the
-            #height be negative to be able to draw the rectangle
-
-            self.rangeSelect.get_rectangle_data(x0 = self.figureData["data"][0][0], y0 = self.figureData["data"][0][1]+ self.figureData["data"][0][3],
-                                            width = self.figureData["data"][0][2], height  = -1*self.figureData["data"][0][3])
-        else:
-            self.rangeSelect.get_ellipse_data(centerX = self.figureData["data"][1][0], centerY = self.figureData["data"][1][1],
-                                            aAxis = self.figureData["data"][0][2], bAxis = self.figureData["data"][0][3])
         self.rangeSelect.show()
         self.rangeSelect.open()
 
@@ -225,7 +205,7 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
             self.show_file_extension_alert()
 
     @pyqtSlot()
-    def save_spectrum(self):
+    def save_spectrum_as_text(self):
         """ Save the spectrum as a .png file"""
         try:
             fileSave = QFileDialog()
@@ -252,6 +232,17 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
             df_spectra.to_csv(path_file_txt, sep=' ', index=False)
             #np.savetxt(path_file_txt, df_spectra.values, delimiter="     ", \
             #           header='             '.join(df_spectra.columns.values.tolist()), comments='')
+        except Exception as e:
+            self.show_file_extension_alert()
+
+    def save_plot_as_png(self):
+        """ Save the plot as a .png file """
+        try:
+            fileSave = QFileDialog()
+            fileSave.setNameFilter("PNG files (*.png)")
+            name = fileSave.getSaveFileName(self, 'Save File')
+            if name[0] !="":
+                self.spectrumFigure.savefig(name[0], dpi = 600, bbox_inches='tight')
         except Exception as e:
             self.show_file_extension_alert()
 
@@ -315,7 +306,8 @@ class SpectrumV(QDialog, astrocabtools.cube_ans.src.ui.ui_spectrumVisualization.
         self.createRangeButton.setEnabled(state)
         self.moveRangeButton.setEnabled(state)
         self.zoomResetButton.setEnabled(state)
-        self.saveButton.setEnabled(state)
+        self.saveTextButton.setEnabled(state)
+        self.savePNGButton.setEnabled(state)
         self.loadButton.setEnabled(state)
 
     def show_file_extension_alert(self):

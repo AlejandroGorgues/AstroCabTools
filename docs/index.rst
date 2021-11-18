@@ -36,6 +36,7 @@ Libraries Used
 * `Lmfit <https://lmfit.github.io//lmfit-py/>`_ - Non-Linear Least-Squares Minimization and Curve-Fitting for python.
 * `PyPubSub <https://github.com/schollii/pypubsub/>`_ - Package that provides a publish-subscrive API.
 * `Photutils <https://photutils.readthedocs.io/en/stable/#>`_ - Package that provides tools for detecting and performing photometry of astronomical sources.
+* `jwst <https://jwst-pipeline.readthedocs.io/en/latest/jwst/datamodels/index.html>`_ - Package that provides standard data models for the current cubes version to interact easily with.
 
 ==================
 Tools Installation
@@ -81,6 +82,11 @@ fit_line execution:
 
        $ fitLine
 
+cube_ans execution:
+
+.. code-block:: bash
+       $ cubeAns
+
 =============
 Beta Versions
 =============
@@ -98,6 +104,8 @@ Tutorials
 #. :ref:`mrs_det_plot_tutorial`
 
 #. :ref:`fit_line_tutorial`
+
+#. :ref:`cube_ans_tutorial`
 
 #. :ref:`all_tools_tutorial`
 
@@ -123,5 +131,6 @@ Table of Contents
    mrs_spec_chan_tutorial
    mrs_det_plot_tutorial
    fit_line_tutorial
+   cube_ans_tutorial
    all_tools_tutorial
    templates

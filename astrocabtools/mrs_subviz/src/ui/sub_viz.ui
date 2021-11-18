@@ -141,6 +141,7 @@
     <addaction name="separator"/>
     <addaction name="actionBackground_subtraction"/>
     <addaction name="menuShow_figure"/>
+    <addaction name="actionCollapsed_image"/>
     <addaction name="actionCalculate_centroid"/>
     <addaction name="actionShow_centroid_coordinates"/>
    </widget>
@@ -404,6 +405,11 @@
   <action name="actionShow_centroid_coordinates">
    <property name="text">
     <string>Show centroid coordinates</string>
+   </property>
+  </action>
+  <action name="actionCollapsed_image">
+   <property name="text">
+    <string>Get collapsed image</string>
    </property>
   </action>
  </widget>

@@ -41,6 +41,7 @@ class CubeSelection(QDialog, astrocabtools.mrs_subviz.src.ui.ui_cubeSelection.Ui
                           "rectangleCreate":"Operation: create rectangle from coordinates",
                           "ellipseCreate":"Operation: create ellipse from coordinates",
                           "backgSub":"Operation: generate background",
+                          "collapsedSelect": "Operation: generate collapsed image",
                           "centroidSelect":"Operation: calculate centroid",
                           "centroidCoord":"Operation: show coordinates of centroid"}
         self.order = order

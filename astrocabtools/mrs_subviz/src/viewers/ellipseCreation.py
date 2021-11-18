@@ -24,10 +24,10 @@ class EllipseCreation(QDialog, astrocabtools.mrs_subviz.src.ui.ui_ellipseCreatio
         super(EllipseCreation, self).__init__(parent)
         self.setupUi(self)
 
-        self.centerXLineEdit.setValidator(QtGui.QDoubleValidator(bottom=0.0))
-        self.centerYLineEdit.setValidator(QtGui.QDoubleValidator(bottom=0.0))
-        self.aAxisLineEdit.setValidator(QtGui.QDoubleValidator(bottom=0.0))
-        self.bAxisLineEdit.setValidator(QtGui.QDoubleValidator(bottom=0.0))
+        #self.centerXLineEdit.setValidator(QtGui.QDoubleValidator(bottom=0.0))
+        #self.centerYLineEdit.setValidator(QtGui.QDoubleValidator(bottom=0.0))
+        #self.aAxisLineEdit.setValidator(QtGui.QDoubleValidator(bottom=0.0))
+        #self.bAxisLineEdit.setValidator(QtGui.QDoubleValidator(bottom=0.0))
 
         self.createButtonPixel.clicked.connect(lambda: self.update_ellipse_pixel(0))
         self.createButtonCoord.clicked.connect(lambda: self.update_ellipse_pixel(1))

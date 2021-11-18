@@ -34,5 +34,5 @@ def get_megara_cube_data(path):
     cubeModel.meta.wcsinfo.cunit3 = [item[1] for item in cubeModel.extra_fits.PRIMARY.header if item[0] == "CUNIT3"][0]
 
     cubeModel.data = cubeModel.extra_fits.PRIMARY.data
-    return cubeModel.meta.wcsinfo.cunit3[:3] != 'um' or cubeModel.meta.bunit_data != 'mJy',cubeModel
+    return cubeModel
 

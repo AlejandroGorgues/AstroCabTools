@@ -29,4 +29,4 @@ The tool consist in one window that cointains one button and a description for e
 After one of the buttons has been pressed, the tool associated with that button will load, with the possibility to press more buttons to load all the different tools that appear on the window.
 
 .. _figure1_allTools:
-.. figure:: _static/proj5-in1.png
+.. figure:: _static/allTools/allTools-in1.png

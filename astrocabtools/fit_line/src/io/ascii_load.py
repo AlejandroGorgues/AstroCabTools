@@ -30,7 +30,7 @@ def apply_redshift_to_txt(path, z, wColumn, fColumn, wUnits, fUnits):
 
     #data2 = np.loadtxt(path, delimiter=' ', skiprows=1, usecols=(wColumn, fColumn))
     #Obtain the values of the emmited wavelength
-    data2 = pd.read_csv(path, delimiter=' ', skiprows=0,usecols=[wColumn, fColumn])
+    data2 = pd.read_csv(path, delimiter=' ', skiprows=0,usecols=[wColumn, fColumn], comment = '#')
     data2.dropna(inplace=True)
     wavelength= data2.iloc[:,0]
     flux = data2.iloc[:,1]

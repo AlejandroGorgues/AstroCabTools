@@ -75,8 +75,8 @@ class CentroidWavelengthSelection(QDialog, astrocabtools.mrs_subviz.src.ui.ui_ce
         """
         self.initRange = initRange
         self.endRange = endRange
-        self.initialRangeLabel.setText(str(initRange))
-        self.endRangeLabel.setText(str(endRange))
+        self.initialWavelengthLineEdit.setText(str(initRange))
+        self.endWavelengthLineEdit.setText(str(endRange))
         self.subband = 0
         self.cubeParams = cubeParams
         self.order = order
@@ -92,6 +92,8 @@ class CentroidWavelengthSelection(QDialog, astrocabtools.mrs_subviz.src.ui.ui_ce
     def clear_data(self):
         self.initialWavelengthLineEdit.setText('')
         self.endWavelengthLineEdit.setText('')
+        self.initialRangeWavelengthLineEdit.setText('')
+        self.endRangeWavelengthLineEdit.setText('')
         self.initRange = -1
         self.endRange = -1
         self.subband = 0

@@ -168,6 +168,8 @@ class Ui_sub_viz(object):
         self.actionEllipse.setObjectName("actionEllipse")
         self.actionShow_centroid_coordinates = QtWidgets.QAction(sub_viz)
         self.actionShow_centroid_coordinates.setObjectName("actionShow_centroid_coordinates")
+        self.actionCollapsed_image = QtWidgets.QAction(sub_viz)
+        self.actionCollapsed_image.setObjectName("actionCollapsed_image")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSavespng)
         self.menuShow_figure.addAction(self.actionDrawRectangle)
@@ -194,6 +196,7 @@ class Ui_sub_viz(object):
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionBackground_subtraction)
         self.menuTools.addAction(self.menuShow_figure.menuAction())
+        self.menuTools.addAction(self.actionCollapsed_image)
         self.menuTools.addAction(self.actionCalculate_centroid)
         self.menuTools.addAction(self.actionShow_centroid_coordinates)
         self.menuBar.addAction(self.menuFile.menuAction())
@@ -257,4 +260,5 @@ class Ui_sub_viz(object):
         self.actionRectangle.setText(_translate("sub_viz", "Rectangle Aperture"))
         self.actionEllipse.setText(_translate("sub_viz", "Ellipse Aperture"))
         self.actionShow_centroid_coordinates.setText(_translate("sub_viz", "Show centroid coordinates"))
+        self.actionCollapsed_image.setText(_translate("sub_viz", "Get collapsed image"))
 

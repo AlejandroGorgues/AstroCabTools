@@ -333,7 +333,6 @@ class CubeAns(QMainWindow,
         minV, maxV = scale.get_limits(self.cubeModel.data[self.globalStats.currSlice])
 
         norm = ImageNormalize(vmin=minV, vmax=maxV, stretch=stretch)
-
         return norm
 
     def obtain_range_data(self, iw, ew):
@@ -352,9 +351,8 @@ class CubeAns(QMainWindow,
         else:
             if iw_slice < 0:
                 iw_slice = 0
-            #cubeModel = get_miri_cube_data(self.globalStats.path)[1]
             data = self.cubeModel.data[iw_slice:ew_slice]
-            data_converted = np.sum(data, axis=0)
+            data_converted = np.mean(data, axis=0)
             self.spectrumV.show_range_data(str(round(iw,5)), str(round(ew,5)), data_converted)
 
     def select_area_rectangle(self):
@@ -378,9 +376,6 @@ class CubeAns(QMainWindow,
             #Set the position of the circle that follows the current slice
             wavelength_value = slice_to_wavelength(self.sliceSlider.value(), self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)
             self.spectrumV.update_wavelength_line(wavelength_value)
-
-            #Set the coordinates of the rectangle figure to be drawn in the range dialog
-            self.spectrumV.set_figure_coordinates(rectangleData, "rectangle")
 
             #Set the parameters the background operation will use
             self.backgSub.update_center_data(rectangleData, self.cubeModel, aperture, fValues)
@@ -411,9 +406,6 @@ class CubeAns(QMainWindow,
             #Set the position of the circle that follows the current slice
             wavelength_value = slice_to_wavelength(self.sliceSlider.value(), self.cubeModel.meta.wcsinfo.crpix3, self.cubeModel.meta.wcsinfo.cdelt3, self.cubeModel.meta.wcsinfo.crval3)
             self.spectrumV.update_wavelength_line(wavelength_value)
-
-            #Set the coordinates of the rectangle figure to be drawn in the range dialog
-            self.spectrumV.set_figure_coordinates(ellipseData, "ellipse")
 
             #Set the parameters the background operation will use
             self.backgSub.update_center_data(ellipseData, self.cubeModel, aperture, fValues)
@@ -540,11 +532,8 @@ class CubeAns(QMainWindow,
 
     def load_file(self, path, cubeModel):
         cubeLoadDict = {"MIRI":get_miri_cube_data, "MUSE": get_muse_cube_data, "MEGARA": get_megara_cube_data}
-        units_control, self.cubeModel = cubeLoadDict[cubeModel](path)
+        self.cubeModel = cubeLoadDict[cubeModel](path)
 
-        #If the units of the MIRI cube are not right, show a waring
-        if units_control:
-            self.units_warning()
         self.set_widgets_values()
 
         #Print the slice of the cube
@@ -580,13 +569,6 @@ class CubeAns(QMainWindow,
         alert.setText(message)
         alert.setDetailedText(traceback.format_exc())
         alert.exec_()
-
-    def units_warning(self):
-        warning = QMessageBox()
-        warning.setWindowTitle("Warning")
-        warning.setIcon(QMessageBox.Warning)
-        warning.setText("The units of Wavelength and Flux should be 'um' and 'MJy/sr'")
-        warning.exec_()
 
     def max_range_warning(self):
         warning = QMessageBox()

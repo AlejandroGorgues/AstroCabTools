@@ -11,8 +11,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_ellipseCreation(object):
     def setupUi(self, ellipseCreation):
         ellipseCreation.setObjectName("ellipseCreation")
-        ellipseCreation.resize(475, 175)
-        ellipseCreation.setMinimumSize(QtCore.QSize(475, 175))
+        ellipseCreation.resize(600, 175)
+        ellipseCreation.setMinimumSize(QtCore.QSize(600, 175))
         self.gridLayout_2 = QtWidgets.QGridLayout(ellipseCreation)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.gridLayout = QtWidgets.QGridLayout()

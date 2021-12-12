@@ -6,11 +6,11 @@ Cube Ans Tutorial
 Overview
 --------
 
-Cube_Ans allows to represent a space cube that comes from a MIRI cube in form of an image for each slice with the options to move along each one.
-Based on the image represented, a rectangle or ellipse selection can be made on it, showing an spectrum along all the slices, with the posibility to represent it in the fit_line tool.
+Cube_Ans allows to represent a galaxy cube that comes from a MIRI, MUSE or MEGARA cube structure in form of an image for each slice with the options to move through each one.
+Based on the image represented, an aperture operation along with the background subtraction operation can be made on it, showing different spectra along all the slices, with the posibility to represent it in the fit_line tool.
 
 .. note::
-        Only works with the MIRI Cube format
+        Only works with the MIRI, MUSE or MEGARA Cube format
 
 Requirements
 -------------
@@ -33,7 +33,7 @@ Initial display
 After the tool is loaded, a window with a menu bar and several buttons in it at the top of it will appear which will interact with the images on the canvas.
 
 Data insertion
-------------
+--------------
 
 To be able to interact with the images the "Open" button in the "File" menu option on the top left of the window need to be pressed, showing a new window which will allow to select the type of cube that is going be loaded. The selection of the cube is necessary because of the different headers that each cube has (see :numref:`figure1_cube_ans`).
 
@@ -43,7 +43,7 @@ To be able to interact with the images the "Open" button in the "File" menu opti
 Data interaction
 ----------------
 
-Once the cube has been selected, the first slice, which corresponds to the first wavelenght, will appear on the canvas (see :numref:`figure2_cube_ans`). Using the top componentes, the slice can be changed with:
+Once the cube has been selected, the first slice, which corresponds to the first wavelenght, will appear on the canvas (see :numref:`figure2_cube_ans`). Using the top components, the slice can be changed with:
 
 * An slider that has a range determinated from the minimum and máximum value of the wavelength. Once it has been moved, the "Slice Value" spin, the "Wavelength Value" text edit field and the current image will changed with it's associated values based on the current wavelength, slice values and image index.
 * An spin that can be used to changed to the slice that want to be shown. As told before, once this field change, the other components related will change too.
@@ -52,7 +52,7 @@ Once the cube has been selected, the first slice, which corresponds to the first
 .. _figure2_cube_ans:
 .. figure:: _static/cubeAns/cubeAns-re2.png
 
-.. _Image manipulation:
+.. _Image manipulation cubeAns:
 
 Image manipulation
 ^^^^^^^^^^^^^^^^^^
@@ -66,8 +66,8 @@ The "Tools" option in the menu bar contains multiple sections related to differe
 * The Rectangle aperture and Ellipse aperture options allow to select an area based on the type of figure and make the aperture to obtain the associated spectrum. This complete process will be explained in the `Rectangle manipulation`_ and `Ellipse manipulation`_ sections.
 * The Creation of the rectangle and ellipse paremeterized options allow to implement the aperture as the option before but in this case, the figure is created based on the pixel coordinates inserted previously. This complete process will be explained in the `Rectangle manipulation`_ and `Ellipse manipulation`_ section.
 * The Rectangle coordinates and Ellipse coordinates options allow to see the coordinates in pixels of each of the figure.
-* The Spectrum visualization option allow to see, if the window was closed before, the spectra made from the aperture and background operations. This complete process will be explained in the `Background subtraction process`_ section.
-* The Background subtraction option allow to obtain the spectrum as a result of the background subtraction from the aperture made initially and the annulus aperture made through this process along with the spectrum made from this annulus apperture, whose complete functionality will be explained in the `Background subtraction`_ section.
+* The Spectrum visualization option allow to see, if the window was closed before, the spectra made from the aperture and background operations. This complete process will be explained in the `Background subtraction cubeAns`_ section.
+* The Background subtraction option allow to obtain the spectrum as a result of the background subtraction from the aperture made initially and the annulus aperture made through this process along with the spectrum made from this annulus apperture, whose complete functionality will be explained in the `Background subtraction cubeAns`_ section.
 
 .. _figure3_cube_ans:
 .. figure:: _static/cubeAns/cubeAns-re3.png
@@ -83,13 +83,12 @@ The third option listed on the top bar corresponds to the style which allows to 
 .. _figure4_cube_ans:
 .. figure:: _static/cubeAns/cubeAns-re4.png
 
-
 Rectangle manipulation
 ^^^^^^^^^^^^^^^^^^^^^^
 Related to the rectangle manipulation, three options can be selected:
 
 1. The "Rectangle aperture" option, which allow to obtain the aperture spectrum associated to the rectangle area.
-   After the option has been selected, the rectangle figure will be able to be drawn manually on the current image (see :numref:`figure5_cube_ans`). Once the figure has been created, a new window will appear, showing the spectrum associated to the aperture along with different buttons, whose functionality will be explained in the `Spectrum visualization`_ section.
+   After the option has been selected, the rectangle figure will be able to be drawn manually on the current image (see :numref:`figure5_cube_ans`). Once the figure has been created, a new window will appear, showing the spectrum associated to the aperture along with different buttons, whose functionality will be explained in the `Spectrum visualization cubeAns`_ section.
 2. The "Rectangle Coordinates" option will show a new window that contains the X and Y coordinates of the left, right, top and bottom side of the rectangle, which will update when the figure change (see :numref:`figure6_cube_ans`).
 3. The "Creation of Rectangle parameterized" option will allow to update or create in a new window the same rectangle figure as the one created in the first point, given the coordinates in pixels. The figure can be created or updated using the bottom left or the center coordinates along with the height and the width, which can be written in it's associated text fields. Once the parameters had been written, the button located at the bottom of the window will update the coordinates of it (see :numref:`figure7_cube_ans`).
 
@@ -111,11 +110,11 @@ Ellipse manipulation
 Related to the ellipse manipulation, three options can be selected:
 
 1. The "Ellipse aperture" option, which allow to obtain the aperture spectrum associated to the ellipse area.
-   After the option has been selected, the ellipse figure will be able to be drawn manually on the current image. Once the figure has been created, a new window will appear, showing the spectrum associated to the aperture along with different buttons, whose functionality will be explained in the `Spectrum visualization`_ section.
+   After the option has been selected, the ellipse figure will be able to be drawn manually on the current image. Once the figure has been created, a new window will appear, showing the spectrum associated to the aperture along with different buttons, whose functionality will be explained in the `Spectrum visualization cubeAns`_ section.
 2. The "Ellipse Coordinates" option will show a new window that contains the X and Y coordinates of the top and bottom side of the ellipse, and the value in pixels of the major and minor axis, which will update when the figure change.
 3. The "Creation of Ellipse parameterized" option will allow to update or create in a new window the same ellipse figure as the one created in the first point, given the coordinates in pixels. The figure can be created or updated using the center coordinates along with the size of the major and minor axis, which can be written in it's associated text fields. Once the parameters had been written, the button located at the bottom of the window will update the coordinates of it.
 
-.. _Spectrum visualization:
+.. _Spectrum visualization cubeAns:
 
 Spectrum visualization
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -145,12 +144,12 @@ Below the representation, several buttons appears:
 .. _figure10_cube_ans:
 .. figure:: _static/cubeAns/cubeAns-re10.png
 
-.. _Background subtraction:
+.. _Background subtraction cubeAns:
 
 Background subtraction
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Another feature is the possibility to obtain the spectrum resulting from the subtraction of a background delimited parametrically from the spectrum of the aperture created manually. In order to delimite the area of the background the first aperture where corresponds to the rectangle or the ellipse figure need to have been drawn, and then an annulus aperture will be created to implement the background operation. The position in pixels of both rings to perform the annulus aperture will be written in the next window after pressing the "Background subtraction" option in the menu (see :numref:`figure11_cube_ans`). As a result, two new spectra will appear on the spectrumVisualization window, where the red one corresponds to the annulus aperture, an the green one to the background subtraction (see :numref:`figure12_cube_ans`), and two new figures will appear in the main window showing the rings (see :numref:`figure13_cube_ans`).
+Another feature is the possibility to obtain the spectrum resulting from the subtraction of a background delimited parametrically from the spectrum of the aperture created manually. In order to delimite the area of the background, the initial aperture must have been drawn, and then an annulus aperture will be created to implement the background operation. The position in pixels of both rings to perform the annulus aperture will be written in the next window after pressing the "Background subtraction" option in the menu (see :numref:`figure11_cube_ans`). As a result, two new spectra will appear on the spectrumVisualization window, where the red one corresponds to the annulus aperture, an the green one to the background subtraction (see :numref:`figure12_cube_ans`), and two new figures will appear in the main window showing the rings (see :numref:`figure13_cube_ans`).
 
 .. _figure11_cube_ans:
 .. figure:: _static/cubeAns/cubeAns-re11.png

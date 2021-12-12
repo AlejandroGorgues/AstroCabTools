@@ -85,7 +85,14 @@ fit_line execution:
 cube_ans execution:
 
 .. code-block:: bash
+
        $ cubeAns
+
+mrs_sub_viz execution:
+
+.. code-block:: bash
+
+       $ subViz
 
 =============
 Beta Versions
@@ -106,6 +113,8 @@ Tutorials
 #. :ref:`fit_line_tutorial`
 
 #. :ref:`cube_ans_tutorial`
+
+#. :ref:`mrs_sub_viz_tutorial`
 
 #. :ref:`all_tools_tutorial`
 
@@ -132,5 +141,6 @@ Table of Contents
    mrs_det_plot_tutorial
    fit_line_tutorial
    cube_ans_tutorial
+   mrs_sub_viz_tutorial
    all_tools_tutorial
    templates

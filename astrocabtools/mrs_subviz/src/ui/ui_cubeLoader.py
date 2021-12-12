@@ -11,8 +11,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_cubeLoader(object):
     def setupUi(self, cubeLoader):
         cubeLoader.setObjectName("cubeLoader")
-        cubeLoader.resize(670, 170)
-        cubeLoader.setMinimumSize(QtCore.QSize(670, 170))
+        cubeLoader.resize(700, 170)
+        cubeLoader.setMinimumSize(QtCore.QSize(700, 170))
         self.gridLayout_2 = QtWidgets.QGridLayout(cubeLoader)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.gridLayout = QtWidgets.QGridLayout()

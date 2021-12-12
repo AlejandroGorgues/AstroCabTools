@@ -11,8 +11,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_rectangleCreation(object):
     def setupUi(self, rectangleCreation):
         rectangleCreation.setObjectName("rectangleCreation")
-        rectangleCreation.resize(525, 210)
-        rectangleCreation.setMinimumSize(QtCore.QSize(525, 210))
+        rectangleCreation.resize(600, 210)
+        rectangleCreation.setMinimumSize(QtCore.QSize(600, 210))
         self.gridLayout_2 = QtWidgets.QGridLayout(rectangleCreation)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.gridLayout = QtWidgets.QGridLayout()

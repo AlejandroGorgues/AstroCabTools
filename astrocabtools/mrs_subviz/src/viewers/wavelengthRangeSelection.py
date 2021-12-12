@@ -60,7 +60,7 @@ class WavelengthRangeSelection(QDialog, astrocabtools.mrs_subviz.src.ui.ui_wavel
         #Set color map of the image to be gray for better visualization of the image
         plt.set_cmap(plt.get_cmap(("gray")))
 
-        self.ax.imshow(data, origin='lower', aspect='auto', extent=[1, data.shape[0]+1, 1, data.shape[1]+1])
+        self.ax.imshow(data, origin='lower', aspect='auto')
         self.imageRangeFigure.pan_zoom.set_initial_limits(data.shape[0], data.shape[1])
         self.imageRangeFigure.pan_zoom.zoom_reset()
 
